@@ -1,0 +1,67 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "composite": false,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "disableSourceOfProjectReferenceRedirect": true,
+    "disableSolutionSearching": true,
+    "disableReferencedProjectLoad": true,
+
+    "target": "esnext",
+    "lib": ["esnext"],
+    "useDefineForClassFields": true,
+    "moduleDetection": "auto",
+
+    "module": "NodeNext",
+    "rootDir": "./src",
+    "moduleResolution": "NodeNext",
+    "baseUrl": "./",
+    "allowUmdGlobalAccess": false,
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+
+    "allowJs": false,
+    "checkJs": false,
+
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "./dist",
+    "removeComments": true,
+    "importHelpers": true,
+    "noEmitOnError": true,
+
+    "isolatedModules": false,
+    "isolatedDeclarations": false,
+    "erasableSyntaxOnly": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "preserveSymlinks": false,
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strictPropertyInitialization": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "strictBuiltinIteratorReturn": false,
+    "alwaysStrict": true,
+    "useUnknownInCatchVariables": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitThis": false,
+
+    "skipLibCheck": true,
+    "types":["node"],
+    "verbatimModuleSyntax":true,
+    "noEmit":false
+  }
+}
+

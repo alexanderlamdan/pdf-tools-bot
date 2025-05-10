@@ -1,0 +1,16 @@
+{
+  "name": "pdf-tools-bot",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@types/node": "^22.14.1",
+    "dotenv": "^16.5.0",
+    "grammy": "^1.36.1",
+    "nodemon": "^3.1.9",
+    "tslib": "^2.8.1"
+  }
+}
