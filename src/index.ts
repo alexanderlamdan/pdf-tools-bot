@@ -1,33 +1,16 @@
-import { createServer } from 'http';
-import { TelegramBot } from './core/TelegramBot.js';
+import express from 'express';
 import { config } from './shared/config/config.js';
+import { TelegramBot } from './core/TelegramBot.js';
 
-const telegramBot = new TelegramBot();
-const bot = telegramBot.getBot();
+const bot = new TelegramBot();
+const app = express();
 
-const server = createServer((req, res) => {
-	if (req.method === 'POST' && req.url === config.path) {
-		let body = '';
+app.use(express.json()); // вот зачем нужен express — он сам парсит JSON
 
-		req.on('data', chunk => (body += chunk));
-		req.on('end', async () => {
-			try {
-				const update = JSON.parse(body);
-				await bot.handleUpdate(update); // это то, что нужно!
-				res.writeHead(200);
-				res.end('OK');
-			} catch (err) {
-				console.error('Ошибка в webhook:', err);
-				res.writeHead(500);
-				res.end('fail');
-			}
-		});
-	} else {
-		res.writeHead(404);
-		res.end();
-	}
-});
+app.post(config.path, bot.webhookCallback); // '/bot/dailyvital'
 
-server.listen(config.port, () => {
-	console.log(`✅ Webhook-сервер слушает на порту ${config.port}`);
+app.get('/', (_, res) => res.send('OK')); // простая проверка
+
+app.listen(Number(config.port), () => {
+	console.log(`✅ Express сервер слушает порт ${config.port}, путь webhook: ${config.path}`);
 });

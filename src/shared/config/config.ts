@@ -1,5 +1,4 @@
 import "dotenv/config";
-import type {BotConfig} from '../../types/BotConfig.js';
 
 if(!process.env.BOT_TOKEN){
 
@@ -10,10 +9,9 @@ if(!process.env.BOT_TOKEN){
 export const config = {
 
 	token: process.env.BOT_TOKEN,
-	apiRoot: "http://localhost:8081",
+	path: process.env.WEBHOOK_PATH || "/bot/pdf-tools",
 	mode: process.env.MODE || "webhook",
-	port: Number(process.env.PORT || 3003),
-	path: process.env.WEBHOOK_PATH || '/',
-	adminId:Number(process.env.ADMIN_ID || 0)
+	adminId:Number(process.env.ADMIN_ID || 0),
+	port: Number(process.env.PORT) || 3003
 
 };
