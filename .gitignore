@@ -18,3 +18,5 @@ Thumbs.db
 
 .tsbuildinfo
 config.json
+src/shared/config/index.ts
+src/shared/config/index.js
