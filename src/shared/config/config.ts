@@ -1,4 +1,4 @@
-import {localConfig} from './index.js';
+import {localConfig} from './localConfig.js';
 export const config = {
 
 	token: localConfig.bot_token,
