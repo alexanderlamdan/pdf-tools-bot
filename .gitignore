@@ -19,4 +19,4 @@ Thumbs.db
 .tsbuildinfo
 config.json
 src/shared/config/localConfig.ts
-src/shared/config/localConfig.js
+dist/shared/config/localConfig.js
