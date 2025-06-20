@@ -1,16 +1,22 @@
+import fs      from 'fs';
+import http    from 'http';
 import express from 'express';
-import { config } from './shared/config/config.js';
+import { config }   from './shared/config/config.js';
 import { TelegramBot } from './core/TelegramBot.js';
 
 const bot = new TelegramBot();
 const app = express();
 
-app.use(express.json()); // вот зачем нужен express — он сам парсит JSON
+app.use(express.json());
+app.post(config.path, bot.webhookCallback);
+app.get('/', (_, res) => res.send('OK'));
 
-app.post(config.path, bot.webhookCallback); // '/bot/dailyvital'
+/* ───── единственный режим ──── */
+const SOCKET = `/run/bots/${config.botName}.sock`;
 
-app.get('/', (_, res) => res.send('OK')); // простая проверка
+if (fs.existsSync(SOCKET)) fs.unlinkSync(SOCKET);
 
-app.listen(Number(config.port), () => {
-	console.log(`✅ Express сервер слушает порт ${config.port}, путь webhook: ${config.path}`);
+http.createServer(app).listen(SOCKET, () => {
+	fs.chmodSync(SOCKET, 0o660);           // rw-rw-––
+	console.log(`✅ Daily-Vital запущен на ${SOCKET}, webhook: ${config.path}`);
 });
