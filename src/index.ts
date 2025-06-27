@@ -18,5 +18,5 @@ if (fs.existsSync(SOCKET)) fs.unlinkSync(SOCKET);
 
 http.createServer(app).listen(SOCKET, () => {
 	fs.chmodSync(SOCKET, 0o660);           // rw-rw-––
-	console.log(`✅ Daily-Vital запущен на ${SOCKET}, webhook: ${config.path}`);
+	console.log(`✅ ${config.botName} запущен на ${SOCKET}, webhook: ${config.path}`);
 });
