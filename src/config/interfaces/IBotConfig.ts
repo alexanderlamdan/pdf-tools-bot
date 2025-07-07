@@ -1,0 +1,10 @@
+export interface IBotConfig{
+
+	readonly token:string;
+	readonly path:string;
+	readonly url:string;
+	readonly adminId:number;
+	readonly botName:string;
+	readonly channelLogId?:number;
+
+}

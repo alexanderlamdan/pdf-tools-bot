@@ -18,5 +18,10 @@ Thumbs.db
 
 .tsbuildinfo
 config.json
-src/shared/config/localConfig.ts
-dist/shared/config/localConfig.js
+src/config/LocalConfig.ts
+dist/config/LocalConfig.js
+/*/*.swp
+/*.swp
+*/*.swp
+/*/*/*/*.swp
+/*/*/*/*/*.swp
