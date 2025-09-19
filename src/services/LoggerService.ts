@@ -15,7 +15,7 @@ export class LoggerService{
 
 	constructor(private readonly config:IBotConfig){
 
-		this.logDir = `/opt/sandbox/${config.botName}-bot/logs`;
+		this.logDir = `/srv/runtime/${config.botName}/logs`;
 		if(config.channelLogId === undefined){
 
 			throw new Error('LoggerService: config.channelLogId is required');
