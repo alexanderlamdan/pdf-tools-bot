@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -9,6 +10,8 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+
+	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
 const socketPath = "/run/bots/pdf-worker.sock"
@@ -82,5 +85,63 @@ func main() {
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
+	var req Request
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+
+	}
+
+	resp := Response{Status: "ok"}
+	switch req.Action {
+
+	case "info":
+		if _, err := os.Stat(req.InputPath); os.IsNotExist(err) {
+
+			resp.Status = "error"
+			resp.Error = "File not found on the disc(path Node.js and go is not equal?)"
+
+		} else {
+
+			ctx, err := api.ReadContextFile(req.InputPath)
+			if err != nil {
+
+				resp.Status = "error"
+				resp.Error = fmt.Sprintf("Error pdfcpu: %v", err)
+
+			} else {
+
+				resp.Info = fmt.Sprintf(
+					"PDF v%s | Pages: %d | Size: %.2f MB",
+					ctx.Version(),
+					ctx.PageCount,
+					float64(getFileSize(req.InputPath))/(1024*1024),
+				)
+
+			}
+
+		}
+	default:
+		resp.Status = "error"
+		resp.Error = "Unknow Actions"
+
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+
+}
+
+func getFileSize(path string) int64 {
+
+	fi, err := os.Stat(path)
+	if err != nil {
+
+		return 0
+
+	}
+	return fi.Size()
 
 }
