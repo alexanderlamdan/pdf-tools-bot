@@ -29,7 +29,7 @@ export class FileService{
         
         console.log(`[FileService] Получен file_path от API: ${fileInfo.file_path}`);
         
-        const sourcePath= path.join(this.config.apiStorageRoot,this.config.token,fileInfo.file_id);
+        const sourcePath= path.join(this.config.apiStorageRoot,this.config.token,fileInfo.file_path);
         const destination = path.join(this.tempDir,`${fileId}.pdf`);
         
         if(!fs.existsSync(sourcePath)){

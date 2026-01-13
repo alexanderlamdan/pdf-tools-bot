@@ -19,7 +19,7 @@ export class FileService {
         if (!fileInfo.file_path)
             throw new Error('Cant get the file path');
         console.log(`[FileService] Получен file_path от API: ${fileInfo.file_path}`);
-        const sourcePath = path.join(this.config.apiStorageRoot, this.config.token, fileInfo.file_id);
+        const sourcePath = path.join(this.config.apiStorageRoot, this.config.token, fileInfo.file_path);
         const destination = path.join(this.tempDir, `${fileId}.pdf`);
         if (!fs.existsSync(sourcePath)) {
             throw new Error(`File not found on the disc: ${sourcePath}. Check if API and bot is equal paths`);
