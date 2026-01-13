@@ -98,33 +98,21 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	switch req.Action {
 
 	case "info":
-		if _, err := os.Stat(req.InputPath); os.IsNotExist(err) {
-
+		// Читаем контекст файла
+		ctx, err := api.ReadContextFile(req.InputPath)
+		if err != nil {
 			resp.Status = "error"
-			resp.Error = "File not found on the disc(path Node.js and go is not equal?)"
-
+			resp.Error = fmt.Sprintf("Ошибка чтения PDF: %v", err)
 		} else {
-
-			ctx, err := api.ReadContextFile(req.InputPath)
-			if err != nil {
-
-				version := ctx.HeaderVersion.String()
-				pages := ctx.PageCount
-				author := ctx.Author
-				creator := ctx.Creator
-
-			} else {
-
-				resp.Info = fmt.Sprintf(
-					"PDF v%s\nСтраниц: %d\nАвтор: %s\nСоздатель: %s",
-					version,
-					pages,
-					author,
-					creator,
-				)
-
-			}
-
+			// Сразу формируем строку, чтобы не бесить компилятор лишними переменными
+			resp.Info = fmt.Sprintf(
+				"PDF v%s\nСтраниц: %d\nАвтор: %s\nСоздатель: %s\nРазмер: %.2f MB",
+				ctx.HeaderVersion.String(),
+				ctx.PageCount,
+				ctx.Author,
+				ctx.Creator,
+				float64(getFileSize(req.InputPath))/(1024*1024),
+			)
 		}
 	default:
 		resp.Status = "error"
