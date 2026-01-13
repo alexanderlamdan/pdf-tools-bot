@@ -15,6 +15,9 @@ export class FileService {
   }
 
   async downloadFile(ctx: Context, fileId: string): Promise<string> {
+    
+    
+    
     const fileInfo = await ctx.api.getFile(fileId);
     if (!fileInfo.file_path) {
       throw new Error(`getFile вернул пустой file_path для file_id=${fileId}`);
@@ -30,7 +33,7 @@ export class FileService {
     if (!apiRoot || !token) {
       throw new Error("Не задан config.apiRoot или config.botToken");
     }
-
+    
     // Собираем URL скачивания
     const downloadUrl = new URL(
       `/file/bot${token}/${encodeURI(fileInfo.file_path)}`,
@@ -38,6 +41,11 @@ export class FileService {
     ).toString();
 
     // Куда сохраняем
+    
+    console.log("apiRoot =", apiRoot);
+console.log("downloadUrl =", downloadUrl);
+console.log("file_path =", fileInfo.file_path);
+
     const baseName = path.basename(fileInfo.file_path).replace(/[^\w.\-()+ ]/g, "_");
     const outPath = path.join(this.runtimeDir, `${Date.now()}_${baseName}`);
 
