@@ -21,64 +21,70 @@ export class FileService{
         
     }
     
-    async downloadFile(ctx:Context,fileId:string):Promise<string>{
-        
-       const fileInfo = await ctx.api.getFile(fileId);
+    async downloadFile(ctx: Context, fileId: string): Promise<string> {
+        const fileInfo = await ctx.api.getFile(fileId);
         
         if (!fileInfo.file_path) throw new Error('Telegram API не вернул file_path');
 
         const destination = path.join(this.tempDir, `${fileId}.pdf`);
         const absolutePath = fileInfo.file_path;
 
-        console.log(`[FileService] Вижу путь: ${absolutePath}`);
+        console.log(`[DEBUG] Абсолютный путь от API: ${absolutePath}`);
 
-        // 2. Делаем "обрезание" пути для URL
-        // Нам нужно превратить "/srv/.../TOKEN/documents/file.pdf" -> "documents/file.pdf"
-        let relativePath = absolutePath;
+        // --- ЛОГИКА ОБРЕЗАНИЯ ПУТИ ---
+        // Нам нужно найти момент, где начинается стандартная папка Телеграма
+        // Список папок, куда Телеграм кладет файлы
+        const standardFolders = ['documents', 'photos', 'videos', 'voice', 'music', 'stickers', 'video_notes'];
+        
+        // Разбиваем путь на куски (с учетом Windows или Linux слешей)
+        // Например: ['', 'srv', 'telegram-bot-api', 'TOKEN', 'documents', 'file.pdf']
+        const parts = absolutePath.split(path.sep);
+        
+        let relativePath = '';
+        
+        // Ищем индекс папки (например 'documents')
+        const folderIndex = parts.findIndex(part => standardFolders.includes(part));
 
-        if (absolutePath.includes(this.config.token)) {
-            // Разделяем путь по токену и берем вторую часть
-            const parts = absolutePath.split(this.config.token);
-            relativePath = parts[1]; // получим "/documents/file.pdf"
-            
-            // Убираем слеш в начале, если он есть
-            if (relativePath.startsWith('/') || relativePath.startsWith('\\')) {
-                relativePath = relativePath.substring(1);
-            }
-        } 
-        // Если вдруг токена нет в пути (редкий случай), ищем папку documents/photos...
-        else {
-             const parts = absolutePath.split(path.sep);
-             const typeIndex = parts.findIndex(p => ['documents', 'photos', 'voice'].includes(p));
-             if (typeIndex !== -1) relativePath = parts.slice(typeIndex).join('/');
+        if (folderIndex !== -1) {
+            // Собираем всё, начиная с этой папки
+            // Было: /srv/.../documents/file.pdf -> Стало: documents/file.pdf
+            relativePath = parts.slice(folderIndex).join('/');
+        } else {
+            // Если вдруг папка нестандартная, пробуем просто взять имя файла
+            // Но в 99% случаев сработает if выше
+            console.warn('[WARN] Не нашел стандартную папку, беру только имя файла');
+            relativePath = path.basename(absolutePath);
         }
 
-        // 3. Формируем ссылку для скачивания
-        let baseUrl = this.config.apiRoot;
-        if (!baseUrl.startsWith('http')) baseUrl = `http://${baseUrl}`;
+        console.log(`[DEBUG] Относительный путь для URL: ${relativePath}`);
 
-        const fileUrl = `${baseUrl}/file/bot${this.config.token}/${relativePath}`;
+        // Формируем URL
+        // Убираем слеш в конце apiRoot, если он там есть, чтобы не было двойного //
+        let root = this.config.apiRoot.replace(/\/$/, ''); 
+        if (!root.startsWith('http')) root = `http://${root}`;
+
+        const finalUrl = `${root}/file/bot${this.config.token}/${relativePath}`;
         
-        console.log(`[FileService] Качаю через сеть: ${fileUrl}`);
+        console.log(`[DEBUG] Ссылка для скачивания: ${finalUrl}`);
 
-        // 4. Скачиваем (обходя права доступа Linux)
         try {
             const response = await axios({
                 method: 'GET',
-                url: fileUrl,
+                url: finalUrl,
                 responseType: 'stream',
                 timeout: 30000
             });
 
             await pipeline(response.data, createWriteStream(destination));
-            console.log(`[FileService] ✅ Сохранено у нас: ${destination}`);
+            console.log(`[SUCCESS] Файл скачан: ${destination}`);
             return destination;
 
         } catch (e: any) {
-            console.error(`[FileService] Ошибка скачивания: ${e.message}`);
-            throw new Error(`Не удалось скачать файл: ${e.message}`);
+            // Если 404 - мы увидим URL выше и поймем ошибку
+            console.error(`[ERROR] Ошибка Axios: ${e.message}`);
+            console.error(`[ERROR] Статус: ${e.response?.status}`);
+            throw new Error(`Скачивание не удалось: ${e.message}`);
         }
-        
     }
     
     deleteFile(filePath:string){
