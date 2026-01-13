@@ -8,6 +8,8 @@ import {UserService} from '../services/UserService.js';
 
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 
+import { DocumentMessageHandler } from './message/DocumentMessageHandler.js';
+
 
 
 interface CommandBinding{
@@ -44,6 +46,15 @@ export class HandlerRegistry{
 			this.bot.command(command,instance.handle.bind(instance));
 
 		}
+		
+		const docHandler = new DocumentMessageHandler(this.config);
+        
+        // Ловим документы
+        this.bot.on('message:document', async (ctx) => {
+            if (docHandler.isSupportedDocument(ctx)) {
+                await docHandler.handle(ctx);
+            }
+        });
 
 	}
 
