@@ -27,10 +27,14 @@ export class FileService{
         
         if(!fileInfo.file_path) throw new Error('Cant get the file path');
         
+        console.log(`[FileService] Получен file_path от API: ${fileInfo.file_path}`);
+        
         const fileName= `${fileId}.pdf`;
         const destination = path.join(this.tempDir,fileName);
         
         const fileUrl = `${this.config.apiRoot}/file/bot${this.config.token}/${fileInfo.file_path}`;
+        
+        console.log(`[FileService] Пробую скачать по URL: ${fileUrl}`);
         
         try{
             
@@ -43,11 +47,17 @@ export class FileService{
             });
             
             await pipeline(response.data,createWriteStream(destination));
+            console.log(`[FileService] Файл успешно сохранен: ${destination}`);
             return destination;
             
         }catch(e:any){
             
-            console.error(`Error downloading file: ${e.message}`);
+            console.error(`[FileService] Ошибка Axios:`, {
+                message: e.message,
+                code: e.code,
+                status: e.response?.status,
+                url: e.config?.url
+            });
             throw new Error('Cant download file from local server');
             
         }
