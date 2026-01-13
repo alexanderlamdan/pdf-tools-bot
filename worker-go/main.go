@@ -108,16 +108,19 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 			ctx, err := api.ReadContextFile(req.InputPath)
 			if err != nil {
 
-				resp.Status = "error"
-				resp.Error = fmt.Sprintf("Error pdfcpu: %v", err)
+				version := ctx.HeaderVersion.String()
+				pages := ctx.PageCount
+				author := ctx.Author
+				creator := ctx.Creator
 
 			} else {
 
 				resp.Info = fmt.Sprintf(
-					"PDF v%s | Pages: %d | Size: %.2f MB",
-					ctx.Version(),
-					ctx.PageCount,
-					float64(getFileSize(req.InputPath))/(1024*1024),
+					"PDF v%s\nСтраниц: %d\nАвтор: %s\nСоздатель: %s",
+					version,
+					pages,
+					author,
+					creator,
 				)
 
 			}
