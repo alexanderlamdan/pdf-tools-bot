@@ -9,13 +9,13 @@ import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 
 export class FileService{
     
-    private readonly tempDir = path.join(os.tmpdir(),'pdf-bot-files');
+    private readonly runtimeDir = '/srv/runtime';
     
     constructor(private readonly config:IBotConfig){
         
-       if (!fs.existsSync(this.tempDir)) {
+       if (!fs.existsSync(this.runtimeDir)) {
             try {
-                fs.mkdirSync(this.tempDir, { recursive: true });
+                fs.mkdirSync(this.runtimeDir, { recursive: true });
             } catch (e) {
                 console.error('CRITICAL: Не могу создать temp папку!', e);
             }
@@ -23,65 +23,31 @@ export class FileService{
         
     }
     
-    async downloadFile(ctx: Context, fileId: string): Promise<string> {
+  async downloadFile(ctx: Context, fileId: string): Promise<string> {
         const fileInfo = await ctx.api.getFile(fileId);
-        
         if (!fileInfo.file_path) throw new Error('API не вернул file_path');
 
-        // Ожидаемый путь: /srv/telegram-bot-api/<TOKEN>/documents/file.pdf
+        // 1. ОТКУДА БЕРЕМ (Из грязной зоны API)
         const sourcePath = path.join(
             this.config.apiStorageRoot, 
             this.config.token, 
             fileInfo.file_path
         );
-        
-        const destination = path.join(this.tempDir, `${fileId}.pdf`);
 
-        console.log(`[FileService] Пробую взять файл: ${sourcePath}`);
+        // 2. КУДА КЛАДЕМ (В чистую зону runtime)
+        const destination = path.join(this.runtimeDir, `${fileId}.pdf`);
 
+        console.log(`[FileService] Копирую: ${sourcePath} -> ${destination}`);
+
+        // 3. КОПИРУЕМ
         try {
             await fs.promises.copyFile(sourcePath, destination);
-            console.log(`[FileService] ✅ Успех! Файл у нас.`);
+            console.log(`[FileService] ✅ Файл в runtime!`);
             return destination;
-
         } catch (e: any) {
-            // --- ЛОВУШКА ДЛЯ ОШИБКИ ---
-            console.error(`[FileService] ❌ ОШИБКА: ${e.message}`);
-
-            if (e.code === 'ENOENT') {
-                console.log('--- 🔍 НАЧИНАЮ РАССЛЕДОВАНИЕ (Что в папке?) ---');
-                
-                // 1. Проверим папку токена
-                const tokenDir = path.join(this.config.apiStorageRoot, this.config.token);
-                if (fs.existsSync(tokenDir)) {
-                    console.log(`📂 Папка токена (${tokenDir}) существует.`);
-                    
-                    // 2. Проверим папку documents
-                    const docDir = path.dirname(sourcePath);
-                    if (fs.existsSync(docDir)) {
-                        console.log(`📂 Папка документов (${docDir}) существует.`);
-                        console.log('📄 Содержимое папки:');
-                        try {
-                            const files = fs.readdirSync(docDir);
-                            console.log(files); // <--- ВОТ ЭТО САМОЕ ВАЖНОЕ
-                        } catch (err) {
-                            console.log('Не могу прочитать содержимое (права?).');
-                        }
-                    } else {
-                        console.log(`⛔ Папки документов НЕТ: ${docDir}`);
-                        console.log('Содержимое папки токена:');
-                        try { console.log(fs.readdirSync(tokenDir)); } catch {}
-                    }
-                } else {
-                    console.log(`⛔ Папки токена НЕТ: ${tokenDir}`);
-                    console.log(`Проверь apiStorageRoot: ${this.config.apiStorageRoot}`);
-                    console.log('Содержимое корня apiStorageRoot:');
-                    try { console.log(fs.readdirSync(this.config.apiStorageRoot)); } catch {}
-                }
-                console.log('--- КОНЕЦ РАССЛЕДОВАНИЯ ---');
-            }
-
-            throw new Error(`Сбой копирования: ${e.message}`);
+            // Если ошибка — значит исходный файл не создался из-за прав
+            console.error(`[FileService] Ошибка: ${e.message}`);
+            throw new Error(`Не удалось забрать файл из API: ${e.message}`);
         }
     }
     
