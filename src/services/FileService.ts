@@ -5,12 +5,13 @@ import {Context} from 'grammy';
 import {pipeline} from 'stream/promises';
 import {createWriteStream} from 'fs';
 import axios from 'axios';
+import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 
 export class FileService{
     
     private readonly tempDir = path.join(os.tmpdir(),'pdf-bot-files');
     
-    constructor(){
+    constructor(private readonly config:IBotConfig){
         
         if(!fs.existsSync(this.tempDir)){
             
@@ -29,9 +30,28 @@ export class FileService{
         const fileName= `${fileId}.pdf`;
         const destination = path.join(this.tempDir,fileName);
         
-        const fileUrl = `http:localhost:8081`
+        const fileUrl = `${this.config.apiRoot}/file/bot${this.config.token}/${fileInfo.file_path}`;
         
-        return tempFile;
+        try{
+            
+            const response = await axios({
+                
+                method:'GET',
+                url:fileUrl,
+                responseType:'stream'
+                
+            });
+            
+            await pipeline(response.data,createWriteStream(destination));
+            return destination;
+            
+        }catch(e:any){
+            
+            console.error(`Error downloading file: ${e.message}`);
+            throw new Error('Cant download file from local server');
+            
+        }
+        
         
     }
     

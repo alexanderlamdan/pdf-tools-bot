@@ -7,5 +7,7 @@ export interface IBotConfig{
 	readonly botName:string;
 	readonly channelLogId?:number;
 	readonly workerSocketPath:string;
+	
+	readonly apiRoot:string;
 
 }
