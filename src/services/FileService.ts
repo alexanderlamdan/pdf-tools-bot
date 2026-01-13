@@ -23,48 +23,61 @@ export class FileService{
     
     async downloadFile(ctx:Context,fileId:string):Promise<string>{
         
-        const fileInfo = await ctx.api.getFile(fileId);
+       const fileInfo = await ctx.api.getFile(fileId);
         
-        if(!fileInfo.file_path) throw new Error('Cant get the file path');
-        
-        console.log(`[FileService] Получен file_path от API: ${fileInfo.file_path}`);
-        
-        const sourcePath= path.join(this.config.apiStorageRoot,this.config.token,fileInfo.file_path);
-        const destination = path.join(this.tempDir,`${fileId}.pdf`);
-        
-       // Получаем папку, в которой лежит файл (например .../documents)
-        const parentDir = path.dirname(sourcePath);
+        if (!fileInfo.file_path) throw new Error('Telegram API не вернул file_path');
 
-        console.log(`[DEBUG] Ищу файл: ${sourcePath}`);
+        const destination = path.join(this.tempDir, `${fileId}.pdf`);
+        const absolutePath = fileInfo.file_path;
 
-        // --- ЛОВУШКА ДЛЯ ФАЙЛА ---
-        if (!fs.existsSync(sourcePath)) {
-            console.error('!!! ФАЙЛ НЕ НАЙДЕН. ВКЛЮЧАЮ РЕЖИМ ОТЛАДКИ !!!');
+        console.log(`[FileService] Вижу путь: ${absolutePath}`);
+
+        // 2. Делаем "обрезание" пути для URL
+        // Нам нужно превратить "/srv/.../TOKEN/documents/file.pdf" -> "documents/file.pdf"
+        let relativePath = absolutePath;
+
+        if (absolutePath.includes(this.config.token)) {
+            // Разделяем путь по токену и берем вторую часть
+            const parts = absolutePath.split(this.config.token);
+            relativePath = parts[1]; // получим "/documents/file.pdf"
             
-            // 1. Проверяем, существует ли папка вообще
-            if (fs.existsSync(parentDir)) {
-                console.log(`📂 Папка ${parentDir} существует. Содержимое:`);
-                try {
-                    // Выводим список файлов, которые бот ВИДИТ прямо сейчас
-                    const files = fs.readdirSync(parentDir);
-                    console.log(files); 
-                    
-                    if (files.length === 0) console.log('(Папка пуста)');
-                } catch (e: any) {
-                    console.error(`⛔ Бот не может прочитать папку (ПРАВА ДОСТУПА?): ${e.message}`);
-                }
-            } else {
-                console.error(`⛔ Папка ${parentDir} вообще не существует!`);
-                console.error(`Проверь apiStorageRoot в конфиге. Сейчас он: ${this.config.apiStorageRoot}`);
+            // Убираем слеш в начале, если он есть
+            if (relativePath.startsWith('/') || relativePath.startsWith('\\')) {
+                relativePath = relativePath.substring(1);
             }
-
-            throw new Error(`Файл не найден (или нет прав): ${sourcePath}`);
+        } 
+        // Если вдруг токена нет в пути (редкий случай), ищем папку documents/photos...
+        else {
+             const parts = absolutePath.split(path.sep);
+             const typeIndex = parts.findIndex(p => ['documents', 'photos', 'voice'].includes(p));
+             if (typeIndex !== -1) relativePath = parts.slice(typeIndex).join('/');
         }
 
-        // Если дошли сюда — копируем
-        await fs.promises.copyFile(sourcePath, destination);
-        console.log(`[FileService] ✅ Успех!`);
-        return destination;
+        // 3. Формируем ссылку для скачивания
+        let baseUrl = this.config.apiRoot;
+        if (!baseUrl.startsWith('http')) baseUrl = `http://${baseUrl}`;
+
+        const fileUrl = `${baseUrl}/file/bot${this.config.token}/${relativePath}`;
+        
+        console.log(`[FileService] Качаю через сеть: ${fileUrl}`);
+
+        // 4. Скачиваем (обходя права доступа Linux)
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: fileUrl,
+                responseType: 'stream',
+                timeout: 30000
+            });
+
+            await pipeline(response.data, createWriteStream(destination));
+            console.log(`[FileService] ✅ Сохранено у нас: ${destination}`);
+            return destination;
+
+        } catch (e: any) {
+            console.error(`[FileService] Ошибка скачивания: ${e.message}`);
+            throw new Error(`Не удалось скачать файл: ${e.message}`);
+        }
         
     }
     

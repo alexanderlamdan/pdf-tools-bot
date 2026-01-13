@@ -17,35 +17,44 @@ export class FileService {
     async downloadFile(ctx, fileId) {
         const fileInfo = await ctx.api.getFile(fileId);
         if (!fileInfo.file_path)
-            throw new Error('Cant get the file path');
-        console.log(`[FileService] Получен file_path от API: ${fileInfo.file_path}`);
-        const sourcePath = path.join(this.config.apiStorageRoot, this.config.token, fileInfo.file_path);
+            throw new Error('Telegram API не вернул file_path');
         const destination = path.join(this.tempDir, `${fileId}.pdf`);
-        const parentDir = path.dirname(sourcePath);
-        console.log(`[DEBUG] Ищу файл: ${sourcePath}`);
-        if (!fs.existsSync(sourcePath)) {
-            console.error('!!! ФАЙЛ НЕ НАЙДЕН. ВКЛЮЧАЮ РЕЖИМ ОТЛАДКИ !!!');
-            if (fs.existsSync(parentDir)) {
-                console.log(`📂 Папка ${parentDir} существует. Содержимое:`);
-                try {
-                    const files = fs.readdirSync(parentDir);
-                    console.log(files);
-                    if (files.length === 0)
-                        console.log('(Папка пуста)');
-                }
-                catch (e) {
-                    console.error(`⛔ Бот не может прочитать папку (ПРАВА ДОСТУПА?): ${e.message}`);
-                }
+        const absolutePath = fileInfo.file_path;
+        console.log(`[FileService] Вижу путь: ${absolutePath}`);
+        let relativePath = absolutePath;
+        if (absolutePath.includes(this.config.token)) {
+            const parts = absolutePath.split(this.config.token);
+            relativePath = parts[1];
+            if (relativePath.startsWith('/') || relativePath.startsWith('\\')) {
+                relativePath = relativePath.substring(1);
             }
-            else {
-                console.error(`⛔ Папка ${parentDir} вообще не существует!`);
-                console.error(`Проверь apiStorageRoot в конфиге. Сейчас он: ${this.config.apiStorageRoot}`);
-            }
-            throw new Error(`Файл не найден (или нет прав): ${sourcePath}`);
         }
-        await fs.promises.copyFile(sourcePath, destination);
-        console.log(`[FileService] ✅ Успех!`);
-        return destination;
+        else {
+            const parts = absolutePath.split(path.sep);
+            const typeIndex = parts.findIndex(p => ['documents', 'photos', 'voice'].includes(p));
+            if (typeIndex !== -1)
+                relativePath = parts.slice(typeIndex).join('/');
+        }
+        let baseUrl = this.config.apiRoot;
+        if (!baseUrl.startsWith('http'))
+            baseUrl = `http://${baseUrl}`;
+        const fileUrl = `${baseUrl}/file/bot${this.config.token}/${relativePath}`;
+        console.log(`[FileService] Качаю через сеть: ${fileUrl}`);
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: fileUrl,
+                responseType: 'stream',
+                timeout: 30000
+            });
+            await pipeline(response.data, createWriteStream(destination));
+            console.log(`[FileService] ✅ Сохранено у нас: ${destination}`);
+            return destination;
+        }
+        catch (e) {
+            console.error(`[FileService] Ошибка скачивания: ${e.message}`);
+            throw new Error(`Не удалось скачать файл: ${e.message}`);
+        }
     }
     deleteFile(filePath) {
         try {
