@@ -21,26 +21,38 @@ export class FileService {
         console.log(`[FileService] Получен file_path от API: ${fileInfo.file_path}`);
         const fileName = `${fileId}.pdf`;
         const destination = path.join(this.tempDir, fileName);
+        try {
+            if (fs.existsSync(fileInfo.file_path)) {
+                console.log('File found in local, copying');
+                fs.copyFileSync(fileInfo.file_path, destination);
+                return destination;
+            }
+        }
+        catch (e) {
+            console.warn(`[FileService] Не удалось скопировать локально (права?): ${e.message}`);
+        }
+        console.log('[FileService] Пробую скачать через HTTP...');
+        let baseUrl = this.config.apiRoot;
+        if (!baseUrl.startsWith('http')) {
+            baseUrl = `http://${baseUrl}`;
+        }
         const fileUrl = `${this.config.apiRoot}/file/bot${this.config.token}/${fileInfo.file_path}`;
-        console.log(`[FileService] Пробую скачать по URL: ${fileUrl}`);
         try {
             const response = await axios({
                 method: 'GET',
                 url: fileUrl,
-                responseType: 'stream'
+                responseType: 'stream',
+                timeout: 30000
             });
             await pipeline(response.data, createWriteStream(destination));
-            console.log(`[FileService] Файл успешно сохранен: ${destination}`);
             return destination;
         }
         catch (e) {
-            console.error(`[FileService] Ошибка Axios:`, {
-                message: e.message,
-                code: e.code,
-                status: e.response?.status,
-                url: e.config?.url
-            });
-            throw new Error('Cant download file from local server');
+            console.error(`[FileService] FAIL. URL: ${fileUrl}`);
+            if (e.code === 'ERR_INVALID_URL') {
+                throw new Error(`Ошибка конфигурации URL: ${fileUrl}`);
+            }
+            throw new Error(`Не удалось получить файл ни локально, ни по сети: ${e.message}`);
         }
     }
     deleteFile(filePath) {
