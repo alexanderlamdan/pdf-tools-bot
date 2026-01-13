@@ -7,6 +7,7 @@ export class BotConfig {
     channelLogId;
     workerSocketPath;
     apiRoot;
+    apiStorageRoot;
     constructor(source) {
         this.token = source.token;
         this.path = source.path;
@@ -16,5 +17,6 @@ export class BotConfig {
         this.channelLogId = source.channelLogId;
         this.workerSocketPath = source.workerSocketPath;
         this.apiRoot = source.apiRoot;
+        this.apiStorageRoot = source.apiStorageRoot;
     }
 }

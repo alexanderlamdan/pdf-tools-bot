@@ -9,6 +9,7 @@ export class ExampleConfig implements IBotConfig{
 	readonly channelLogId = -1001234567890;
 	readonly workerSocketPath = '/run/bots/worker-bot.sock';
 	readonly apiRoot = 'http://localhost:8081';
+	readonly apiStorageRoot = '/my/storage/folder';
 
 	get slug():string{
 

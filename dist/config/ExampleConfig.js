@@ -6,6 +6,7 @@ export class ExampleConfig {
     channelLogId = -1001234567890;
     workerSocketPath = '/run/bots/worker-bot.sock';
     apiRoot = 'http://localhost:8081';
+    apiStorageRoot = '/my/storage/folder';
     get slug() {
         return this.botName.replace(/-bot$/, '');
     }

@@ -10,6 +10,7 @@ export class BotConfig implements IBotConfig{
 	readonly channelLogId?:number;
 	readonly workerSocketPath: string;
 	readonly apiRoot: string;
+	readonly apiStorageRoot:string;
 
 	constructor(source:IBotConfig){
 
@@ -21,6 +22,7 @@ export class BotConfig implements IBotConfig{
 		this.channelLogId = source.channelLogId;
 		this.workerSocketPath = source.workerSocketPath;
 		this.apiRoot = source.apiRoot;
+		this.apiStorageRoot = source.apiStorageRoot;
 
 	}
 
