@@ -32,33 +32,39 @@ export class FileService{
         const sourcePath= path.join(this.config.apiStorageRoot,this.config.token,fileInfo.file_path);
         const destination = path.join(this.tempDir,`${fileId}.pdf`);
         
-        if(!fs.existsSync(sourcePath)){
+       // Получаем папку, в которой лежит файл (например .../documents)
+        const parentDir = path.dirname(sourcePath);
+
+        console.log(`[DEBUG] Ищу файл: ${sourcePath}`);
+
+        // --- ЛОВУШКА ДЛЯ ФАЙЛА ---
+        if (!fs.existsSync(sourcePath)) {
+            console.error('!!! ФАЙЛ НЕ НАЙДЕН. ВКЛЮЧАЮ РЕЖИМ ОТЛАДКИ !!!');
             
-            throw new Error(`File not found on the disc: ${sourcePath}. Check if API and bot is equal paths`);
-            
-        }
-        
-        try{
-            
-            await fs.promises.copyFile(sourcePath,destination);
-            
-            console.log(`File is successfully copied to ${destination}`);
-            
-            return destination;
-            
-        }catch(e:any){
-            
-            console.error(`[FileService]: Copy error: ${e.message}`);
-            
-            if(e.code === 'EACCES'){
-                
-                throw new Error('You dont have permissions to read file(permission denied). Check if bot can read API server');
-                
+            // 1. Проверяем, существует ли папка вообще
+            if (fs.existsSync(parentDir)) {
+                console.log(`📂 Папка ${parentDir} существует. Содержимое:`);
+                try {
+                    // Выводим список файлов, которые бот ВИДИТ прямо сейчас
+                    const files = fs.readdirSync(parentDir);
+                    console.log(files); 
+                    
+                    if (files.length === 0) console.log('(Папка пуста)');
+                } catch (e: any) {
+                    console.error(`⛔ Бот не может прочитать папку (ПРАВА ДОСТУПА?): ${e.message}`);
+                }
+            } else {
+                console.error(`⛔ Папка ${parentDir} вообще не существует!`);
+                console.error(`Проверь apiStorageRoot в конфиге. Сейчас он: ${this.config.apiStorageRoot}`);
             }
-            
-            throw new Error(`Error local copy: ${e.message}`);
-            
+
+            throw new Error(`Файл не найден (или нет прав): ${sourcePath}`);
         }
+
+        // Если дошли сюда — копируем
+        await fs.promises.copyFile(sourcePath, destination);
+        console.log(`[FileService] ✅ Успех!`);
+        return destination;
         
     }
     
