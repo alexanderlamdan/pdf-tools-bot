@@ -20,7 +20,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
         new HandlerRegistry(this.bot, this.config, this.localApi).registerAll();
     }
     getWebhookCallback() {
-        return this.webhookHandler;
+        return webhookCallback(this.bot, "express");
     }
     getBot() {
         return this.bot;
