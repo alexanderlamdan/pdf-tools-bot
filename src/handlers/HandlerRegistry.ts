@@ -1,4 +1,4 @@
-import type {Bot} from 'grammy';
+import type {Bot,Api, RawApi} from 'grammy';
 
 import {StartCommandHandler} from './commands/StartCommandHandler.js';
 import {HelpCommandHandler} from './commands/HelpCommandHandler.js';
@@ -9,8 +9,6 @@ import {UserService} from '../services/UserService.js';
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 
 import { DocumentMessageHandler } from './message/DocumentMessageHandler.js';
-
-
 
 interface CommandBinding{
 
@@ -30,7 +28,7 @@ export class HandlerRegistry{
 
 	];
 
-	constructor(private readonly bot: Bot, private readonly config:IBotConfig){
+	constructor(private readonly bot: Bot, private readonly config:IBotConfig,private readonly localApi: Api<RawApi>){
 
 		this.userService = new UserService();
 
