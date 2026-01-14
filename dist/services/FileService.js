@@ -1,69 +1,64 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { Context } from 'grammy';
-import { pipeline } from 'stream/promises';
-import { createWriteStream } from 'fs';
-import axios from 'axios';
+import fs from "fs";
+import path from "path";
+import { Context, Api } from "grammy";
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export class FileService {
     config;
-    tempDir = path.join(os.tmpdir(), 'pdf-bot-files');
-    constructor(config) {
+    localApi;
+    runtimeDir = "/srv/runtime";
+    constructor(config, localApi) {
         this.config = config;
-        if (!fs.existsSync(this.tempDir)) {
-            fs.mkdirSync(this.tempDir, { recursive: true });
+        this.localApi = localApi;
+        if (!fs.existsSync(this.runtimeDir)) {
+            try {
+                fs.mkdirSync(this.runtimeDir, { recursive: true });
+            }
+            catch { }
         }
     }
     async downloadFile(ctx, fileId) {
-        const fileInfo = await ctx.api.getFile(fileId);
+        const fileInfo = await this.localApi.getFile(fileId);
         if (!fileInfo.file_path)
-            throw new Error('Telegram API не вернул file_path');
-        const destination = path.join(this.tempDir, `${fileId}.pdf`);
-        const absolutePath = fileInfo.file_path;
-        console.log(`[FileService] Вижу путь: ${absolutePath}`);
-        let relativePath = absolutePath;
-        if (absolutePath.includes(this.config.token)) {
-            const parts = absolutePath.split(this.config.token);
-            relativePath = parts[1];
-            if (relativePath.startsWith('/') || relativePath.startsWith('\\')) {
-                relativePath = relativePath.substring(1);
+            throw new Error("API не вернул file_path");
+        console.log(`[FileService] file_path: ${fileInfo.file_path}`);
+        const sourcePath = path.isAbsolute(fileInfo.file_path)
+            ? fileInfo.file_path
+            : path.join(this.config.apiStorageRoot, this.config.token, fileInfo.file_path);
+        const ext = path.extname(fileInfo.file_path) || ".bin";
+        const destination = path.join(this.runtimeDir, `${fileId}${ext}`);
+        console.log(`[FileService] Жду файл на диске: ${sourcePath}`);
+        const timeoutMs = 15_000;
+        const stepMs = 150;
+        const start = Date.now();
+        while (!fs.existsSync(sourcePath)) {
+            if (Date.now() - start > timeoutMs) {
+                const dir = path.dirname(sourcePath);
+                let dirContents = "НЕТ ДОСТУПА ИЛИ ПАПКИ";
+                try {
+                    if (fs.existsSync(dir))
+                        dirContents = fs.readdirSync(dir).slice(0, 50).join(", ");
+                }
+                catch { }
+                throw new Error(`TIMEOUT: Файл не появился на диске.\n` +
+                    `Искал: ${sourcePath}\n` +
+                    `Содержимое папки: ${dirContents}`);
             }
+            await sleep(stepMs);
         }
-        else {
-            const parts = absolutePath.split(path.sep);
-            const typeIndex = parts.findIndex(p => ['documents', 'photos', 'voice'].includes(p));
-            if (typeIndex !== -1)
-                relativePath = parts.slice(typeIndex).join('/');
-        }
-        let baseUrl = this.config.apiRoot;
-        if (!baseUrl.startsWith('http'))
-            baseUrl = `http://${baseUrl}`;
-        const fileUrl = `${baseUrl}/file/bot${this.config.token}/${relativePath}`;
-        console.log(`[FileService] Качаю через сеть: ${fileUrl}`);
         try {
-            const response = await axios({
-                method: 'GET',
-                url: fileUrl,
-                responseType: 'stream',
-                timeout: 30000
-            });
-            await pipeline(response.data, createWriteStream(destination));
-            console.log(`[FileService] ✅ Сохранено у нас: ${destination}`);
+            await fs.promises.copyFile(sourcePath, destination);
+            console.log(`[FileService] ✅ Файл скопирован в runtime: ${destination}`);
             return destination;
         }
         catch (e) {
-            console.error(`[FileService] Ошибка скачивания: ${e.message}`);
-            throw new Error(`Не удалось скачать файл: ${e.message}`);
+            throw new Error(`Ошибка копирования (права?): ${e?.message ?? e}`);
         }
     }
     deleteFile(filePath) {
         try {
-            if (fs.existsSync(filePath)) {
+            if (fs.existsSync(filePath))
                 fs.unlinkSync(filePath);
-            }
         }
-        catch (e) {
-            console.error(`Error to delete file: ${e.message}`);
-        }
+        catch { }
     }
 }
