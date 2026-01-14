@@ -30,9 +30,5 @@ export class DocumentMessageHandler {
             console.error("Error in Document Handler", e);
             await ctx.api.editMessageText(ctx.chat.id, statusMsg.message_id, `<b>Error:</b> ${e.message}`, { parse_mode: "HTML" });
         }
-        finally {
-            if (localPath)
-                this.fileService.deleteFile(localPath);
-        }
     }
 }

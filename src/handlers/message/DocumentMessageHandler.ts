@@ -47,8 +47,8 @@ export class DocumentMessageHandler {
         `<b>Error:</b> ${e.message}`,
         { parse_mode: "HTML" }
       );
-    } finally {
-      if (localPath) this.fileService.deleteFile(localPath);
-    }
+     } //finally {
+    //   if (localPath) this.fileService.deleteFile(localPath);
+    // }
   }
 }
