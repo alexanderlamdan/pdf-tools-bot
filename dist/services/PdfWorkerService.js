@@ -7,9 +7,6 @@ export class PdfWorkerService {
     }
     async getPdfInfo(filePath) {
         const socketPath = this.config.workerSocketPath;
-        if (!fs.existsSync(socketPath)) {
-            throw new Error('System error: PDF Worker is not on(socket not found).');
-        }
         try {
             const response = await axios.post('http://localhost/process', {
                 action: 'info',

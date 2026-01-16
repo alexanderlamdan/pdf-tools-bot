@@ -18,11 +18,11 @@ export class PdfWorkerService{
         
         const socketPath = this.config.workerSocketPath;
         
-        if(!fs.existsSync(socketPath)){
+        // if(!fs.existsSync(socketPath)){
             
-            throw new Error('System error: PDF Worker is not on(socket not found).');
+        //     throw new Error('System error: PDF Worker is not on(socket not found).');
             
-        }
+        // }
         
         try{
             
