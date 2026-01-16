@@ -6,8 +6,8 @@ export class BotConfig {
     botName;
     channelLogId;
     workerSocketPath;
-    apiRoot;
-    apiStorageRoot;
+    localApiFile;
+    telegramStoragePath;
     constructor(source) {
         this.token = source.token;
         this.path = source.path;
@@ -16,7 +16,7 @@ export class BotConfig {
         this.botName = source.botName;
         this.channelLogId = source.channelLogId;
         this.workerSocketPath = source.workerSocketPath;
-        this.apiRoot = source.apiRoot;
-        this.apiStorageRoot = source.apiStorageRoot;
+        this.localApiFile = source.localApiFile;
+        this.telegramStoragePath = source.telegramStoragePath;
     }
 }

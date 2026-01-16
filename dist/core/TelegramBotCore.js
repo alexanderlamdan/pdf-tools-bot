@@ -14,7 +14,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
         this.config = new BotConfig(configSource);
         this.bot = new Bot(this.config.token);
         this.localApi = new Api(this.config.token, {
-            apiRoot: this.config.apiRoot,
+            apiRoot: this.config.localApiFile,
         });
         this.logger = new LoggerService(this.config);
         new HandlerRegistry(this.bot, this.config, this.localApi).registerAll();

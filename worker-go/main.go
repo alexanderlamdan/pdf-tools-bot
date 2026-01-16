@@ -14,7 +14,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
-const socketPath = "./test.sock"
+const socketPath = "/run/bots/pdf-worker.sock"
 
 type Request struct {
 	Action    string `json:"action"`

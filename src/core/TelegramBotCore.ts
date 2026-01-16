@@ -26,7 +26,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 
   // 2) Local API клиент (для upload >50MB и т.п.)
   this.localApi = new Api<RawApi>(this.config.token, {
-    apiRoot: this.config.apiRoot, // http://127.0.0.1:8081
+    apiRoot: this.config.localApiFile, // http://127.0.0.1:8081
   });
 
   this.logger = new LoggerService(this.config);

@@ -8,8 +8,8 @@ export class ExampleConfig implements IBotConfig{
 	readonly botName = 'bot-name';
 	readonly channelLogId = -1001234567890;
 	readonly workerSocketPath = '/run/bots/worker-bot.sock';
-	readonly apiRoot = 'http://localhost:8081';
-	readonly apiStorageRoot = '/my/storage/folder';
+	readonly localApiFile= 'http://localhost:8081';
+	readonly telegramStoragePath = '/my/storage/folder';
 
 	get slug():string{
 

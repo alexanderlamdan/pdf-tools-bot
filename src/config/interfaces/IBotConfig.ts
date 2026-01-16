@@ -7,7 +7,7 @@ export interface IBotConfig{
 	readonly botName:string;
 	readonly channelLogId?:number;
 	readonly workerSocketPath:string;
-	readonly apiRoot:string;
-	readonly apiStorageRoot:string;
+	readonly localApiFile:string;
+	readonly telegramStoragePath:string;
 
 }

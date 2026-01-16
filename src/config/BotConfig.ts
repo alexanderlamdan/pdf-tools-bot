@@ -9,8 +9,8 @@ export class BotConfig implements IBotConfig{
 	readonly botName:string;
 	readonly channelLogId?:number;
 	readonly workerSocketPath: string;
-	readonly apiRoot: string;
-	readonly apiStorageRoot:string;
+	readonly localApiFile: string;
+	readonly telegramStoragePath:string;
 
 	constructor(source:IBotConfig){
 
@@ -21,8 +21,8 @@ export class BotConfig implements IBotConfig{
 		this.botName = source.botName;
 		this.channelLogId = source.channelLogId;
 		this.workerSocketPath = source.workerSocketPath;
-		this.apiRoot = source.apiRoot;
-		this.apiStorageRoot = source.apiStorageRoot;
+		this.localApiFile = source.localApiFile;
+		this.telegramStoragePath = source.telegramStoragePath;
 
 	}
 
