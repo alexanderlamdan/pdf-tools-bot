@@ -9,5 +9,6 @@ export interface IBotConfig{
 	readonly workerSocketPath:string;
 	readonly localApiFile:string;
 	readonly telegramStoragePath:string;
+	readonly slug?: string;
 
 }

@@ -1,7 +1,6 @@
 import { Bot, Api, webhookCallback } from "grammy";
 import type { RawApi } from "grammy";
 import {AbstractTelegramBotCore} from './abstract/AbstractTelegramBotCore.js';
-import {BotConfig} from '../config/BotConfig.js';
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import type {Request, Response, NextFunction} from 'express';
 import {HandlerRegistry} from '../handlers/HandlerRegistry.js';
@@ -12,14 +11,14 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 
 	private readonly bot:Bot;
 	private readonly webhookHandler:(req:Request,res:Response,next:NextFunction)=>void;
-	private readonly config:BotConfig;
+	private readonly config:IBotConfig;
 	private readonly logger:LoggerService;
 	private readonly localApi: Api<RawApi>;
 
 	constructor(configSource: IBotConfig) {
   super();
 
-  this.config = new BotConfig(configSource);
+  this.config = configSource;
 
   // 1) Обычный бот (webhook, ctx.api)
   this.bot = new Bot(this.config.token);

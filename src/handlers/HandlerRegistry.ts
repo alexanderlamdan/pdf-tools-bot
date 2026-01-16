@@ -5,7 +5,7 @@ import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
 
 import { UserService } from "../services/UserService.js";
-import type { IBotConfig } from "../config/interfaces/IBotConfig.js";
+import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
 
 interface CommandBinding {

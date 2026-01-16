@@ -1,6 +1,5 @@
 import { Bot, Api, webhookCallback } from "grammy";
 import { AbstractTelegramBotCore } from './abstract/AbstractTelegramBotCore.js';
-import { BotConfig } from '../config/BotConfig.js';
 import { HandlerRegistry } from '../handlers/HandlerRegistry.js';
 import { LoggerService } from '../services/LoggerService.js';
 export class TelegramBotCore extends AbstractTelegramBotCore {
@@ -11,7 +10,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
     localApi;
     constructor(configSource) {
         super();
-        this.config = new BotConfig(configSource);
+        this.config = configSource;
         this.bot = new Bot(this.config.token);
         this.localApi = new Api(this.config.token, {
             apiRoot: this.config.localApiFile,

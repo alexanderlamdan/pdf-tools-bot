@@ -1,5 +1,5 @@
 import { Context } from "grammy";
-import type { IBotConfig } from "../../config/interfaces/IBotConfig.js";
+import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import type { LocalApi } from "../../types/LocalApi.js";
 import { FileService } from "../../services/FileService.js";
 import { PdfWorkerService } from "../../services/PdfWorkerService.js";

@@ -1,11 +1,10 @@
 import fs      from 'fs';
 import http    from 'http';
 import express from 'express';
-import {BotConfig}   from './config/BotConfig.js';
 import {LocalConfig} from './config/LocalConfig.js';
 import {TelegramBotCore} from './core/TelegramBotCore.js';
 
-const config = new BotConfig(new LocalConfig());
+const config = new LocalConfig();
 const botCore = new TelegramBotCore(config);
 const app = express();
 
