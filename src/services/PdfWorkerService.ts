@@ -25,7 +25,6 @@ export class PdfWorkerService{
         // }
         
         try{
-            
             const response = await axios.post<WorkerResponse>(
                 'http://localhost/process',
                 {
@@ -33,31 +32,33 @@ export class PdfWorkerService{
                     inputPath: filePath
                 },
                 {
-                    socketPath:socketPath,
+                    socketPath: socketPath, // Подключаемся к сокету напрямую
                     headers:{'Content-Type':'application/json'},
-                    timeout:10000
+                    timeout: 2000 // Тайм-аут 2 секунды (хватит с головой)
                 }
             );
             
             const data = response.data;
             if(data.status === 'error'){
-                
                 throw new Error(data.error);
-                
             }
             return data.info || 'No Information';
             
         }catch(e:any){
+            // Логируем реальную причину
+            console.error(`[PdfWorkerService] Ошибка запроса к воркеру: ${e.message}`);
             
-            console.error(`Worker Communication Error: ${e.message}`);
-            if(e.code === 'ENOENT' || e.code === 'ECONNREFUSED'){
-                
-                throw new Error('PDF Service is under construction.');
-                
+            if (e.code === 'ENOENT') {
+                 throw new Error(`Файл сокета не найден: ${socketPath} (Проверь, запущен ли worker)`);
+            }
+            if (e.code === 'EACCES') {
+                 throw new Error(`Нет прав доступа к сокету: ${socketPath} (Проверь chmod/user)`);
+            }
+            if (e.code === 'ECONNREFUSED') {
+                 throw new Error('Воркер не принимает соединения (Воркер упал?)');
             }
             
             throw new Error(e.response?.data?.error || e.message);
-            
         }
         
     }

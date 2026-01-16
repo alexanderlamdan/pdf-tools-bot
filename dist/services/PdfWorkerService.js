@@ -14,7 +14,7 @@ export class PdfWorkerService {
             }, {
                 socketPath: socketPath,
                 headers: { 'Content-Type': 'application/json' },
-                timeout: 10000
+                timeout: 2000
             });
             const data = response.data;
             if (data.status === 'error') {
@@ -23,9 +23,15 @@ export class PdfWorkerService {
             return data.info || 'No Information';
         }
         catch (e) {
-            console.error(`Worker Communication Error: ${e.message}`);
-            if (e.code === 'ENOENT' || e.code === 'ECONNREFUSED') {
-                throw new Error('PDF Service is under construction.');
+            console.error(`[PdfWorkerService] Ошибка запроса к воркеру: ${e.message}`);
+            if (e.code === 'ENOENT') {
+                throw new Error(`Файл сокета не найден: ${socketPath} (Проверь, запущен ли worker)`);
+            }
+            if (e.code === 'EACCES') {
+                throw new Error(`Нет прав доступа к сокету: ${socketPath} (Проверь chmod/user)`);
+            }
+            if (e.code === 'ECONNREFUSED') {
+                throw new Error('Воркер не принимает соединения (Воркер упал?)');
             }
             throw new Error(e.response?.data?.error || e.message);
         }
