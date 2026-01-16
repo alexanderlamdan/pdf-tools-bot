@@ -29,6 +29,7 @@ type Response struct {
 }
 
 func main() {
+	api.DisableConfigDir()
 
 	if _, err := os.Stat(socketPath); err == nil {
 		if err := os.Remove(socketPath); err != nil {
