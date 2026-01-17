@@ -19,13 +19,11 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
   super();
 
   this.config = configSource;
-
-  // 1) Обычный бот (webhook, ctx.api)
+  
   this.bot = new Bot(this.config.token);
 
-  // 2) Local API клиент (для upload >50MB и т.п.)
   this.localApi = new Api<RawApi>(this.config.token, {
-    apiRoot: this.config.localApiFile, // http://127.0.0.1:8081
+    apiRoot: this.config.localApiFile
   });
 
   this.logger = new LoggerService(this.config);
