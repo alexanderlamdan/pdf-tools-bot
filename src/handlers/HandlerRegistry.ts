@@ -7,10 +7,11 @@ import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
 import { UserService } from "../services/UserService.js";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
+import { LocalizationService } from "../services/LocalizationService.js";
 
 interface CommandBinding {
   command: string;
-  Handler: new (...args: any[]) => { handle(ctx: any): Promise<void> | void };
+  Handler: new (config: IBotConfig, localization: LocalizationService) => { handle(ctx: any): Promise<void> | void };
 }
 
 export class HandlerRegistry {
@@ -24,18 +25,19 @@ export class HandlerRegistry {
   constructor(
     private readonly bot: Bot,
     private readonly config: IBotConfig,
-    private readonly localApi: LocalApi
+    private readonly localApi: LocalApi,
+    private readonly localization: LocalizationService
   ) {
     this.userService = new UserService();
   }
 
   public registerAll(): void {
     for (const { command, Handler } of this.commandBindings) {
-      const instance = new Handler(this.config);
+      const instance = new Handler(this.config,this.localization);
       this.bot.command(command, instance.handle.bind(instance));
     }
 
-    const docHandler = new DocumentMessageHandler(this.config, this.localApi);
+    const docHandler = new DocumentMessageHandler(this.config, this.localApi,this.localization);
 
     this.bot.on("message:document", async (ctx) => {
       if (docHandler.isSupportedDocument(ctx)) {

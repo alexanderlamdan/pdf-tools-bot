@@ -5,6 +5,7 @@ import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import type {Request, Response, NextFunction} from 'express';
 import {HandlerRegistry} from '../handlers/HandlerRegistry.js';
 import {LoggerService} from '../services/LoggerService.js';
+import { LocalizationService } from "../services/LocalizationService.js";
 
 
 export class TelegramBotCore extends AbstractTelegramBotCore{
@@ -14,6 +15,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 	private readonly config:IBotConfig;
 	private readonly logger:LoggerService;
 	private readonly localApi: Api<RawApi>;
+	private readonly localization: LocalizationService;
 
 	constructor(configSource: IBotConfig) {
   super();
@@ -28,7 +30,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 
   this.logger = new LoggerService(this.config);
 
-  new HandlerRegistry(this.bot, this.config, this.localApi).registerAll();
+  new HandlerRegistry(this.bot, this.config, this.localApi,this.localization).registerAll();
 }
 	public getWebhookCallback(){
 

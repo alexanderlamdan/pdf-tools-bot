@@ -1,0 +1,8 @@
+{
+  "start_message": "👋 <b>שלום!</b> אני PDF Actions Bot.\n\nאני יכול למזג, לפצל ולדחוס קבצי PDF.\nשלח /help כדי לראות מה אני יכול לעשות.",
+  "help_message": "<b>איך להשתמש:</b>\nפשוט שלח לי קובץ PDF.\n\n<b>פקודות:</b>\n/start - התחלה מחדש\n/help - עזרה",
+  "processing": "⏳ <b>מעבד...</b>",
+  "btn_merge": "🔗 מיזוג PDF",
+  "btn_compress": "🗜 דחיסת PDF",
+  "pdf_info": "<b>מידע על הקובץ:</b>\n"
+}

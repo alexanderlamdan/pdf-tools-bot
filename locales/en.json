@@ -1,0 +1,9 @@
+{
+  "language_not_supported": "⚠️ Your language is not supported yet. English is used by default.",
+  "start_message": "👋 <b>Hello!</b> I am PDF Actions Bot.\n\nI can merge, split, and compress your PDF files.\nSend /help to see what I can do.",
+  "help_message": "<b>How to use:</b>\nJust send me a PDF file.\n\n<b>Commands:</b>\n/start - Restart bot\n/help - Show this message",
+  "processing": "⏳ <b>Processing...</b>",
+  "btn_merge": "🔗 Merge PDF",
+  "btn_compress": "🗜 Compress PDF",
+  "pdf_info": "<b>PDF Info:</b>\n"
+}
