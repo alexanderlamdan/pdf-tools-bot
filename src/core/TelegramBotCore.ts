@@ -6,6 +6,7 @@ import type {Request, Response, NextFunction} from 'express';
 import {HandlerRegistry} from '../handlers/HandlerRegistry.js';
 import {LoggerService} from '../services/LoggerService.js';
 import { LocalizationService } from "../services/LocalizationService.js";
+import { BotMenuService } from "../services/BotMenuService.js";
 
 
 export class TelegramBotCore extends AbstractTelegramBotCore{
@@ -16,23 +17,31 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 	private readonly logger:LoggerService;
 	private readonly localApi: Api<RawApi>;
 	private readonly localization: LocalizationService;
+	private readonly menuService:BotMenuService;
 
 	constructor(configSource: IBotConfig) {
-  super();
+  		super();
 
-  this.config = configSource;
-  this.localization = new LocalizationService();
+  		this.config = configSource;
+  		this.localization = new LocalizationService();
   
-  this.bot = new Bot(this.config.token);
+  		this.bot = new Bot(this.config.token);
 
-  this.localApi = new Api<RawApi>(this.config.token, {
-    apiRoot: this.config.localApiFile
-  });
+  		this.localApi = new Api<RawApi>(this.config.token, {
+    		apiRoot: this.config.localApiFile
+  		});
 
-  this.logger = new LoggerService(this.config);
+  		this.logger = new LoggerService(this.config);
+  		this.menuService = new BotMenuService(this.bot);
 
-  new HandlerRegistry(this.bot, this.config, this.localApi,this.localization).registerAll();
-}
+  		new HandlerRegistry(this.bot, this.config, this.localApi,this.localization).registerAll();
+	}
+	
+	public async init(){
+		
+		await this.menuService.syncMenu();
+		
+	}
 	public getWebhookCallback(){
 
 		return webhookCallback(this.bot, "express");

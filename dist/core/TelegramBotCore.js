@@ -3,6 +3,7 @@ import { AbstractTelegramBotCore } from './abstract/AbstractTelegramBotCore.js';
 import { HandlerRegistry } from '../handlers/HandlerRegistry.js';
 import { LoggerService } from '../services/LoggerService.js';
 import { LocalizationService } from "../services/LocalizationService.js";
+import { BotMenuService } from "../services/BotMenuService.js";
 export class TelegramBotCore extends AbstractTelegramBotCore {
     bot;
     webhookHandler;
@@ -10,6 +11,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
     logger;
     localApi;
     localization;
+    menuService;
     constructor(configSource) {
         super();
         this.config = configSource;
@@ -19,7 +21,11 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
             apiRoot: this.config.localApiFile
         });
         this.logger = new LoggerService(this.config);
+        this.menuService = new BotMenuService(this.bot);
         new HandlerRegistry(this.bot, this.config, this.localApi, this.localization).registerAll();
+    }
+    async init() {
+        await this.menuService.syncMenu();
     }
     getWebhookCallback() {
         return webhookCallback(this.bot, "express");

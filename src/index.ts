@@ -16,8 +16,10 @@ const SOCKET = `/run/bots/${config.botName}.sock`;
 
 if (fs.existsSync(SOCKET)) fs.unlinkSync(SOCKET);
 
-http.createServer(app).listen(SOCKET, () => {
+http.createServer(app).listen(SOCKET, async() => {
+	
 	fs.chmodSync(SOCKET, 0o660);
+	await botCore.init();
 	console.log('>>> BOT STARTED <<<');
 	console.log(`✅ ${config.botName} запущен на ${SOCKET}, webhook: ${config.path}`);
 });
