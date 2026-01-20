@@ -56,7 +56,7 @@ export class DocumentMessageHandler {
       localPath = await this.fileService.downloadFile(ctx, document.file_id);
       this.logger.logToFile('system/document-process.log', `DOWNLOADED | Path: ${localPath}`);
       
-      const infoText = await this.workerService.getPdfInfo(localPath);
+      const infoText = await this.workerService.getPdfInfo(localPath,lang);
       this.logger.logToFile('system/document-process.log', `WORKER RESPONSE | Length: ${infoText.length} chars`);
 
       await ctx.api.editMessageText(

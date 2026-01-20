@@ -15,8 +15,15 @@ export class BotMenuService {
                 { command: 'status', description: 'Show your current usage status' },
                 { command: 'upgrade', description: 'Upgrade to Medium, pro or premium plan' }
             ],
-            description: "🤖 <b>PDF Actions Bot</b>\n\nI can help you manage PDF files:\n• Merge & Split\n• Compress\nProtect & Unlock\nExtract\nStatus\nUpgrade",
-            shortDescription: "Best PDF Tool. Merge, Split, Compress, Protect, Unlock, Extract and much more"
+            description: "🚀 PDF Tools Bot — Professional PDF management.\n\n" +
+                "✅ Features:\n" +
+                "• Merge multiple files\n" +
+                "• Split PDF by pages\n" +
+                "• Advanced Compression\n" +
+                "• Password Protection\n\n" +
+                "⚡️ Fast, secure, and reliable.Send me a file to start!\n\n" +
+                "Powered by Linux & Go",
+            shortDescription: "Professional PDF tools: Merge, Split, Compress and more."
         },
         ru: {
             commands: [
@@ -31,8 +38,14 @@ export class BotMenuService {
                 { command: 'status', description: 'Посмотреть статус пользования ботом' },
                 { command: 'upgrade', description: 'Обновиться до Средней, про или премиум подписки' }
             ],
-            description: "<b><PDF Actions Bot/b>\n\nЯ умею работать с пдф файлами и облегчить тебе головную боль:\n Склеить и разрезать\nСжать\nУстановить пароль или сбросить пароль\nИзвлечь картинки или текст\nУзнать статус пользования ботом\nОбновиться до средней, про или премиум подписки",
-            shortDescription: "Лучший инструмент для работы с пдф файлами. Склеить, Разрезать, Сжать, Защитить, Разблокировать и многое другое"
+            description: "🚀 PDF Tools Bot — профессиональная работа с PDF.\n\n" +
+                "✅ Возможности:\n" +
+                "• Склеить несколько PDF в один\n" +
+                "• Разделить на отдельные страницы\n" +
+                "• Быстрое сжатие\n" +
+                "• Установка и снятие паролей\n\n" +
+                "⚡️ Быстро, безопасно и надежно. Просто отправь мне файл!\n\n",
+            shortDescription: "Профессиональные PDF инструменты: Склейка, Разделение, Сжатие и многое другое."
         },
         heb: {
             commands: [
@@ -47,8 +60,15 @@ export class BotMenuService {
                 { command: 'status', description: 'לראות שימוש נוכחית' },
                 { command: 'upgrade', description: 'לעדכן למנוי בינוני, פרו או פרמיום' }
             ],
-            description: "<b>PDF Actions Bot</b>. אני יודע לעבוד עם קבצי pdf ולהקל לך את הכאבי ראש יום יום:\n\n לחבר ולחתוך\nלדחוס\nלהתקין סיסמא או להסיר סיסמא\nלהוציא תמונות או טקסט\nלראות שימוש נוכחי\nלהיתעדכן לחבילה בינונית, פרו או פרמיום",
-            shortDescription: "הבוט הכי טוב לעבודה עם קבצי pdf. תשכח מכל הכאבי ראש של אתרי אינטרנט.פשוט תעלה את הקובץ ותבחר מה אתה רוצה לעשות"
+            description: "🚀 PDF Tools Bot — ניהול קבצי PDF מקצועי.\n\n" +
+                "✅ מה אני יודע לעשות:\n" +
+                "• מיזוג מספר קבצים לאחד\n" +
+                "• פיצול PDF לפי עמודים\n" +
+                "• דחיסה מהירה\n" +
+                "• הוספה או הסרה של סיסמאות\n\n" +
+                "⚡️ מהיר, מאובטח ואמין. פשוט שלחו קובץ כדי להתחיל!\n\n" +
+                "🇮🇱 פותח בישראל",
+            shortDescription: "כלי PDF מקצועיים: מיזוג, פיצול, דחיסה ועוד."
         }
     };
     constructor(bot) {
