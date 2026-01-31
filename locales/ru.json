@@ -5,6 +5,7 @@
   "btn_merge": "🔗 Объединить",
   "btn_compress": "🗜 Сжать",
   "pdf_info": "<b>Информация о PDF:</b>\n",
+  "btn_extract":"Извлечь фото или текст",
   "btn_split": "✂️ Разделить",
   "btn_protect": "🔐 Защитить",
   "btn_unlock": "🔓 Снять пароль",

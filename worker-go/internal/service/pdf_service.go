@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	// "path/filepath"
+	"path/filepath"
 
 	"pdf-worker/internal/domain"
 	"pdf-worker/internal/i18n"
-	// "github.com/pdfcpu/pdfcpu/pkg/api"
-	// "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 )
 
 var commonPasswords = []string{
@@ -55,5 +56,69 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 }
 
 func (s *PdfService) Encrypt(req domain.Request) domain.Response {
+
+	outputPath := getOutputPath(req.InputPath)
+
+	conf := model.NewAESConfiguration(req.Password, req.Password, 256)
+	err := api.EncryptFile(req.InputPath, outputPath, conf)
+
+	if err != nil {
+
+		return domain.Response{Status: "error", Error: err.Error()}
+
+	}
+
+	return domain.Response{Status: "ok", Path: outputPath}
+
+}
+
+func (s *PdfService) Decrypt(req domain.Request) domain.Response {
+
+	outputPath := getOutputPath(req.InputPath)
+	conf := model.NewAESConfiguration(req.Password, req.Password, 256)
+
+	err := api.DecryptFile(req.InputPath, outputPath, conf)
+
+	if err != nil {
+
+		return domain.Response{Status: "error", Error: "Wrong password or file error"}
+
+	}
+
+	return domain.Response{Status: "ok", Path: outputPath}
+
+}
+
+func (s *PdfService) Crack(req domain.Request) domain.Response {
+
+	outputPath := getOutputPath(req.InputPath)
+
+	for _, pwd := range commonPasswords {
+
+		conf := model.NewAESConfiguration(pwd, pwd, 256)
+		err := api.DecryptFile(req.InputPath, outputPath, conf)
+
+		if err == nil {
+
+			return domain.Response{
+
+				Status: "ok",
+				Path:   outputPath,
+				Info:   fmt.Sprintf("Password found: %s", pwd),
+			}
+
+		}
+
+	}
+
+	return domain.Response{Status: "error", Error: "Password is too strong. Dictionary attack failed"}
+
+}
+
+func getOutputPath(path string) string {
+
+	ext := filepath.Ext(path)
+	base := path[0 : len(path)-len(ext)]
+	return base + "_mod" + ext
 
 }

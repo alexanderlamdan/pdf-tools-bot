@@ -5,6 +5,7 @@
   "btn_merge": "🔗 מיזוג PDF",
   "btn_compress": "🗜 דחיסת PDF",
   "pdf_info": "<b>מידע על הקובץ:</b>\n",
+  "btn_extract":"להוציא טקסט או תמונות מקובץ",
   "btn_split": "✂️ פיצול",
   "btn_protect": "🔐 הגנה",
   "btn_unlock": "🔓 הסרת סיסמה",
