@@ -36,7 +36,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Action: %s | Lang: %s\n", req.Action, req.Lang)
 
-	var resp domain.Request
+	var resp domain.Response
 
 	switch req.Action {
 
