@@ -1,4 +1,4 @@
-import { Bot, Api, webhookCallback } from "grammy";
+import { Bot, Api, webhookCallback,session } from "grammy";
 import type { RawApi } from "grammy";
 import {AbstractTelegramBotCore} from './abstract/AbstractTelegramBotCore.js';
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
@@ -7,11 +7,13 @@ import {HandlerRegistry} from '../handlers/HandlerRegistry.js';
 import {LoggerService} from '../services/LoggerService.js';
 import { LocalizationService } from "../services/LocalizationService.js";
 import { BotMenuService } from "../services/BotMenuService.js";
+import type { BotContext } from "../types/BotContext.js";
+import { initialSession } from "../types/SessionData.js";
 
 
 export class TelegramBotCore extends AbstractTelegramBotCore{
 
-	private readonly bot:Bot;
+	private readonly bot:Bot<BotContext>;
 	private readonly webhookHandler:(req:Request,res:Response,next:NextFunction)=>void;
 	private readonly config:IBotConfig;
 	private readonly logger:LoggerService;
@@ -25,7 +27,11 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
   		this.config = configSource;
   		this.localization = new LocalizationService();
   
-  		this.bot = new Bot(this.config.token);
+  		this.bot = new Bot<BotContext>(this.config.token);
+		
+		this.bot.use(session({
+			initial:initialSession,
+		}));
 
   		this.localApi = new Api<RawApi>(this.config.token, {
     		apiRoot: this.config.localApiFile

@@ -3,11 +3,13 @@ import type { LocalApi } from "../types/LocalApi.js";
 
 import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
+import { ButtonHandler } from "./message/ButtonHandler.js";
 
 import { UserService } from "../services/UserService.js";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
 import { LocalizationService } from "../services/LocalizationService.js";
+import type { BotContext } from "../types/BotContext.js";
 
 interface CommandBinding {
   command: string;
@@ -23,7 +25,7 @@ export class HandlerRegistry {
   ];
 
   constructor(
-    private readonly bot: Bot,
+    private readonly bot: Bot<BotContext>,
     private readonly config: IBotConfig,
     private readonly localApi: LocalApi,
     private readonly localization: LocalizationService
@@ -38,7 +40,15 @@ export class HandlerRegistry {
     }
 
     const docHandler = new DocumentMessageHandler(this.config, this.localApi,this.localization);
+    
+    const buttonHandler = new ButtonHandler(this.localization);
 
+    this.bot.on("message:text",async (ctx)=>{
+      
+      await buttonHandler.handle(ctx);
+      
+    });
+    
     this.bot.on("message:document", async (ctx) => {
       if (docHandler.isSupportedDocument(ctx)) {
         await docHandler.handle(ctx);

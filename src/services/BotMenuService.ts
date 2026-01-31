@@ -1,4 +1,5 @@
 import {Bot} from 'grammy'; 
+import type { BotContext } from '../types/BotContext.js';
 export class BotMenuService{
     
     private readonly config = {
@@ -86,7 +87,7 @@ export class BotMenuService{
         
     }
     
-    constructor(private readonly bot:Bot){}
+    constructor(private readonly bot:Bot<BotContext>){}
     
     public async syncMenu(){
         

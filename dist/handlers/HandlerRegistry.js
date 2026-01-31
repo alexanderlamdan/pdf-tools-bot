@@ -1,5 +1,6 @@
 import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
+import { ButtonHandler } from "./message/ButtonHandler.js";
 import { UserService } from "../services/UserService.js";
 import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
 import { LocalizationService } from "../services/LocalizationService.js";
@@ -26,6 +27,10 @@ export class HandlerRegistry {
             this.bot.command(command, instance.handle.bind(instance));
         }
         const docHandler = new DocumentMessageHandler(this.config, this.localApi, this.localization);
+        const buttonHandler = new ButtonHandler(this.localization);
+        this.bot.on("message:text", async (ctx) => {
+            await buttonHandler.handle(ctx);
+        });
         this.bot.on("message:document", async (ctx) => {
             if (docHandler.isSupportedDocument(ctx)) {
                 await docHandler.handle(ctx);

@@ -40,4 +40,15 @@ export class LocalizationService {
         const dict = this.locales[lang] || this.locales[this.defaultLang];
         return dict?.[key] || `[MISSING: ${key}]`;
     }
+    getActionKeyByText(text) {
+        for (const lang of Object.keys(this.locales)) {
+            const dict = this.locales[lang];
+            for (const [key, value] of Object.entries(dict)) {
+                if (value === text) {
+                    return key;
+                }
+            }
+        }
+        return null;
+    }
 }
