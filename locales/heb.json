@@ -15,7 +15,7 @@
   "crack_success": "🔓 <b>הצלחה! הסיסמה נמצאה:</b> <code>{{password}}</code>\n\nהקובץ פוענח 👇",
   "crack_fail": "❌ <b>הפריצה נכשלה.</b>\nהסיסמה חזקה מדי להתקפת מילון.",
   "btn_compress_reply":"שלח לי בבקשה קובץ PDF כדי לדחוס",
-  "btn_ protect_reply":"שלח לי בבקשה קובץ PDF כדי להתקין סיסמא",
+  "btn_protect_reply":"שלח לי בבקשה קובץ PDF כדי להתקין סיסמא",
   "btn_unlock_reply":"שלח לי בבקשה קובץ PDF כדי לפרוץ את הסיסמא",
   "btn_dev_reply":"הכפתור הזה בפיתוח"
 }

@@ -16,7 +16,7 @@
   "crack_success": "🔓 <b>Success! Password found:</b> <code>{{password}}</code>\n\nFile decrypted 👇",
   "crack_fail": "❌ <b>Failed to crack.</b>\nThe password is too strong for a dictionary attack.",
   "btn_compress_reply":"Send me PDF file you want to compress",
-  "btn_ protect_reply":"Send me PDF file you want to protect",
+  "btn_protect_reply":"Send me PDF file you want to protect",
   "btn_unlock_reply":"Send me PDF file you want to unlock password",
   "btn_dev_reply":"This button in development"
 }

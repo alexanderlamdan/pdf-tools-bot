@@ -26,19 +26,19 @@ export class ButtonHandler{
             case 'btn_compress':
                 ctx.session.currentAction = 'compress';
                 ctx.session.step = 'waiting_for_file';
-                await ctx.reply(`🗜 <b>${this.localization.t(lang, 'btn_compress')}</b>\n\n` + 
+                await ctx.reply(`<b>${this.localization.t(lang, 'btn_compress')}</b>\n\n` + 
                                 `${this.localization.t(lang,'btn_compress_reply')}`, { parse_mode: 'HTML' });
                 break;
             case 'btn_protect':
                 ctx.session.currentAction = 'protect';
                 ctx.session.step = 'waiting_for_file';
-                await ctx.reply(`🔐 <b>${this.localization.t(lang, 'btn_protect')}</b>\n\n` + 
+                await ctx.reply(`<b>${this.localization.t(lang, 'btn_protect')}</b>\n\n` + 
                                 `${this.localization.t(lang,'btn_protect_reply')}`, { parse_mode: 'HTML' });
                 break;
             case 'btn_unlock':
                 ctx.session.currentAction = 'unlock';
                 ctx.session.step = 'waiting_for_file';
-                await ctx.reply(`🔐 <b>${this.localization.t(lang, 'btn_unlock')}</b>\n\n` + 
+                await ctx.reply(`<b>${this.localization.t(lang, 'btn_unlock')}</b>\n\n` + 
                                 `${this.localization.t(lang,'btn_unlock_reply')}`, { parse_mode: 'HTML' });
                 break;
             default:
