@@ -3,7 +3,13 @@
   "start_message": "👋 <b>Hello!</b> I am PDF Actions Bot.\n\nI can merge, split, and compress your PDF files.\nSend /help to see what I can do.",
   "help_message": "<b>How to use:</b>\nJust send me a PDF file.\n\n<b>Commands:</b>\n/start - Restart bot\n/help - Show this message",
   "processing": "⏳ <b>Processing...</b>",
-  "btn_merge": "🔗 Merge PDF",
-  "btn_compress": "🗜 Compress PDF",
-  "pdf_info": "<b>PDF Info:</b>\n"
+  "pdf_info": "<b>PDF Info:</b>\n",
+  "btn_merge": "🔗 Merge",
+  "btn_split": "✂️ Split",
+  "btn_compress": "🗜 Compress",
+  "btn_protect": "🔐 Protect",
+  "btn_extract":"Extract images or text",
+  "btn_unlock": "🔓 Unlock",
+  "btn_status": "👤 My Status",
+  "btn_help": "❓ Help"
 }

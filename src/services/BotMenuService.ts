@@ -16,7 +16,7 @@ export class BotMenuService{
                 {command:'unlock',description:'Remove or unlock the password from PDF file'},
                 {command:'extract',description:'Extract images or text from PDF file'},
                 {command:'status',description:'Show your current usage status'},
-                {command:'upgrade',description:'Upgrade to Medium, pro or premium plan'}
+                {command:'upgrade',description:'Upgrade to pro or for bussiness plan'}
                 
             ],
             description:"🚀 PDF Tools Bot — Professional PDF management.\n\n" +
@@ -44,7 +44,7 @@ export class BotMenuService{
                 {command:'unlock',description:'Удалить или сбросить пароль для pdf файла'},
                 {command:'extract',description:'Извлечь текст или фото с pdf файла'},
                 {command:'status',description:'Посмотреть статус пользования ботом'},
-                {command:'upgrade',description:'Обновиться до Средней, про или премиум подписки'}
+                {command:'upgrade',description:'Обновиться до про или для бизнеса подписки'}
                 
             ],
             description:"🚀 PDF Tools Bot — профессиональная работа с PDF.\n\n" +
@@ -69,8 +69,8 @@ export class BotMenuService{
                 {command:'protect',description:'להתקין סיסמא על הקובץ pdf'},
                 {command:'unlock',description:'למחוק סיסמא מקובץ pdf'},
                 {command:'extract',description:'להוציא טקסט או תמונות מקובץ pdf'},
-                {command:'status',description:'לראות שימוש נוכחית'},
-                {command:'upgrade',description:'לעדכן למנוי בינוני, פרו או פרמיום'}
+                {command:'status',description:'לראות שימוש נוכחי'},
+                {command:'upgrade',description:'לעדכן למנוי פרו ,פרמיום או לעסקים'}
                 
             ],
             description:"🚀 PDF Tools Bot — ניהול קבצי PDF מקצועי.\n\n" +

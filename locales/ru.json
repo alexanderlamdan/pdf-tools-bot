@@ -4,5 +4,10 @@
   "processing": "⏳ <b>Обрабатываю...</b>",
   "btn_merge": "🔗 Объединить",
   "btn_compress": "🗜 Сжать",
-  "pdf_info": "<b>Информация о PDF:</b>\n"
+  "pdf_info": "<b>Информация о PDF:</b>\n",
+  "btn_split": "✂️ Разделить",
+  "btn_protect": "🔐 Защитить",
+  "btn_unlock": "🔓 Снять пароль",
+  "btn_status": "👤 Мой статус",
+  "btn_help": "❓ Помощь"
 }

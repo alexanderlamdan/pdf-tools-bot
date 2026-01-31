@@ -2,18 +2,21 @@ import type {Context} from 'grammy';
 import {LoggerService} from '../../services/LoggerService.js';
 import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import {LocalizationService} from '../../services/LocalizationService.js';
+import { Keyboards } from '../../services/Keyboards.js';
 
 export class StartCommandHandler{
 	
 	private readonly logger:LoggerService;
 	private readonly config:IBotConfig;
 	private readonly localization:LocalizationService;
+	private readonly keyboards:Keyboards;
 	
 	constructor(config:IBotConfig,localization:LocalizationService){
 		
 		this.config = config;
 		this.localization = localization;
 		this.logger = new LoggerService(config);
+		this.keyboards = new Keyboards(localization);
 		
 	}
 	
@@ -46,9 +49,15 @@ export class StartCommandHandler{
 				
 			}
 			
+			const keyboard = this.keyboards.getMainMenu(lang);
+			
+			
 			await ctx.reply(
 				this.localization.t(lang,'start_message'),
-				{parse_mode:'HTML'}
+				{
+					parse_mode:'HTML',
+					reply_markup:keyboard
+				}
 			);
 			
 			this.logger.logToFile('system/command-info.log', `COMMAND /start | Success response sent to User ${ctx.from!.id}`);

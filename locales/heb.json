@@ -4,5 +4,10 @@
   "processing": "⏳ <b>מעבד...</b>",
   "btn_merge": "🔗 מיזוג PDF",
   "btn_compress": "🗜 דחיסת PDF",
-  "pdf_info": "<b>מידע על הקובץ:</b>\n"
+  "pdf_info": "<b>מידע על הקובץ:</b>\n",
+  "btn_split": "✂️ פיצול",
+  "btn_protect": "🔐 הגנה",
+  "btn_unlock": "🔓 הסרת סיסמה",
+  "btn_status": "👤 הסטטוס שלי",
+  "btn_help": "❓ עזרה"
 }
