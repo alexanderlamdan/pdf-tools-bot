@@ -21,7 +21,7 @@ var commonPasswords = []string{
 
 type PdfService struct{}
 
-func newPdfService() *PdfService {
+func NewPdfService() *PdfService {
 
 	return &PdfService{}
 

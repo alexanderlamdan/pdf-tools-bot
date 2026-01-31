@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"pdf-worker/internal/handler"
+	"pdf-worker/internal/service"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
@@ -22,11 +23,11 @@ func main() {
 	api.DisableConfigDir()
 	setupSocket()
 
-	pdfService := service.newPdfService()
+	pdfService := service.NewPdfService()
 
 	h := handler.NewHandler(pdfService)
 
-	http.Handler("/process", h)
+	http.Handle("/process", h)
 
 	fmt.Printf("✅ Go worker running structured on: %s\n", socketPath)
 
