@@ -7,6 +7,7 @@ interface WorkerResponse{
     status: 'ok' | 'error';
     info?:string;
     error?:string;
+    path?:string;
     
 }
 
@@ -14,22 +15,18 @@ export class PdfWorkerService{
     
     constructor(private readonly config:IBotConfig){}
     
-    public async getPdfInfo(filePath:string,lang:string):Promise<string>{
+    public async sendRequest(payload:any):Promise<WorkerResponse>{
         
         const socketPath = this.config.workerSocketPath;
 
         try{
             const response = await axios.post<WorkerResponse>(
                 'http://localhost/process',
-                {
-                    action:'info',
-                    inputPath: filePath,
-                    lang:lang
-                },
+                payload,
                 {
                     socketPath: socketPath,
                     headers:{'Content-Type':'application/json'},
-                    timeout: 2000 
+                    timeout: 60000
                 }
             );
             
@@ -37,7 +34,7 @@ export class PdfWorkerService{
             if(data.status === 'error'){
                 throw new Error(data.error);
             }
-            return data.info || 'No Information';
+            return  response.data || 'No Information';
             
         }catch(e:any){
             // Логируем реальную причину
@@ -55,6 +52,69 @@ export class PdfWorkerService{
             
             throw new Error(e.response?.data?.error || e.message);
         }
+        
+    }
+    
+    public async getPdfInfo(filePath:string,lang:string):Promise<string>{
+        
+        const data = await this.sendRequest({
+            
+            action:'info',
+            inputPath:filePath,
+            lang:lang
+            
+        });
+        
+        if (data.status === 'error') throw new Error(data.error);
+        return data.info || 'No Information';
+    }
+    
+    public async encrypt(filePath:string,password:string):Promise<string>{
+        
+        const data = await this.sendRequest({
+            
+            action:'encrypt',
+            inputPath:filePath,
+            password:password
+            
+        });
+        
+        if(data.status === 'error') throw new Error(data.error);
+        return data.path!;
+        
+    }
+    
+    public async decrypt(filePath:string, password:string):Promise<string>{
+        
+        const data = await this.sendRequest({
+            
+            action:'decrypt',
+            inputPath:filePath,
+            password:password
+            
+        });
+        
+        if(data.status === 'error') throw new Error(data.error);
+        return data.path!;
+        
+    }
+    
+    public async crack(filePath:string):Promise<{path:string,password:string}>{
+        
+        const data = await this.sendRequest({
+            
+            action:'crack',
+            inputPath:filePath
+            
+        });
+        
+        if(data.status === 'error') throw new Error(data.error);
+        return {
+            
+            path:data.path!,
+            password:data.info || 'found'
+            
+        };
         
     }
     

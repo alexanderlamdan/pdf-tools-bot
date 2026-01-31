@@ -5,23 +5,19 @@ export class PdfWorkerService {
     constructor(config) {
         this.config = config;
     }
-    async getPdfInfo(filePath, lang) {
+    async sendRequest(payload) {
         const socketPath = this.config.workerSocketPath;
         try {
-            const response = await axios.post('http://localhost/process', {
-                action: 'info',
-                inputPath: filePath,
-                lang: lang
-            }, {
+            const response = await axios.post('http://localhost/process', payload, {
                 socketPath: socketPath,
                 headers: { 'Content-Type': 'application/json' },
-                timeout: 2000
+                timeout: 60000
             });
             const data = response.data;
             if (data.status === 'error') {
                 throw new Error(data.error);
             }
-            return data.info || 'No Information';
+            return response.data || 'No Information';
         }
         catch (e) {
             console.error(`[PdfWorkerService] Failed connect to worker: ${e.message}`);
@@ -36,5 +32,47 @@ export class PdfWorkerService {
             }
             throw new Error(e.response?.data?.error || e.message);
         }
+    }
+    async getPdfInfo(filePath, lang) {
+        const data = await this.sendRequest({
+            action: 'info',
+            inputPath: filePath,
+            lang: lang
+        });
+        if (data.status === 'error')
+            throw new Error(data.error);
+        return data.info || 'No Information';
+    }
+    async encrypt(filePath, password) {
+        const data = await this.sendRequest({
+            action: 'encrypt',
+            inputPath: filePath,
+            password: password
+        });
+        if (data.status === 'error')
+            throw new Error(data.error);
+        return data.path;
+    }
+    async decrypt(filePath, password) {
+        const data = await this.sendRequest({
+            action: 'decrypt',
+            inputPath: filePath,
+            password: password
+        });
+        if (data.status === 'error')
+            throw new Error(data.error);
+        return data.path;
+    }
+    async crack(filePath) {
+        const data = await this.sendRequest({
+            action: 'crack',
+            inputPath: filePath
+        });
+        if (data.status === 'error')
+            throw new Error(data.error);
+        return {
+            path: data.path,
+            password: data.info || 'found'
+        };
     }
 }

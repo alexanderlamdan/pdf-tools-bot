@@ -11,5 +11,8 @@
   "btn_extract":"Extract images or text",
   "btn_unlock": "🔓 Unlock",
   "btn_status": "👤 My Status",
-  "btn_help": "❓ Help"
+  "btn_help": "❓ Help",
+  "cracking_process": "🕵️‍♂️ <b>Cracking password...</b>\n\nChecking 10,000 common combinations. This uses heavy CPU power and may take up to <b>30-60 seconds</b>.\n\n<i>Please wait...</i>",
+  "crack_success": "🔓 <b>Success! Password found:</b> <code>{{password}}</code>\n\nFile decrypted 👇",
+  "crack_fail": "❌ <b>Failed to crack.</b>\nThe password is too strong for a dictionary attack."
 }
