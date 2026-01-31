@@ -44,7 +44,7 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 	sizeMB := float64(fi.Size()) / (1024 * 1024)
 
 	resp.Info = fmt.Sprintf(
-		"PDF v%s\n%s: %d\n%s: %.2f MB",
+		"PDF v%s\n%s: %d\n%s: %s\n%s: %.2f MB",
 		ctx.HeaderVersion.String(),
 		i18n.T(req.Lang, "pages"), ctx.PageCount,
 		i18n.T(req.Lang, "author"), ctx.Author,
