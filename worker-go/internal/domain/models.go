@@ -10,6 +10,6 @@ type Request struct {
 type Response struct {
 	Status string `json:"status"`
 	Info   string `json:"info,omitempty"`
-	Error  string `json:error,omitempty`
-	Path   string `json:path,omitempty`
+	Error  string `json:"error,omitempty"`
+	Path   string `json:"path,omitempty"`
 }
