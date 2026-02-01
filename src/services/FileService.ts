@@ -81,4 +81,23 @@ export class FileService{
         
     }
     
+    public async deleteFile(filePath:string):Promise<void>{
+        
+        try{
+            
+            if(fs.existsSync(filePath)){
+                
+                await fs.promises.unlink(filePath);
+                console.log(`🗑 [FileService] Deleted: ${filePath}`)
+                
+            }
+            
+        }catch(e:any){
+            
+            console.error(`⚠️ [FileService] Failed to delete file ${filePath}: ${e.message}`)
+            
+        }
+        
+    }
+    
 }

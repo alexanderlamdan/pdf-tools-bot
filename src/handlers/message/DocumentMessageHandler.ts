@@ -1,10 +1,12 @@
-import { Context } from "grammy";
+import type { BotContext } from "../../types/BotContext.js";
 import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import type { LocalApi } from "../../types/LocalApi.js";
 import { FileService } from "../../services/FileService.js";
 import { PdfWorkerService } from "../../services/PdfWorkerService.js";
 import { LocalizationService } from "../../services/LocalizationService.js";
 import { LoggerService } from "../../services/LoggerService.js";
+import { initialSession} from "../../types/SessionData.js";
+import { InputFile } from "grammy";
 
 export class DocumentMessageHandler {
   private readonly fileService: FileService;
@@ -23,17 +25,17 @@ export class DocumentMessageHandler {
     this.logger = new LoggerService(this.config);
   }
 
-  public isSupportedDocument(ctx: Context): boolean {
+  public isSupportedDocument(ctx: BotContext): boolean {
     return ctx.message?.document?.mime_type === "application/pdf";
   }
 
-  async handle(ctx: Context) {
+  async handle(ctx: BotContext) {
     const document = ctx.message?.document;
     if (!document) return;
     
     const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
 
-    // 2. ЛОГГИРОВАНИЕ: Начало обработки
+    const action = ctx.session.currentAction;
     const logInfo = `FILE_ID:${document.file_id} | NAME:${document.file_name} | SIZE:${document.file_size}`;
     
     await this.logger.logToTelegram(
@@ -48,24 +50,59 @@ export class DocumentMessageHandler {
     );
     this.logger.logToFile('system/document-process.log', `START PROCESS | USER:${ctx.from!.id} | ${logInfo}`);
 
-    const statusMsg = await ctx.reply("<b>Processing...</b>", { parse_mode: "HTML" });
+    const statusMsg = await ctx.reply(this.localization.t(lang,'processing'), { parse_mode: "HTML" });
 
     let localPath: string | null = null;
+    let resultPath:string | null = null;
 
     try {
       localPath = await this.fileService.downloadFile(ctx, document.file_id);
       this.logger.logToFile('system/document-process.log', `DOWNLOADED | Path: ${localPath}`);
       
-      const infoText = await this.workerService.getPdfInfo(localPath,lang);
-      this.logger.logToFile('system/document-process.log', `WORKER RESPONSE | Length: ${infoText.length} chars`);
+      if(action === 'idle'){
+        
+        const infoText = await this.workerService.getPdfInfo(localPath,lang);
+        this.logger.logToFile('system/document-process.log', `WORKER RESPONSE | Length: ${infoText.length} chars`);
 
-      await ctx.api.editMessageText(
+        await ctx.api.editMessageText(
         ctx.chat!.id,
         statusMsg.message_id,
         `${this.localization.t(lang, 'pdf_info')}\n${infoText}`,
         { parse_mode: "HTML" }
-      );
-      this.logger.logToFile('system/document-process.log', `SUCCESS | INFO SENT to User ${ctx.from!.id}`);
+       );
+        this.logger.logToFile('system/document-process.log', `SUCCESS | INFO SENT to User ${ctx.from!.id}`);
+        
+      }else if(action === 'compress'){
+        
+        await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, "In development. в разработке", {parse_mode: "HTML"});
+        
+        ctx.session = initialSession();
+        
+      }else if(action === 'protect'){
+        
+        ctx.session.filePaths = [localPath];
+        ctx.session.step = 'waiting_for_password';
+        
+        await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id);
+        
+        await ctx.reply(this.localization.t(lang,'set_password'), { parse_mode: "HTML" });
+        
+        localPath = null;
+        
+      }else if(action === 'crack'){
+        
+        await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, this.localization.t(lang, 'cracking_process'), { parse_mode: "HTML" });
+        
+        const crackResult = await this.workerService.crack(localPath);
+        
+        await ctx.reply(this.localization.t(lang,'crack_success').replace('{{password}}',crackResult.password),{parse_mode:'HTML'});
+        
+        await ctx.replyWithDocument(new InputFile(crackResult.path));
+        
+        resultPath = crackResult.path;
+        ctx.session = initialSession();
+        
+      }
       
     } catch (e: any) {
       
@@ -90,8 +127,11 @@ export class DocumentMessageHandler {
         `<b>Error:</b> ${e.message}`,
         { parse_mode: "HTML" }
       );
-     } //finally {
-    //   if (localPath) this.fileService.deleteFile(localPath);
-    // }
+      
+      ctx.session = initialSession();
+     } finally {
+       if (localPath) await this.fileService.deleteFile(localPath);
+        if (resultPath) await this.fileService.deleteFile(resultPath);
+     }
   }
 }

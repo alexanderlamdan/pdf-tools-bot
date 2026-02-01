@@ -18,5 +18,10 @@
   "btn_compress_reply":"Send me PDF file you want to compress",
   "btn_protect_reply":"Send me PDF file you want to protect",
   "btn_unlock_reply":"Send me PDF file you want to unlock password",
-  "btn_dev_reply":"This button in development"
+  "btn_dev_reply":"This button in development",
+  "set_password":"🔑 <b>Set password</b>, that you want:",
+  "password_empty":"Password cannot be empty",
+  "file_lost":"Error.File has gone. Please try again",
+  "set_encrypt":"Encrypting...",
+  "encrypt_caption_finished":"<b>✅ <b>File is now secure!</b>\nPassword is set, you can check now.</b>"
 }

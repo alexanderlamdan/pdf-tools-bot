@@ -50,4 +50,15 @@ export class FileService {
             throw new Error(`Copy error: ${e.message}`);
         }
     }
+    async deleteFile(filePath) {
+        try {
+            if (fs.existsSync(filePath)) {
+                await fs.promises.unlink(filePath);
+                console.log(`🗑 [FileService] Deleted: ${filePath}`);
+            }
+        }
+        catch (e) {
+            console.error(`⚠️ [FileService] Failed to delete file ${filePath}: ${e.message}`);
+        }
+    }
 }

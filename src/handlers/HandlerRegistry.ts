@@ -4,6 +4,7 @@ import type { LocalApi } from "../types/LocalApi.js";
 import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
 import { ButtonHandler } from "./message/ButtonHandler.js";
+import { TextHandler } from "./message/TextHandler.js";
 
 import { UserService } from "../services/UserService.js";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
@@ -42,10 +43,13 @@ export class HandlerRegistry {
     const docHandler = new DocumentMessageHandler(this.config, this.localApi,this.localization);
     
     const buttonHandler = new ButtonHandler(this.localization);
+    const textHandler = new TextHandler(this.config, this.localApi, this.localization);
 
     this.bot.on("message:text",async (ctx)=>{
       
       await buttonHandler.handle(ctx);
+      
+      await textHandler.handle(ctx);
       
     });
     
@@ -54,5 +58,6 @@ export class HandlerRegistry {
         await docHandler.handle(ctx);
       }
     });
+    
   }
 }
