@@ -7,7 +7,7 @@
   "btn_merge": "🔗 Merge",
   "btn_split": "✂️ Split",
   "btn_compress": "🗜 Compress",
-  "btn_protect": "🔐 Protect",
+  "btn_protect": "🔐 Protect|Add password",
   "btn_extract":"Extract images or text",
   "btn_unlock": "🔓 Unlock",
   "btn_status": "👤 My Status",

@@ -7,7 +7,7 @@
   "pdf_info": "<b>מידע על הקובץ:</b>\n",
   "btn_extract":"להוציא טקסט או תמונות מקובץ",
   "btn_split": "✂️ פיצול",
-  "btn_protect": "🔐 הגנה",
+  "btn_protect": "🔐 הגנה|להוסיף סיסמא",
   "btn_unlock": "🔓 הסרת סיסמה",
   "btn_status": "👤 הסטטוס שלי",
   "btn_help": "❓ עזרה",
