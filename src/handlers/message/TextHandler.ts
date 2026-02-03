@@ -6,12 +6,14 @@ import {InputFile} from 'grammy';
 import {initialSession} from '../../types/SessionData.js';
 import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import type {LocalApi} from '../../types/LocalApi.js';
-import { escapeHtml } from '../../utils/Html.js';
+import { FileNameUtils } from '../../utils/FileNameUtils.js';
+import {Keyboards} from '../../services/Keyboards.js';
 
 export class TextHandler{
     
     private readonly workerService:PdfWorkerService;
     private readonly fileService:FileService;
+    private readonly keyboards:Keyboards;
     
     constructor(
         private readonly config:IBotConfig,
@@ -21,6 +23,7 @@ export class TextHandler{
         
         this.workerService = new PdfWorkerService(this.config);
         this.fileService = new FileService(this.config,this.localApi);
+        this.keyboards = new Keyboards(this.localization);
         
     }
     
@@ -68,12 +71,18 @@ export class TextHandler{
             try{
                 
                 resultPath = await this.workerService.encrypt(filePath, password);
-                const safePassword = escapeHtml(password);
+                const suffix = this.localization.t(lang,'suffix_protected');
                 
-                await ctx.replyWithDocument(new InputFile(resultPath),{
+                const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
+                const safeName = FileNameUtils.getSafeName(originalName, suffix)
+                
+                const safePassword = FileNameUtils.escapeHtml(password);
+                
+                await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     
                     caption:this.localization.t(lang,'encrypt_caption_finished'),
-                    parse_mode:'HTML'
+                    parse_mode:'HTML',
+                    reply_markup: this.keyboards.getMainMenu(lang)
                     
                 });
                 

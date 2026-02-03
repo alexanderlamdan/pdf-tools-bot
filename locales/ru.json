@@ -27,5 +27,6 @@
   "compress_info_process":"🗜 <b>Сжимаю файл....</b>\nЭто может занять несколько секунд.",
   "size_before":"✅ <b>Успешно!</b>\n\n📉 Размер до:",
   "size_after":"📉 Размер после:",
-  "saved_after_compress":"🔥 Сэкономлено:"
+  "saved_after_compress":"🔥 Сэкономлено:",
+  "suffix_protected":"ЗАЩИЩЕН"
 }

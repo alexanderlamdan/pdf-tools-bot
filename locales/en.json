@@ -28,5 +28,6 @@
   "compress_info_process":"🗜 <b>Compressing the file...</b>\nIt can takes couple of seconds.",
   "size_before":"✅ <b>Finished!</b>\n\n📉 Size before:",
   "size_after":"📉 Size after:",
-  "saved_after_compress":"🔥 Saved:"
+  "saved_after_compress":"🔥 Saved:",
+  "suffix_protected":"PROTECTED"
 }

@@ -27,5 +27,6 @@
   "compress_info_process":"🗜 <b>מדחיס את הקובץ, אנא המתן בבקשה...</b>\nזה יקח כמה שניות בודדות.",
   "size_before":"✅ <b>הסתיים בהצלחה!</b>\n\n📉 גודל לפני:",
   "size_after":"📉 גודל אחרי:",
-  "saved_after_compress":"🔥 חסכת:"
+  "saved_after_compress":"🔥 חסכת:",
+  "suffix_protected":"PROTECTED"
 }

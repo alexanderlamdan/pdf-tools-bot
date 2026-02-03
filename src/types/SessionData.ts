@@ -7,7 +7,8 @@ export interface SessionData{
     filePaths: string[];
     
     tempParams:{
-        password?:string;
+        password?:string,
+        originalName?:string
     };
     
 }

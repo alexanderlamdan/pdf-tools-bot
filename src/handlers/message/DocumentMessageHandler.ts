@@ -7,6 +7,8 @@ import { LocalizationService } from "../../services/LocalizationService.js";
 import { LoggerService } from "../../services/LoggerService.js";
 import { initialSession} from "../../types/SessionData.js";
 import { InputFile } from "grammy";
+import { Keyboards } from "../../services/Keyboards.js";
+import { FileNameUtils } from "../../utils/FileNameUtils.js";
 import fs from 'fs';
 
 export class DocumentMessageHandler {
@@ -14,6 +16,7 @@ export class DocumentMessageHandler {
   private readonly workerService: PdfWorkerService;
   private readonly localization: LocalizationService;
   private readonly logger: LoggerService;
+  private readonly keyboards:Keyboards;
 
   constructor(
     private readonly config: IBotConfig,
@@ -24,6 +27,7 @@ export class DocumentMessageHandler {
     this.fileService = new FileService(this.config, this.localApi);
     this.workerService = new PdfWorkerService(this.config);
     this.logger = new LoggerService(this.config);
+    this.keyboards = new Keyboards(this.localization);
   }
 
   public isSupportedDocument(ctx: BotContext): boolean {
@@ -64,7 +68,9 @@ export class DocumentMessageHandler {
         
         const infoText = await this.workerService.getPdfInfo(localPath,lang);
         this.logger.logToFile('system/document-process.log', `WORKER RESPONSE | Length: ${infoText.length} chars`);
-
+        
+        const safeInfo = FileNameUtils.escapeHtml(infoText);
+        
         await ctx.api.editMessageText(
         ctx.chat!.id,
         statusMsg.message_id,
@@ -89,10 +95,14 @@ export class DocumentMessageHandler {
         const saved = ((oldSize-newSize)/1024/1024).toFixed(2);
         const percent = Math.round(((oldSize - newSize) / oldSize) * 100);
         
+        const rawName = document.file_name || 'document.pdf';
+        const safeName = rawName.replace('.pdf','_COMPRESSED.pdf')
+        
         await ctx.replyWithDocument(new InputFile(resultPath),{
           
           caption: `${this.localization.t(lang,'size_before')} ${(oldSize/1024/1024).toFixed(2)} MB\n ${this.localization.t(lang,'size_after')} ${(newSize/1024/1024).toFixed(2)} MB\n ${this.localization.t(lang,'saved_after_compress')} ${saved} MB (${percent}%)</b>`,
-          parse_mode:'HTML'
+          parse_mode:'HTML',
+          reply_markup: this.keyboards.getMainMenu(lang)
           
         });
         
@@ -102,6 +112,7 @@ export class DocumentMessageHandler {
       }else if(action === 'protect'){
         
         ctx.session.filePaths = [localPath];
+        ctx.session.tempParams = {originalName:document.file_name};
         ctx.session.step = 'waiting_for_password';
         
         await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id);
@@ -126,7 +137,14 @@ export class DocumentMessageHandler {
         
         await ctx.reply(this.localization.t(lang,'crack_success').replace('{{password}}',crackResult.password),{parse_mode:'HTML'});
         
-        await ctx.replyWithDocument(new InputFile(crackResult.path));
+        const rawName = document.file_name || 'document.pdf';
+                const safeName = FileNameUtils.getSafeName(rawName,'');
+        
+        await ctx.replyWithDocument(new InputFile(crackResult.path),{
+          
+          reply_markup: this.keyboards.getMainMenu(lang)
+          
+        });
         
         resultPath = crackResult.path;
         ctx.session = initialSession();

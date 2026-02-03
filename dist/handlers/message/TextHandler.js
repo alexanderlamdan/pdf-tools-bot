@@ -3,19 +3,22 @@ import { PdfWorkerService } from '../../services/PdfWorkerService.js';
 import { FileService } from '../../services/FileService.js';
 import { InputFile } from 'grammy';
 import { initialSession } from '../../types/SessionData.js';
-import { escapeHtml } from '../../utils/Html.js';
+import { FileNameUtils } from '../../utils/FileNameUtils.js';
+import { Keyboards } from '../../services/Keyboards.js';
 export class TextHandler {
     config;
     localApi;
     localization;
     workerService;
     fileService;
+    keyboards;
     constructor(config, localApi, localization) {
         this.config = config;
         this.localApi = localApi;
         this.localization = localization;
         this.workerService = new PdfWorkerService(this.config);
         this.fileService = new FileService(this.config, this.localApi);
+        this.keyboards = new Keyboards(this.localization);
     }
     async handle(ctx) {
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
@@ -46,10 +49,14 @@ export class TextHandler {
             let resultPath = null;
             try {
                 resultPath = await this.workerService.encrypt(filePath, password);
-                const safePassword = escapeHtml(password);
-                await ctx.replyWithDocument(new InputFile(resultPath), {
+                const suffix = this.localization.t(lang, 'suffix_protected');
+                const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
+                const safeName = FileNameUtils.getSafeName(originalName, suffix);
+                const safePassword = FileNameUtils.escapeHtml(password);
+                await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                     caption: this.localization.t(lang, 'encrypt_caption_finished'),
-                    parse_mode: 'HTML'
+                    parse_mode: 'HTML',
+                    reply_markup: this.keyboards.getMainMenu(lang)
                 });
                 ctx.session = initialSession();
             }
