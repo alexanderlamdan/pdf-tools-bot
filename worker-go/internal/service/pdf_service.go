@@ -137,7 +137,7 @@ func (s *PdfService) Optimize(req domain.Request) domain.Response {
 
 	if err != nil {
 
-		return domain.Response{Status: "Error", Error: err.Error()}
+		return domain.Response{Status: "error", Error: err.Error()}
 
 	}
 
