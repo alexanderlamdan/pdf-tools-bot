@@ -136,7 +136,7 @@ func (s *PdfService) Optimize(req domain.Request) domain.Response {
 
 	conf.ValidationMode = model.ValidationRelaxed
 
-	err := api.OptimizeFile(req.InputPath, outputPath, nil)
+	err := api.OptimizeFile(req.InputPath, outputPath, conf)
 
 	if err != nil {
 
