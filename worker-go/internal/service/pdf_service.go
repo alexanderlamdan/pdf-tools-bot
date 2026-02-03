@@ -96,15 +96,23 @@ func (s *PdfService) Crack(req domain.Request) domain.Response {
 	for _, pwd := range commonPasswords {
 
 		conf := model.NewAESConfiguration(pwd, pwd, 256)
-		err := api.DecryptFile(req.InputPath, outputPath, conf)
+		_, err := api.ReadContextFile(req.InputPath)
 
 		if err == nil {
+
+			err := api.DecryptFile(req.InputPath, outputPath, conf)
+
+			if err != nil {
+
+				return domain.Response{Status: "error", Error: "Password found but decryption failed"}
+
+			}
 
 			return domain.Response{
 
 				Status: "ok",
 				Path:   outputPath,
-				Info:   fmt.Sprintf("Password found: %s", pwd),
+				Info:   pwd,
 			}
 
 		}
