@@ -23,5 +23,9 @@
   "password_empty":"Password cannot be empty",
   "file_lost":"Error.File has gone. Please try again",
   "set_encrypt":"Encrypting...",
-  "encrypt_caption_finished":"<b>✅ <b>File is now secure!</b>\nPassword is set, you can check now.</b>"
+  "encrypt_caption_finished":"<b>✅ <b>File is now secure!</b>\nPassword is set, you can check now.</b>",
+  "compress_info_process":"🗜 <b>Compressing the file...</b>\nIt can takes couple of seconds.",
+  "size_before":"✅ <b>Finished!</b>\n\n📉 Size before:",
+  "size_after":"📉 Size after:",
+  "saved_after_compress":"🔥 Saved:"
 }

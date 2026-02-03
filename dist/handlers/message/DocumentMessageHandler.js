@@ -4,6 +4,7 @@ import { LocalizationService } from "../../services/LocalizationService.js";
 import { LoggerService } from "../../services/LoggerService.js";
 import { initialSession } from "../../types/SessionData.js";
 import { InputFile } from "grammy";
+import fs from 'fs';
 export class DocumentMessageHandler {
     config;
     localApi;
@@ -49,7 +50,17 @@ export class DocumentMessageHandler {
                 this.logger.logToFile('system/document-process.log', `SUCCESS | INFO SENT to User ${ctx.from.id}`);
             }
             else if (action === 'compress') {
-                await ctx.api.editMessageText(ctx.chat.id, statusMsg.message_id, "In development. в разработке", { parse_mode: "HTML" });
+                await ctx.api.editMessageText(ctx.chat.id, statusMsg.message_id, this.localization.t(lang, 'compress_info_process'), { parse_mode: "HTML" });
+                resultPath = await this.workerService.compress(localPath);
+                const oldSize = (await fs.promises.stat(localPath)).size;
+                const newSize = (await fs.promises.stat(resultPath)).size;
+                const saved = ((oldSize - newSize) / 1024 / 1024).toFixed(2);
+                const percent = Math.round(((oldSize - newSize) / oldSize) * 100);
+                await ctx.replyWithDocument(new InputFile(resultPath), {
+                    caption: `${this.localization.t(lang, 'size_before')} ${(oldSize / 1024 / 1024).toFixed(2)} MB\n ${this.localization.t(lang, 'size_after')} ${(newSize / 1024 / 1024).toFixed(2)} MB\n ${this.localization.t(lang, 'saved_after_compress')} ${saved} MB (${percent}%)</b>`,
+                    parse_mode: 'HTML'
+                });
+                await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id);
                 ctx.session = initialSession();
             }
             else if (action === 'protect') {

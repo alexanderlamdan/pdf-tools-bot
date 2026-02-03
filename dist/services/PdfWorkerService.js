@@ -75,4 +75,13 @@ export class PdfWorkerService {
             password: data.info || 'found'
         };
     }
+    async compress(filePath) {
+        const data = await this.sendRequest({
+            action: 'compress',
+            inputPath: filePath
+        });
+        if (data.status === 'error')
+            throw new Error(data.error);
+        return data.path;
+    }
 }

@@ -48,6 +48,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp = h.service.Decrypt(req)
 	case "crack":
 		resp = h.service.Crack(req)
+	case "compress":
+		resp = h.service.Optimize(req)
 	default:
 		resp = domain.Response{Status: "error", Error: "Unknown action"}
 	}

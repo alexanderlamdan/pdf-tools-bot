@@ -6,14 +6,6 @@ export class BotMenuService {
             commands: [
                 { command: 'start', description: 'Start Bot' },
                 { command: 'help', description: 'Show help' },
-                { command: 'merge', description: 'Merge PDF Files' },
-                { command: 'split', description: 'Split PDF' },
-                { command: 'compress', description: 'Compress PDF file' },
-                { command: 'protect', description: 'Set password for PDF file' },
-                { command: 'unlock', description: 'Remove or unlock the password from PDF file' },
-                { command: 'extract', description: 'Extract images or text from PDF file' },
-                { command: 'status', description: 'Show your current usage status' },
-                { command: 'upgrade', description: 'Upgrade to pro or for bussiness plan' }
             ],
             description: "🚀 PDF Tools Bot — Professional PDF management.\n\n" +
                 "✅ Features:\n" +
@@ -29,14 +21,6 @@ export class BotMenuService {
             commands: [
                 { command: 'start', description: 'Запуск бота' },
                 { command: 'help', description: 'Показать помощь' },
-                { command: 'merge', description: 'Склеить или объединить PDF файлы' },
-                { command: 'split', description: 'Разрезать pdf файл' },
-                { command: 'compress', description: 'Сжать pdf файл' },
-                { command: 'protect', description: 'Установить пароль для pdf файла' },
-                { command: 'unlock', description: 'Удалить или сбросить пароль для pdf файла' },
-                { command: 'extract', description: 'Извлечь текст или фото с pdf файла' },
-                { command: 'status', description: 'Посмотреть статус пользования ботом' },
-                { command: 'upgrade', description: 'Обновиться до про или для бизнеса подписки' }
             ],
             description: "🚀 PDF Tools Bot — профессиональная работа с PDF.\n\n" +
                 "✅ Возможности:\n" +
@@ -51,14 +35,6 @@ export class BotMenuService {
             commands: [
                 { command: 'start', description: 'להפעיל את הבוט' },
                 { command: 'help', description: 'עזרה עם הבוט' },
-                { command: 'merge', description: 'לחבר קבצי pdf' },
-                { command: 'split', description: 'לחתוך קובץ pdf' },
-                { command: 'compress', description: 'למחוץ קובץ pdf' },
-                { command: 'protect', description: 'להתקין סיסמא על הקובץ pdf' },
-                { command: 'unlock', description: 'למחוק סיסמא מקובץ pdf' },
-                { command: 'extract', description: 'להוציא טקסט או תמונות מקובץ pdf' },
-                { command: 'status', description: 'לראות שימוש נוכחי' },
-                { command: 'upgrade', description: 'לעדכן למנוי פרו ,פרמיום או לעסקים' }
             ],
             description: "🚀 PDF Tools Bot — ניהול קבצי PDF מקצועי.\n\n" +
                 "✅ מה אני יודע לעשות:\n" +

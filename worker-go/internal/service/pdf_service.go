@@ -115,6 +115,22 @@ func (s *PdfService) Crack(req domain.Request) domain.Response {
 
 }
 
+func (s *PdfService) Optimize(req domain.Request) domain.Response {
+
+	outputPath := getOutputPath(req.InputPath)
+
+	err := api.OptimizeFile(req.InputPath, outputPath, nil)
+
+	if err != nil {
+
+		return domain.Response{Status: "Error", Error: err.Error()}
+
+	}
+
+	return domain.Response{Status: "ok", Path: outputPath}
+
+}
+
 func getOutputPath(path string) string {
 
 	ext := filepath.Ext(path)

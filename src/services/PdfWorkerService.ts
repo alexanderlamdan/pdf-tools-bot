@@ -118,4 +118,18 @@ export class PdfWorkerService{
         
     }
     
+    public async compress(filePath:string):Promise<string>{
+        
+        const data = await this.sendRequest({
+            
+            action:'compress',
+            inputPath:filePath
+            
+        });
+        
+        if(data.status === 'error') throw new Error(data.error);
+        return data.path!;
+        
+    }
+    
 }
