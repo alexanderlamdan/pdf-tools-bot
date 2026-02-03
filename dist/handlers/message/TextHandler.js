@@ -3,6 +3,7 @@ import { PdfWorkerService } from '../../services/PdfWorkerService.js';
 import { FileService } from '../../services/FileService.js';
 import { InputFile } from 'grammy';
 import { initialSession } from '../../types/SessionData.js';
+import { escapeHtml } from '../../utils/Html.js';
 export class TextHandler {
     config;
     localApi;
@@ -45,6 +46,7 @@ export class TextHandler {
             let resultPath = null;
             try {
                 resultPath = await this.workerService.encrypt(filePath, password);
+                const safePassword = escapeHtml(password);
                 await ctx.replyWithDocument(new InputFile(resultPath), {
                     caption: this.localization.t(lang, 'encrypt_caption_finished'),
                     parse_mode: 'HTML'

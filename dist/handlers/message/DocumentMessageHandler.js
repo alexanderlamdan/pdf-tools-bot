@@ -67,7 +67,13 @@ export class DocumentMessageHandler {
                 ctx.session.filePaths = [localPath];
                 ctx.session.step = 'waiting_for_password';
                 await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id);
-                await ctx.reply(this.localization.t(lang, 'set_password'), { parse_mode: "HTML" });
+                await ctx.reply(this.localization.t(lang, 'set_password'), {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        force_reply: true,
+                        input_field_placeholder: this.localization.t(lang, 'min_char_pass')
+                    }
+                });
                 localPath = null;
             }
             else if (action === 'crack') {

@@ -6,6 +6,7 @@ import {InputFile} from 'grammy';
 import {initialSession} from '../../types/SessionData.js';
 import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import type {LocalApi} from '../../types/LocalApi.js';
+import { escapeHtml } from '../../utils/Html.js';
 
 export class TextHandler{
     
@@ -67,6 +68,7 @@ export class TextHandler{
             try{
                 
                 resultPath = await this.workerService.encrypt(filePath, password);
+                const safePassword = escapeHtml(password);
                 
                 await ctx.replyWithDocument(new InputFile(resultPath),{
                     
