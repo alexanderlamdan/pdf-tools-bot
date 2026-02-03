@@ -64,7 +64,7 @@ export class DocumentMessageHandler {
                 const rawName = document.file_name || 'document.pdf';
                 const safeName = rawName.replace('.pdf', '_COMPRESSED.pdf');
                 await ctx.replyWithDocument(new InputFile(resultPath), {
-                    caption: `${this.localization.t(lang, 'size_before')} ${(oldSize / 1024 / 1024).toFixed(2)} MB\n ${this.localization.t(lang, 'size_after')} ${(newSize / 1024 / 1024).toFixed(2)} MB\n ${this.localization.t(lang, 'saved_after_compress')} ${saved} MB (${percent}%)</b>`,
+                    caption: `${this.localization.t(lang, 'size_before')} ${(oldSize / 1024 / 1024).toFixed(2)} MB\n ${this.localization.t(lang, 'size_after')} ${(newSize / 1024 / 1024).toFixed(2)} MB\n ${this.localization.t(lang, 'saved_after_compress')} ${saved} MB (${percent}%)`,
                     parse_mode: 'HTML',
                     reply_markup: this.keyboards.getMainMenu(lang)
                 });
