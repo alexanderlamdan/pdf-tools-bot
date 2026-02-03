@@ -132,6 +132,9 @@ func (s *PdfService) Crack(req domain.Request) domain.Response {
 func (s *PdfService) Optimize(req domain.Request) domain.Response {
 
 	outputPath := getOutputPath(req.InputPath)
+	conf := model.NewDefaultConfiguration()
+
+	conf.ValidationMode = model.ValidationRelaxed
 
 	err := api.OptimizeFile(req.InputPath, outputPath, nil)
 
