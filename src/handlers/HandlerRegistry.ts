@@ -42,7 +42,7 @@ export class HandlerRegistry {
 
     const docHandler = new DocumentMessageHandler(this.config, this.localApi,this.localization);
     
-    const buttonHandler = new ButtonHandler(this.localization);
+    const buttonHandler = new ButtonHandler(this.config,this.localApi,this.localization);
     const textHandler = new TextHandler(this.config, this.localApi, this.localization);
 
     this.bot.on("message:text",async (ctx)=>{

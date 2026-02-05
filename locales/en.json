@@ -29,5 +29,17 @@
   "size_before":"✅ <b>Finished!</b>\n\n📉 Size before:",
   "size_after":"📉 Size after:",
   "saved_after_compress":"🔥 Saved:",
-  "suffix_protected":"PROTECTED"
+  "suffix_protected":"PROTECTED",
+  "suffix_compressed":"COMPRESSED",
+  "analyzing": "🔍 <b>Checking the file for first time...</b>\nScanning for viruses, passwords and if pdf file is correct.",
+  "analysis_success": "✅ <b>File checked!</b>\n\n📄 <b>Name:</b> {{name}}\n📏 <b>Size:</b> {{size}} MB\n📑 <b>Pages:</b> {{pages}}\n🔐 <b>Password:</b> {{protected}}\n\n👇 <i>Choose your actions down below:</i>",
+  "analysis_encrypted": "🔒 <b>File has password!</b>\n\nI can't working with file like compress if it has password.\n\n👇 <i>Click on button «Crack», to try crack the password.</i>",
+  "analysis_corrupt": "❌ <b>File corrupted!</b>\n\nPDF structure is corrupted (invalid header/trailer). I can't working with this file.",
+  "btn_cancel": "❌ Cancel",
+  "yes": "Yes",
+  "no": "No",
+  "manual_pass_req": "❌ <b>Vocabulary not match</b>\n\nI tried to find the corrent password from 10k passwords in my vocabulary, but seems the password is much more stronger.\n\n👇 <b>Write the password</b>, if you know him:",
+  "decrypt_success": "🔓 <b>Password reseted!</b>\nFile now is opened.",
+  "decrypt_fail": "❌ <b>Password not correct.</b> Try again please.",
+  "decrypting":"Decrypting password"
 }

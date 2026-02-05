@@ -1,6 +1,6 @@
 export interface SessionData{
     
-    currentAction: 'idle' | 'merge' | 'split' | 'compress' | 'protect' | 'unlock' | 'crack';
+    currentAction: 'idle' | 'merge' | 'split' | 'compress' | 'protect' | 'unlock' | 'crack' | 'analyze' | 'ready';
     
     step: 'idle' | 'waiting_for_file' | 'waiting_for_password' | 'processing';
     

@@ -1,10 +1,30 @@
 import type{ BotContext } from "../../types/BotContext.js";
 import { LocalizationService } from "../../services/LocalizationService.js";
 import { initialSession } from "../../types/SessionData.js";
+import { PdfWorkerService } from "../../services/PdfWorkerService.js";
+import { FileService } from "../../services/FileService.js";
+import { InputFile } from "grammy";
+import { FileNameUtils } from "../../utils/FileNameUtils.js";
+import { Keyboards } from "../../services/Keyboards.js";
+import type { IBotConfig } from "../../config/interfaces/IBotConfig.js";
+import type { LocalApi } from "../../types/LocalApi.js";
+import { LoggerService } from "../../services/LoggerService.js";
 
 export class ButtonHandler{
     
-    constructor(private readonly localization:LocalizationService){}
+    private workerService:PdfWorkerService;
+    private fileService:FileService;
+    private keyboards:Keyboards;
+    private logger:LoggerService;
+    
+    constructor(private readonly config:IBotConfig,private readonly localApi:LocalApi,private readonly localization:LocalizationService){
+        
+        this.workerService = new PdfWorkerService(this.config);
+        this.fileService = new FileService(this.config,this.localApi);
+        this.keyboards = new Keyboards(this.localization);
+        this.logger = new LoggerService(this.config);
+        
+    }
     
     async handle(ctx:BotContext){
         
@@ -16,36 +36,170 @@ export class ButtonHandler{
         
         const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
         
-        ctx.session = initialSession();
+        this.logger.logToFile('system/buttons.log', `BUTTON CLICK | User: ${ctx.from?.id} | Key: ${actionKey}`);
         
-        switch(actionKey){
+        await this.logger.logToTelegram(
+                `❌ <b>BUTTON CLICK|User</b>\n${ctx.from?.id}`,
+                `Key: ${actionKey}`,
+                { user: ctx.from!, message: ctx.message!,botName: this.config.botName}
+      );
+      
+      if(actionKey === 'btn_cancel' || text === '/cancel'){
+        
+        if(ctx.session.filePaths){
             
-            case 'btn_help':
-                await ctx.reply(this.localization.t(lang,'help_message'),{parse_mode:'HTML'});
-                break;
-            case 'btn_compress':
-                ctx.session.currentAction = 'compress';
-                ctx.session.step = 'waiting_for_file';
-                await ctx.reply(`<b>${this.localization.t(lang, 'btn_compress')}</b>\n\n` + 
-                                `${this.localization.t(lang,'btn_compress_reply')}`, { parse_mode: 'HTML' });
-                break;
-            case 'btn_protect':
-                ctx.session.currentAction = 'protect';
-                ctx.session.step = 'waiting_for_file';
-                await ctx.reply(`<b>${this.localization.t(lang, 'btn_protect')}</b>\n\n` + 
-                                `${this.localization.t(lang,'btn_protect_reply')}`, { parse_mode: 'HTML' });
-                break;
-            case 'btn_unlock':
-                ctx.session.currentAction = 'unlock';
-                ctx.session.step = 'waiting_for_file';
-                await ctx.reply(`<b>${this.localization.t(lang, 'btn_unlock')}</b>\n\n` + 
-                                `${this.localization.t(lang,'btn_unlock_reply')}`, { parse_mode: 'HTML' });
-                break;
-            default:
-                await ctx.reply(`${this.localization.t(lang,'btn_dev_reply')}`);
+            for(const path of ctx.session.filePaths){
+                
+                await this.fileService.deleteFile(path);
+                
+            }
             
         }
         
+        ctx.session = initialSession();
+        await ctx.reply("❌",{reply_markup:{remove_keyboard:true}});
+        await ctx.reply(this.localization.t(lang,'start_message'),{
+            
+            reply_markup:this.keyboards.getMainMenu(lang)
+            
+        });
+        
+        return;
+        
+      }
+      
+      const hasFile = ctx.session.filePaths && ctx.session.filePaths.length > 0;
+      const localPath = hasFile ? ctx.session.filePaths[0] : null;
+      const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
+      
+      if(actionKey === 'btn_unlock'){
+        
+        if(!hasFile){
+            
+            await ctx.reply(this.localization.t(lang,'file_lost'));
+            return;
+            
+        }
+        
+        const statusMsg = await ctx.reply(this.localization.t(lang,'cracking_proccess'),{
+        
+        parse_mode:'HTML'
+        
+        });
+        
+        try{
+            
+            const crackResult = await this.workerService.crack(localPath!);
+            const safeName = FileNameUtils.getSafeName(originalName,'');
+            
+            await ctx.reply(this.localization.t(lang,'crack_success').replace('{{password}}',crackResult.password),{
+                
+                parse_mode:'HTML'
+                
+            });
+            
+            await ctx.replyWithDocument(new InputFile(crackResult.path,safeName),{
+                
+                reply_markup:this.keyboards.getMainMenu(lang)
+                
+            });
+            
+            await this.fileService.deleteFile(crackResult.path);
+            await this.fileService.deleteFile(localPath!);
+            ctx.session = initialSession();
+            
+        }catch(e){
+            
+            await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id);
+            await ctx.reply(this.localization.t(lang,'manual_pass_req'),{
+                
+                parse_mode:'HTML',
+                reply_markup:{
+                    force_reply:true
+                }
+                
+            });
+            ctx.session.currentAction = 'unlock';
+            ctx.session.step = 'waiting_for_password';
+            
+        }
+        return;
+        
+      }
+        
+      if(actionKey === 'btn_compress'){
+        
+        if(!hasFile){
+            
+            ctx.session.currentAction = 'compress';
+            await ctx.reply(this.localization.t(lang,'btn_compress_reply'));
+            return;
+            
+        }
+        
+        const statusMsg = await ctx.reply(this.localization.t(lang,'compress_info_proccess'),{
+            parse_mode:'HTML'
+        });
+        
+        try{
+            
+            const resultPath = await this.workerService.compress(localPath!);
+            const safeName = FileNameUtils.getSafeName(originalName,this.localization.t(lang,'suffix_compressed'));
+            
+            await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
+                
+                reply_markup:this.keyboards.getMainMenu(lang)
+                
+            });
+            
+            
+            await this.fileService.deleteFile(resultPath);
+            await this.fileService.deleteFile(localPath!);
+            ctx.session = initialSession();
+            
+        }catch(e:any){
+            
+            await ctx.reply(`Error: ${e.message}`);
+            await this.logger.logToTelegram(`Compress Error: ${e.message}`, 'ButtonHandler', {user: ctx.from!, message: ctx.message!, errorText: e.message, botName: this.config.botName});
+            
+        }finally{
+            
+            await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
+            
+        }
+        
+        return;
+        
+      }
+      
+      if(actionKey === 'btn_protect'){
+        
+        if(!hasFile){
+            
+            await ctx.reply(this.localization.t(lang,'file_lost'));
+            return;
+            
+        }
+        
+        ctx.session.currentAction = 'protect';
+        ctx.session.step = 'waiting_for_password';
+        await ctx.reply(this.localization.t(lang,'set_password'),{
+            
+            parse_mode:'HTML',
+            reply_markup:{force_reply:true}
+            
+        });
+        
+        return;
+        
+      }
+      
+      if(actionKey === 'btn_help'){
+        
+        await ctx.reply(this.localization.t(lang,'help_message'),{parse_mode:'HTML'});
+        
+      }
+      
     }
     
 }

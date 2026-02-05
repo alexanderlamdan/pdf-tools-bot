@@ -33,152 +33,91 @@ export class DocumentMessageHandler {
   public isSupportedDocument(ctx: BotContext): boolean {
     return ctx.message?.document?.mime_type === "application/pdf";
   }
-
-  async handle(ctx: BotContext) {
-    const document = ctx.message?.document;
-    if (!document) return;
+  
+  async handle(ctx:BotContext){
     
-    const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
-
-    const action = ctx.session.currentAction;
-    const logInfo = `FILE_ID:${document.file_id} | NAME:${document.file_name} | SIZE:${document.file_size}`;
+    const document = ctx.message?.document;
+    if(!document) return;
+    
+    const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
     
     await this.logger.logToTelegram(
-        `📄 <b>PDF Document Received</b>\nName: ${document.file_name}\nSize: ${document.file_size} bytes\nLang: ${lang}`,
-        'DocumentHandler INFO',
-        {
-            user: ctx.from!,
-            message: ctx.message!,
-            errorText: 'Start processing...',
-            botName: ctx.me?.username ?? 'unknown'
-        }
-    );
-    this.logger.logToFile('system/document-process.log', `START PROCESS | USER:${ctx.from!.id} | ${logInfo}`);
-
-    const statusMsg = await ctx.reply(this.localization.t(lang,'processing'), { parse_mode: "HTML" });
-
-    let localPath: string | null = null;
-    let resultPath:string | null = null;
-
-    try {
-      localPath = await this.fileService.downloadFile(ctx, document.file_id);
-      this.logger.logToFile('system/document-process.log', `DOWNLOADED | Path: ${localPath}`);
+            `📄 <b>File Received</b>\nName: ${document.file_name}\nSize: ${(document.file_size! / 1024 / 1024).toFixed(2)} MB`,
+            'DocumentHandler',
+            { user: ctx.from!, message: ctx.message!, errorText: 'Start Analysis', botName: this.config.botName }
+        );
+    this.logger.logToFile('system/document.log', `RECEIVED | User: ${ctx.from?.id} | File: ${document.file_name}`);
+    
+    const statusMsg = await ctx.reply(this.localization.t(lang,'analyzing'),{
       
-      if(action === 'idle'){
+      parse_mode:'HTML',
+      reply_markup:{remove_keyboard:true}
+      
+    });
+    
+    let localPath:string | null = null;
+    
+    try{
+      
+      localPath = await this.fileService.downloadFile(ctx,document.file_id);
+      const infoText = await this.workerService.getPdfInfo(localPath,lang);
+      
+      const isEncrypted = infoText.includes('Protected PDF') || infoText.includes('Encrypted') || infoText.includes('Зашифрован') || infoText.includes('מוצפן');
+      
+      ctx.session.filePaths = [localPath];
+      ctx.session.tempParams = {originalName:document.file_name};
+      
+      await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id);
+      
+      if(isEncrypted){
         
-        const infoText = await this.workerService.getPdfInfo(localPath,lang);
-        this.logger.logToFile('system/document-process.log', `WORKER RESPONSE | Length: ${infoText.length} chars`);
+        ctx.session.currentAction = 'unlock';
         
-        const safeInfo = FileNameUtils.escapeHtml(infoText);
-        
-        await ctx.api.editMessageText(
-        ctx.chat!.id,
-        statusMsg.message_id,
-        `${this.localization.t(lang, 'pdf_info')}\n${infoText}`,
-        { parse_mode: "HTML" }
-       );
-        this.logger.logToFile('system/document-process.log', `SUCCESS | INFO SENT to User ${ctx.from!.id}`);
-        
-      }else if(action === 'compress'){
-        
-       await ctx.api.editMessageText(
-                ctx.chat!.id, 
-                statusMsg.message_id, 
-                this.localization.t(lang,'compress_info_process'), 
-                { parse_mode: "HTML" }
-            );
-        
-        resultPath = await this.workerService.compress(localPath);
-        const oldSize = (await fs.promises.stat(localPath)).size;
-        const newSize = (await fs.promises.stat(resultPath)).size;
-        
-        const saved = ((oldSize-newSize)/1024/1024).toFixed(2);
-        const percent = Math.round(((oldSize - newSize) / oldSize) * 100);
-        
-        const rawName = document.file_name || 'document.pdf';
-        const safeName = rawName.replace('.pdf','_COMPRESSED.pdf')
-        
-        await ctx.replyWithDocument(new InputFile(resultPath),{
-          
-          caption: `${this.localization.t(lang,'size_before')} ${(oldSize/1024/1024).toFixed(2)} MB\n ${this.localization.t(lang,'size_after')} ${(newSize/1024/1024).toFixed(2)} MB\n ${this.localization.t(lang,'saved_after_compress')} ${saved} MB (${percent}%)`,
+        await ctx.reply(this.localization.t(lang,'analysis_encrypted'),{
           parse_mode:'HTML',
-          reply_markup: this.keyboards.getMainMenu(lang)
+          reply_markup:this.keyboards.getEncryptedFileMenu(lang)
+        });
+        
+      }else{
+        
+        const pagesMatch = infoText.match(/(\d+)/);
+        const pages = pagesMatch ? pagesMatch[0] : "?";
+        const sizeMB = (document.file_size! / 1024 / 1024).toFixed(2);
+        
+        const msgText = this.localization.t(lang,'analysis_success').replace('{{name}}',FileNameUtils.escapeHtml(document.file_name || 'document.pdf')).replace('{{size}}',sizeMB).replace('{{pages}}',pages).replace('{{protected}}',this.localization.t(lang,'no'));
+        
+        ctx.session.currentAction = 'ready';
+        
+        await ctx.reply(msgText,{
+          
+          parse_mode:'HTML',
+          reply_markup:this.keyboards.getFileActionsMenu(lang)
           
         });
-        
-        await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id);
-        ctx.session = initialSession();
-        
-      }else if(action === 'protect'){
-        
-        ctx.session.filePaths = [localPath];
-        ctx.session.tempParams = {originalName:document.file_name};
-        ctx.session.step = 'waiting_for_password';
-        
-        await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id);
-        
-        await ctx.reply(this.localization.t(lang,'set_password'), { 
-          parse_mode: "HTML",
-          reply_markup:{
-            
-            force_reply:true,
-            input_field_placeholder:this.localization.t(lang,'min_char_pass')
-            
-          }
-        });
-        
         localPath = null;
-        
-      }else if(action === 'crack'){
-        
-        await ctx.api.editMessageText(ctx.chat!.id, statusMsg.message_id, this.localization.t(lang, 'cracking_process'), { parse_mode: "HTML" });
-        
-        const crackResult = await this.workerService.crack(localPath);
-        
-        await ctx.reply(this.localization.t(lang,'crack_success').replace('{{password}}',crackResult.password),{parse_mode:'HTML'});
-        
-        const rawName = document.file_name || 'document.pdf';
-                const safeName = FileNameUtils.getSafeName(rawName,'');
-        
-        await ctx.replyWithDocument(new InputFile(crackResult.path),{
-          
-          reply_markup: this.keyboards.getMainMenu(lang)
-          
-        });
-        
-        resultPath = crackResult.path;
-        ctx.session = initialSession();
         
       }
       
-    } catch (e: any) {
+    }catch(e:any){
       
-      const errorStack = e.stack ?? e.message;
-      console.error("Error in Document Handler", e);
-
+      console.error(e);
+      const isCorrupt = e.message.includes('invalid') || e.message.includes('corrupt');
+      const errorKey = isCorrupt ? 'analysis_corrupt' : 'file_lost';
+      const errorText = isCorrupt ? this.localization.t(lang,'analysis_corrupt') : `Error: ${e.message}`;
+      
       await this.logger.logToTelegram(
-        `❌ <b>Error Processing PDF</b>\n${e.message}`,
-        'Error in DocumentHandler',
-        {
-            user: ctx.from!,
-            message: ctx.message!,
-            errorText: errorStack,
-            botName: ctx.me?.username ?? 'unknown'
-        }
-      );
-      this.logger.logToFile('system/document-errors.log', `ERROR | User:${ctx.from!.id} | File:${document.file_name} | ${e.message}`);
-      
-      await ctx.api.editMessageText(
-        ctx.chat!.id,
-        statusMsg.message_id,
-        `<b>Error:</b> ${e.message}`,
-        { parse_mode: "HTML" }
+                `❌ <b>Analysis Failed</b>\n${e.message}`,
+                'DocumentHandler Error',
+                { user: ctx.from!, message: ctx.message!, errorText: e.stack, botName: this.config.botName }
       );
       
+      await ctx.api.editMessageText(ctx.chat!.id,statusMsg.message_id,errorText,{parse_mode:'HTML'});
+      
+      if(localPath) await this.fileService.deleteFile(localPath);
       ctx.session = initialSession();
-     } finally {
-       if (localPath) await this.fileService.deleteFile(localPath);
-        if (resultPath) await this.fileService.deleteFile(resultPath);
-     }
+      
+    }
+    
   }
+  
 }
