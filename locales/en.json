@@ -1,6 +1,6 @@
 {
   "language_not_supported": "⚠️ Your language is not supported yet. English is used by default.",
-  "start_message": "👋 <b>Hello!</b> I am PDF Actions Bot.\n\nI can merge, split, and compress your PDF files.\nJust send PDF file right now for checking if I can work with file",
+  "start_message": "👋 Hello! I am PDF Actions Bot.\n\nI can merge, split, and compress your PDF files.\nJust send PDF file right now for checking if I can work with file",
   "help_message": "<b>How to use:</b>\nJust send me a PDF file for scan this file and you will get output if this file not corrupted and I can work with.\n\n",
   "processing": "⏳ <b>Processing...</b>",
   "pdf_info": "<b>PDF Info:</b>\n",
