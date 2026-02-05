@@ -17,9 +17,15 @@ export class BotMenuService{
                          "• Merge multiple files\n" +
                          "• Split PDF by pages\n" +
                          "• Advanced Compression\n" +
-                         "• Password Protection\n\n" +
+                         "• Password Protection\n" +
+                         "• Extract pictures or text from file\n" +
+                         "• Add Watermark\n" +
+                         "• Repair/Quick fix your broken PDF file\n" +
+                         "• Metadata wiper - clean PDF from from every metadata\n" +
+                         "• PDF To Long image\n" +
+                         "• Convert from docx, excel and pictures to PDF\n" +
                          "⚡️ Fast, secure, and reliable.Send me a file to start!\n\n" +
-                         "Powered by Linux & Go",
+                         "Powered by Linux, TypeScript and Go",
             shortDescription:"Professional PDF tools: Merge, Split, Compress and more."
             
         },
@@ -37,7 +43,13 @@ export class BotMenuService{
                          "• Склеить несколько PDF в один\n" +
                          "• Разделить на отдельные страницы\n" +
                          "• Быстрое сжатие\n" +
-                         "• Установка и снятие паролей\n\n" +
+                         "• Установка и снятие паролей\n" +
+                         "• Извлечь картинки или текст\n" +
+                         "• Добавить водяной знак или печать\n" +
+                         "• Исправить/починить битый pdf файл\n" +
+                         "• Очистка от метаданных - очистка PDF от всех метаданных файла\n" +
+                         "• PDF в длинную картинку\n" +
+                         "• Конвертация из ворд, экселя и фото в PDF\n\n" +
                          "⚡️ Быстро, безопасно и надежно. Просто отправь мне файл!\n\n",
             shortDescription:"Профессиональные PDF инструменты: Склейка, Разделение, Сжатие и многое другое."
         },
@@ -55,7 +67,12 @@ export class BotMenuService{
                          "• מיזוג מספר קבצים לאחד\n" +
                          "• פיצול PDF לפי עמודים\n" +
                          "• דחיסה מהירה\n" +
-                         "• הוספה או הסרה של סיסמאות\n\n" +
+                         "• הוספה או הסרה של סיסמאות\n" +
+                         "• להוציא תמונות או טקסט מקובץ\n" +
+                         "• להוסיף חתימה לקובץ נגד העתקה או גניבה\n" +
+                         "• לתקן קובץ שלא תקין\n" +
+                         "• מקובץ PDF לתמונה ארוכה\n" +
+                         "• להמיר מקבצי docx, excel ותמונות לקובץ pdf\n" +
                          "⚡️ מהיר, מאובטח ואמין. פשוט שלחו קובץ כדי להתחיל!\n\n" +
                          "🇮🇱 פותח בישראל",
             shortDescription:"כלי PDF מקצועיים: מיזוג, פיצול, דחיסה ועוד."
