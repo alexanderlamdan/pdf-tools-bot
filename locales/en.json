@@ -60,6 +60,7 @@
   "msg_plan": "Plan",
   "msg_end": "Ends",
   "no_activity": "No activity yet",
+  "no_active_sub": "Free / Unlimited",
   "status_upload": "📂 Uploaded:",
   "status_compress": "🗜 Compressed:",
   "status_unlock": "🔓 Unlocked:",

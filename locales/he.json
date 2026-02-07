@@ -70,5 +70,6 @@
   "msg_subs": "מנויים",
   "msg_plan": "תוכנית",
   "msg_end": "סיום",
-  "no_activity": "אין פעילות עדיין"
+  "no_activity": "אין פעילות עדיין",
+  "no_active_sub": "חינם | בלי הגבלה"
 }

@@ -123,6 +123,18 @@ export class ButtonHandler{
                     myStats += `${actionLabel} <b>${count}</b>\n`;
                 }
             }
+        let planInfo = '';
+        
+        if(user.subExpiresAt > 0){
+            
+            const subEnd= new Date(user.subExpiresAt).toLocaleDateString();
+            planInfo = `${user.subPeriod} (${this.localization.t(lang, 'msg_end')}: ${subEnd})`;
+            
+        }else{
+            
+            planInfo = this.localization.t(lang,'no_active_sub');
+            
+        }
         
         const subEnd = user.subExpiresAt > 0 ? new Date(user.subExpiresAt).toLocaleDateString() : this.localization.t(lang,'no_active_sub');
         
@@ -132,7 +144,7 @@ export class ButtonHandler{
                         `💾 <b>${this.localization.t(lang, 'msg_usage')}:</b> ${usedMB} MB / ${maxStorage}\n\n` +
                         `📊 <b>${this.localization.t(lang, 'msg_stats')}:</b>\n` +
                         myStats + 
-                        `\n💳 <b>${this.localization.t(lang, 'msg_plan')}:</b> ${user.subPeriod} (${this.localization.t(lang, 'msg_end')}: ${subEnd})`;
+                        `\n💳 <b>${this.localization.t(lang, 'msg_plan')}:</b>${planInfo}`;
         await ctx.reply(msg,{parse_mode:'HTML'});
         return;
         
