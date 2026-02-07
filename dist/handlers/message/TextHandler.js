@@ -6,6 +6,7 @@ import { initialSession } from '../../types/SessionData.js';
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { Keyboards } from '../../services/Keyboards.js';
 import { LoggerService } from '../../services/LoggerService.js';
+import { DatabaseService } from '../../services/DatabaseService.js';
 export class TextHandler {
     config;
     localApi;
@@ -14,6 +15,7 @@ export class TextHandler {
     fileService;
     keyboards;
     logger;
+    db;
     constructor(config, localApi, localization) {
         this.config = config;
         this.localApi = localApi;
@@ -22,6 +24,7 @@ export class TextHandler {
         this.fileService = new FileService(this.config, this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
+        this.db = new DatabaseService();
     }
     async handle(ctx) {
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
@@ -50,6 +53,7 @@ export class TextHandler {
             let resultPath = null;
             try {
                 resultPath = await this.workerService.encrypt(filePath, password);
+                this.db.logAction(ctx.from.id, 'protect', 0);
                 const suffix = this.localization.t(lang, 'suffix_protected');
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName, suffix);
@@ -81,6 +85,7 @@ export class TextHandler {
             const statusMsg = await ctx.reply(this.localization.t(lang, 'decrypting'));
             try {
                 const resultPath = await this.workerService.decrypt(filePath, password);
+                this.db.logAction(ctx.from.id, 'unlock', 0);
                 const safeName = FileNameUtils.getSafeName(ctx.session.tempParams?.originalName || 'doc.pdf', '');
                 await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                     caption: this.localization.t(lang, 'decrypt_success'),

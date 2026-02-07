@@ -10,6 +10,7 @@ import { InputFile } from "grammy";
 import { Keyboards } from "../../services/Keyboards.js";
 import { FileNameUtils } from "../../utils/FileNameUtils.js";
 import fs from 'fs';
+import { DatabaseService } from "../../services/DatabaseService.js";
 
 export class DocumentMessageHandler {
   private readonly fileService: FileService;
@@ -17,6 +18,7 @@ export class DocumentMessageHandler {
   private readonly localization: LocalizationService;
   private readonly logger: LoggerService;
   private readonly keyboards:Keyboards;
+  private readonly db:DatabaseService;
 
   constructor(
     private readonly config: IBotConfig,
@@ -28,6 +30,7 @@ export class DocumentMessageHandler {
     this.workerService = new PdfWorkerService(this.config);
     this.logger = new LoggerService(this.config);
     this.keyboards = new Keyboards(this.localization);
+    this.db = new DatabaseService();
   }
 
   public isSupportedDocument(ctx: BotContext): boolean {
@@ -40,6 +43,9 @@ export class DocumentMessageHandler {
     if(!document) return;
     
     const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
+    
+    this.db.registerUser(ctx.from!.id, ctx.from!.username, ctx.from!.first_name);
+    this.db.logAction(ctx.from!.id, 'upload', document.file_size || 0);
     
     await this.logger.logToTelegram(
             `📄 <b>File Received</b>\nName: ${document.file_name}\nSize: ${(document.file_size! / 1024 / 1024).toFixed(2)} MB`,

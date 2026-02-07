@@ -9,6 +9,7 @@ import type {LocalApi} from '../../types/LocalApi.js';
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import {Keyboards} from '../../services/Keyboards.js';
 import { LoggerService } from '../../services/LoggerService.js';
+import { DatabaseService} from '../../services/DatabaseService.js';
 
 export class TextHandler{
     
@@ -16,7 +17,7 @@ export class TextHandler{
     private readonly fileService:FileService;
     private readonly keyboards:Keyboards;
     private readonly logger:LoggerService;
-    
+    private readonly db:DatabaseService;
     constructor(
         private readonly config:IBotConfig,
         private readonly localApi:LocalApi,
@@ -27,6 +28,7 @@ export class TextHandler{
         this.fileService = new FileService(this.config,this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
+        this.db = new DatabaseService();
         
     }
     
@@ -69,6 +71,8 @@ export class TextHandler{
             try{
                 
                 resultPath = await this.workerService.encrypt(filePath,password);
+                this.db.logAction(ctx.from!.id, 'protect', 0);
+                
                 const suffix = this.localization.t(lang,'suffix_protected');
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName,suffix);
@@ -115,6 +119,7 @@ export class TextHandler{
             try{
                 
                 const resultPath = await this.workerService.decrypt(filePath, password);
+                this.db.logAction(ctx.from!.id, 'unlock', 0);
                 const safeName = FileNameUtils.getSafeName(ctx.session.tempParams?.originalName || 'doc.pdf', '');
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
