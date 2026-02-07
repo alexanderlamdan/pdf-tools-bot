@@ -59,11 +59,6 @@ export class DatabaseService{
         `);
         insertUser.run(userId,username,firstName,now,now);
         
-        const insertStats = this.db.prepare(`
-                INSERT OR IGNORE INTO user_stats(user_id) VALUES(?)
-            `);
-        insertStats.run(userId);
-        
         this.updateActivity(userId,username,firstName);
         
         
