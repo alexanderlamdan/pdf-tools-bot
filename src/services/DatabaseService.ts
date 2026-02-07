@@ -85,7 +85,7 @@ export class DatabaseService{
     
     public logAction(userId:number,actionType:string,fileSize:number = 0){
         
-        this.db.prepare('INSERT INTO activity_logs(user_id,action_type,file_size,created_at VALUES(?,?,?,?,?)').run(userId,actionType,fileSize,Date.now());
+        this.db.prepare("INSERT INTO activity_logs (user_id, action_type, file_size, created_at) VALUES (?, ?, ?, ?)").run(userId, actionType, fileSize, Date.now());
         
     }
     

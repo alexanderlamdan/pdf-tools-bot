@@ -61,7 +61,7 @@ export class DatabaseService {
         }
     }
     logAction(userId, actionType, fileSize = 0) {
-        this.db.prepare('INSERT INTO activity_logs(user_id,action_type,file_size,created_at VALUES(?,?,?,?,?)').run(userId, actionType, fileSize, Date.now());
+        this.db.prepare("INSERT INTO activity_logs (user_id, action_type, file_size, created_at) VALUES (?, ?, ?, ?)").run(userId, actionType, fileSize, Date.now());
     }
     getUser(userId) {
         const user = this.db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
