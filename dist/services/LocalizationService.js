@@ -3,7 +3,7 @@ import path from 'path';
 export class LocalizationService {
     locales = {};
     defaultLang = 'en';
-    supportedLangs = ['en', 'heb', 'ru'];
+    supportedLangs = ['en', 'he', 'ru'];
     constructor() {
         this.loadLocales();
     }

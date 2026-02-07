@@ -43,7 +43,7 @@ export class BotMenuService {
                 "⚡️ Быстро, безопасно и надежно. Просто отправь мне файл!\n\n",
             shortDescription: "Профессиональные PDF инструменты: Склейка, Разделение, Сжатие и многое другое."
         },
-        heb: {
+        he: {
             commands: [
                 { command: 'start', description: 'להפעיל את הבוט' },
                 { command: 'help', description: 'עזרה עם הבוט' },

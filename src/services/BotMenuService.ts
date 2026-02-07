@@ -54,7 +54,7 @@ export class BotMenuService{
             shortDescription:"Профессиональные PDF инструменты: Склейка, Разделение, Сжатие и многое другое."
         },
         
-        heb:{
+        he:{
             
             commands:[
                 

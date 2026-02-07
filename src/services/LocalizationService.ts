@@ -5,7 +5,7 @@ export class LocalizationService{
     
     private readonly locales:Record<string,Record<string,string>> = {};
     private readonly defaultLang = 'en';
-    private readonly supportedLangs = ['en','heb','ru'];
+    private readonly supportedLangs = ['en','he','ru'];
     
     constructor(){
         
