@@ -39,8 +39,8 @@ export class QueryBuilder {
         const dataValues = Object.values(snakeData);
         let idx = 1;
         const setClause = dataKeys.map(k => `"${k}" = $${idx++}`).join(', ');
-        const { clause: whereClause, values: whereValues } = this.buildWhere(criteria, idx);
-        const sql = `UPDATE ${table} SET ${setClause} ${whereClause} RETURNING *`;
+        const { clause, values: whereClause } = this.buildWhere(criteria, idx);
+        const sql = `UPDATE ${table} SET ${setClause} ${clause} RETURNING *`;
         return { sql, values: [...dataValues, ...whereClause] };
     }
     static select(table, criteria = {}, limit, orderBy) {
