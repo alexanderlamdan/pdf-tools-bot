@@ -23,14 +23,14 @@ export class UserRepository extends BaseRepository<IUser>{
     
     public async incrementTraffic(userId:number,bytes:number){
         
-        await this.query(`UPDATE users SET monthlyTraffic = COALESCE(monthlyTraffic,0) + $1 WHERE id=$2`,[bytes,userId]);
+        await this.query(`UPDATE users SET monthly_traffic = COALESCE(monthly_traffic,0) + $1 WHERE id=$2`,[bytes,userId]);
         
     }
     
     public async countActive(minutes:number):Promise<number>{
         
         const time = Date.now() - minutes * 60 * 1000;
-        const res = await this.query(`SELECT COUNT(*) as c FROM users WHERE lastActiveAt > $1`,[time]);
+        const res = await this.query(`SELECT COUNT(*) as c FROM users WHERE last_active_at > $1`,[time]);
         return Number(res[0].c);
         
     }
