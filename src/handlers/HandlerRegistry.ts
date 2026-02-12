@@ -11,6 +11,8 @@ import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
 import { LocalizationService } from "../services/LocalizationService.js";
 import type { BotContext } from "../types/BotContext.js";
+import { LoggerService } from '../services/LoggerService.js';
+import { Keyboards } from '../services/Keyboards.js';
 
 interface CommandBinding {
   command: string;
@@ -19,6 +21,7 @@ interface CommandBinding {
 
 export class HandlerRegistry {
   private readonly userService: UserService;
+  private readonly logger: LoggerService;
 
   private commandBindings: CommandBinding[] = [
     { command: "start", Handler: StartCommandHandler },
@@ -32,6 +35,7 @@ export class HandlerRegistry {
     private readonly localization: LocalizationService
   ) {
     this.userService = new UserService();
+    this.logger = new LoggerService(this.config);
   }
 
   public registerAll(): void {
@@ -58,6 +62,23 @@ export class HandlerRegistry {
         await docHandler.handle(ctx);
       }
     });
+    
+    this.bot.on(["message:photo","message:voice","message:video","message:sticker","message:audio","message:animation","message:video_note"],async (ctx)=>{
+      
+      const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
+      await this.logger.logToTelegram(
+        `🗑 <b>TRASH MEDIA REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nType: Non-document media`,
+        'Log: Trash',
+        { user: ctx.from!, message: ctx.message!, botName: this.config.botName, errorText: 'Media rejected' }
+      );
+      
+      try { await ctx.deleteMessage(); } catch {}
+      await ctx.reply(this.localization.t(lang, 'file_rejected'), {
+        parse_mode: 'HTML',
+        reply_markup: new Keyboards(this.localization).getMainMenu(lang)
+   });
+      
+    })
     
   }
 }

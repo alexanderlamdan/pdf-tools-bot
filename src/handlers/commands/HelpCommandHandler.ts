@@ -2,16 +2,18 @@ import type {Context} from 'grammy';
 import {LoggerService} from '../../services/LoggerService.js';
 import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import {LocalizationService} from '../../services/LocalizationService.js';
-
+import { Keyboards } from '../../services/Keyboards.js';
 export class HelpCommandHandler{
 	
 	private readonly logger:LoggerService;
+    private readonly keyboards:Keyboards;
 	constructor(
 		private readonly config:IBotConfig,
 		private readonly localization:LocalizationService
 	){
 		
 		this.logger = new LoggerService(config);
+        this.keyboards = new Keyboards(localization);
 		
 	}
 	
@@ -21,26 +23,21 @@ export class HelpCommandHandler{
 		const {lang} = this.localization.getUserLanguage(userCode);
 		
 		await this.logger.logToTelegram(
-            `ℹ️ <b>Command /help received</b>\nLang: <code>${lang}</code>`,
-            'HelpCommandHandler INFO',
-            {
-                user: ctx.from!,
-                message: ctx.message!,
-                errorText: 'Command received',
-                botName: ctx.me?.username ?? 'unknown'
-            }
+            `ℹ️ <b>COMMAND: /help</b>\nUser: <code>${ctx.from?.id}</code>`,
+            'Log: Command',
+            { user: ctx.from!, message: ctx.message!, errorText: 'Help requested', botName: this.config.botName }
         );
 
-        this.logger.logToFile(
-            'system/command-info.log', 
-            `COMMAND /help | USER_ID:${ctx.from!.id} | LANG:${lang}`
-        );
+        this.logger.logToFile('system/commands.log', `HELP | User: ${ctx.from?.id}`);
 		
 		try{
 			
 			await ctx.reply(
-				this.localization.t(lang,'help_message'),
-				{parse_mode:'HTML'}
+				this.localization.t(lang,'help_full_message'),
+				{
+                    parse_mode:'HTML',
+                    reply_markup:this.keyboards.getMainMenu(lang)
+                }
 			);
 			
 		}catch(e){

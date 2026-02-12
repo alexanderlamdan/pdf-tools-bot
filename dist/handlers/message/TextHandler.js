@@ -107,5 +107,11 @@ export class TextHandler {
                 await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
             }
         }
+        this.logger.logToFile('system/spam.log', `SPAM TEXT | User: ${ctx.from?.id} | Content: ${text}`);
+        await this.logger.logToTelegram(`🗑 <b>SPAM TEXT REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nText: "${text}"`, 'Log: Spam', { user: ctx.from, message: ctx.message, botName: this.config.botName, errorText: 'Invalid text input' });
+        await ctx.reply(this.localization.t(lang, 'text_rejected'), {
+            parse_mode: 'HTML',
+            reply_markup: this.keyboards.getMainMenu(lang)
+        });
     }
 }

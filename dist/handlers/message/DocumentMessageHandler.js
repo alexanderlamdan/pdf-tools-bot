@@ -35,6 +35,18 @@ export class DocumentMessageHandler {
         if (!document)
             return;
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
+        if (document.mime_type !== 'application/pdf') {
+            await this.logger.logToTelegram(`🗑 <b>TRASH FILE REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nName: ${document.file_name}\nMime: ${document.mime_type}`, 'Log: Trash', { user: ctx.from, message: ctx.message, botName: this.config.botName, errorText: 'File is not PDF' });
+            try {
+                await ctx.deleteMessage();
+            }
+            catch (e) { }
+            await ctx.reply(this.localization.t(lang, 'file_rejected'), {
+                parse_mode: 'HTML',
+                reply_markup: this.keyboards.getMainMenu(lang)
+            });
+            return;
+        }
         await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
         await this.db.logAction(ctx.from.id, 'upload', document.file_size || 0);
         await this.logger.logToTelegram(`📄 <b>File Received</b>\nName: ${document.file_name}\nSize: ${(document.file_size / 1024 / 1024).toFixed(2)} MB`, 'DocumentHandler', { user: ctx.from, message: ctx.message, errorText: 'Start Analysis', botName: this.config.botName });

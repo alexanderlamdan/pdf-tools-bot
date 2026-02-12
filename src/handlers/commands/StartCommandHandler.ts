@@ -26,20 +26,17 @@ export class StartCommandHandler{
 		const {lang,isFallback} = this.localization.getUserLanguage(userCode);
 		
 		await this.logger.logToTelegram(
-            `▶️ <b>Command /start received</b>\nDetected Lang: <code>${lang}</code> (Fallback: ${isFallback})`,
-            'StartCommandHandler INFO',
+            `🟢 <b>COMMAND: /start</b>\nUser: <code>${ctx.from?.id}</code>\nName: ${ctx.from?.first_name}`,
+            'Log: Command',
             {
                 user: ctx.from!,
                 message: ctx.message!,
-                errorText: 'Command received', // техническое поле для форматтера
-                botName: ctx.me?.username ?? 'unknown'
+                errorText: 'User started bot',
+                botName: this.config.botName
             }
         );
-		
-		this.logger.logToFile(
-            'system/command-info.log', 
-            `COMMAND /start | USER_ID:${ctx.from!.id} | LANG_CODE:${userCode} -> ${lang}`
-        );
+        
+        this.logger.logToFile('system/commands.log', `START | User: ${ctx.from?.id}`);
 		
 		try{
 			
@@ -77,6 +74,19 @@ export class StartCommandHandler{
             );
 			
 			this.logger.logToFile('system/command-errors.log', `ERROR /start | ${errorStack}`);
+			
+		}
+		
+		try{
+			
+			await ctx.reply(this.localization.t(lang,'spam_warning'),{
+				parse_mode:'HTML',
+				reply_markup:this.keyboards.getMainMenu(lang)
+			});
+			
+		}catch(e){
+			
+			console.error(e);
 			
 		}
 		

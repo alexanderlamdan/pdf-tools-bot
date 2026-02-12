@@ -5,12 +5,15 @@ import { TextHandler } from "./message/TextHandler.js";
 import { UserService } from "../services/UserService.js";
 import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
 import { LocalizationService } from "../services/LocalizationService.js";
+import { LoggerService } from '../services/LoggerService.js';
+import { Keyboards } from '../services/Keyboards.js';
 export class HandlerRegistry {
     bot;
     config;
     localApi;
     localization;
     userService;
+    logger;
     commandBindings = [
         { command: "start", Handler: StartCommandHandler },
         { command: "help", Handler: HelpCommandHandler },
@@ -21,6 +24,7 @@ export class HandlerRegistry {
         this.localApi = localApi;
         this.localization = localization;
         this.userService = new UserService();
+        this.logger = new LoggerService(this.config);
     }
     registerAll() {
         for (const { command, Handler } of this.commandBindings) {
@@ -38,6 +42,18 @@ export class HandlerRegistry {
             if (docHandler.isSupportedDocument(ctx)) {
                 await docHandler.handle(ctx);
             }
+        });
+        this.bot.on(["message:photo", "message:voice", "message:video", "message:sticker", "message:audio", "message:animation", "message:video_note"], async (ctx) => {
+            const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
+            await this.logger.logToTelegram(`🗑 <b>TRASH MEDIA REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nType: Non-document media`, 'Log: Trash', { user: ctx.from, message: ctx.message, botName: this.config.botName, errorText: 'Media rejected' });
+            try {
+                await ctx.deleteMessage();
+            }
+            catch { }
+            await ctx.reply(this.localization.t(lang, 'file_rejected'), {
+                parse_mode: 'HTML',
+                reply_markup: new Keyboards(this.localization).getMainMenu(lang)
+            });
         });
     }
 }

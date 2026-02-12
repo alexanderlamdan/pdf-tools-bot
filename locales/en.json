@@ -73,5 +73,11 @@
   "status_metadata_wipe": "🧹 Metadata wiped:",
   "status_watermark": "© Watermarked:",
   "status_repair": "🚑 Repaired:",
-  "status_long_image": "📜 To long image:"
+  "status_long_image": "📜 To long image:",
+  "spam_warning": "✋ <b>Stop spamming!</b>\n\nI see your requests. You aren't doing anything useful.\n👇 <i>Select a button from the menu and get to work.</i>",
+  "text_rejected": "⛔️ <b>I don't understand plain text.</b>\n\nI am a professional tool, not a chat-bot.\n📄 <b>Send a PDF file</b> to begin.\n⌨️ Or use the menu buttons.",
+  "file_rejected": "🗑 <b>File deleted.</b>\n\nI accept <b>PDF files ONLY</b>.\nImages, Word, Excel, etc., are not currently supported.\n<i>Incident has been logged.</i>",
+  "help_full_message": "📚 <b>PDF Tools Bot Help</b>\n\n<b>I only work with PDF:</b>\n✅ <b>Analysis:</b> Malware and structure check.\n✅ <b>Protection:</b> AES-256 encryption.\n✅ <b>Cracking:</b> Password recovery (Dictionary Attack).\n✅ <b>Compression:</b> Smart size optimization.\n\n<b>❌ I do NOT accept:</b>\n— Images, Word, Excel (in development)\n— Voice messages\n— Plain text\n\n<b>How to use:</b>\n1. Send a <b>PDF file</b>.\n2. Wait for the analysis.\n3. Select an action.",
+  "status_button_click": "You requested the status.",
+  "status_updated": "Data updated."
 }
