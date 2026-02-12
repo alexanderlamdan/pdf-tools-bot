@@ -13,27 +13,16 @@ export class DatabaseService {
         this.userRepo = new UserRepository();
         this.logRepo = new LogRepository();
     }
-    async init() {
-        if (this.initialized)
-            return;
-        console.log('🔌 [DatabaseService] Initialization started...');
-        try {
-            console.log('⏳ [DatabaseService] Testing connection to Postgres...');
-            await Postgresql.getInstance().query('SELECT NOW()');
-            console.log('✅ [DatabaseService] Connection successful!');
-            console.log('📦 [DatabaseService] Running migrations...');
-            const migrator = new Migrator();
-            await migrator.migrate();
-            console.log('✅ [DatabaseService] Migrations done.');
-            this.initialized = true;
-        }
-        catch (error) {
-            console.error('❌ [DatabaseService] FATAL ERROR during init:', error);
-            throw error;
-        }
+    async initDatabase() {
+        console.log('🚀 [System] Connecting to PostgreSQL...');
+        await Postgresql.getInstance().query('SELECT NOW()');
+        console.log('✅ [System] PostgreSQL connected.');
+        console.log('📦 [System] Checking migrations...');
+        const migrator = new Migrator();
+        await migrator.migrate();
+        console.log('✅ [System] Database is ready.');
     }
     async registerUser(userId, username = '', firstName = '') {
-        await this.init();
         const existing = await this.userRepo.findOne({ id: userId });
         if (existing) {
             await this.userRepo.update({ id: userId }, {
@@ -53,13 +42,11 @@ export class DatabaseService {
         }
     }
     async logAction(userId, action, size) {
-        await this.init();
         await this.logRepo.log(userId, action, size);
         if (size > 0)
             await this.userRepo.incrementTraffic(userId, size);
     }
     async getUser(id) {
-        await this.init();
         const user = await this.userRepo.findOne({ id });
         if (user) {
             user.stats = await this.logRepo.getUserStats(id);
@@ -68,14 +55,12 @@ export class DatabaseService {
         return user;
     }
     async getGlobalStats() {
-        await this.init();
         return {
             traffic: 0,
             actions: await this.logRepo.getStatsByAction()
         };
     }
     async getUserCounts() {
-        await this.init();
         return {
             total: await this.userRepo.count(),
             active: await this.userRepo.countActive(15),

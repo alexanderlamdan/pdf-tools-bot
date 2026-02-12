@@ -5,6 +5,7 @@ import { LoggerService } from '../services/LoggerService.js';
 import { LocalizationService } from "../services/LocalizationService.js";
 import { BotMenuService } from "../services/BotMenuService.js";
 import { initialSession } from "../types/SessionData.js";
+import { DatabaseService } from '../services/DatabaseService.js';
 export class TelegramBotCore extends AbstractTelegramBotCore {
     bot;
     webhookHandler;
@@ -13,6 +14,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
     localApi;
     localization;
     menuService;
+    db;
     constructor(configSource) {
         super();
         this.config = configSource;
@@ -25,10 +27,21 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
             apiRoot: this.config.localApiFile
         });
         this.logger = new LoggerService(this.config);
+        this.db = new DatabaseService(this.logger);
         this.menuService = new BotMenuService(this.bot);
         new HandlerRegistry(this.bot, this.config, this.localApi, this.localization).registerAll();
     }
     async init() {
+        try {
+            console.log('⚙️ [Core] Initializing Database & Migrations...');
+            await this.db.initDatabase();
+            console.log('✅ [Core] Database ready.');
+        }
+        catch (error) {
+            console.error('❌ [Core] FATAL: Database init failed.');
+            console.error(error);
+            process.exit(1);
+        }
         await this.menuService.syncMenu();
     }
     getWebhookCallback() {

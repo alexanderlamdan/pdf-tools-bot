@@ -15,7 +15,7 @@ export class Blueprint {
         this.lines.push(line);
     }
     string(name, length = 255) {
-        this.lines.push(`${name} VARCHAR ${length}`);
+        this.lines.push(`${name} VARCHAR (${length})`);
     }
     boolean(name, def = false) {
         this.lines.push(`${name} BOOLEAN DEFAULT ${def ? 'TRUE' : 'FALSE'}`);

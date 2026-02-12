@@ -25,7 +25,7 @@ export class Blueprint{
     
     public string(name:string,length:number = 255){
         
-        this.lines.push(`${name} VARCHAR ${length}`);
+        this.lines.push(`${name} VARCHAR (${length})`);
         
     }
     
