@@ -25,7 +25,7 @@ export class ButtonHandler{
         this.fileService = new FileService(this.config,this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
-        this.db = new DatabaseService();
+        this.db = new DatabaseService(this.logger);
         
     }
     
@@ -51,7 +51,7 @@ export class ButtonHandler{
       if(actionKey === 'btn_status'){
         
         const userId = ctx.from!.id;
-        const user = this.db.getUser(userId);
+        const user = await this.db.getUser(userId);
         
         if(!user){
             
@@ -64,8 +64,8 @@ export class ButtonHandler{
         
         if(userId === this.config.adminId){
             
-            const global = this.db.getGlobalStats();
-            const counts = this.db.getUserCounts();
+            const global = await this.db.getGlobalStats();
+            const counts = await this.db.getUserCounts();
             const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
             
             let actionStats = '';
@@ -202,7 +202,7 @@ export class ButtonHandler{
             
             const crackResult = await this.workerService.crack(localPath!);
             
-            this.db.logAction(ctx.from!.id, 'unlock', 0);
+            await this.db.logAction(ctx.from!.id, 'unlock', 0);
             
             const safeName = FileNameUtils.getSafeName(originalName,'');
             
@@ -259,7 +259,7 @@ export class ButtonHandler{
             
             const resultPath = await this.workerService.compress(localPath!);
             
-            this.db.logAction(ctx.from!.id, 'compress', 0);
+            await this.db.logAction(ctx.from!.id, 'compress', 0);
             
             const safeName = FileNameUtils.getSafeName(originalName,this.localization.t(lang,'suffix_compressed'));
             

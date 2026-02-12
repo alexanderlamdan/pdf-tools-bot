@@ -30,7 +30,7 @@ export class DocumentMessageHandler {
     this.workerService = new PdfWorkerService(this.config);
     this.logger = new LoggerService(this.config);
     this.keyboards = new Keyboards(this.localization);
-    this.db = new DatabaseService();
+    this.db = new DatabaseService(this.logger);
   }
 
   public isSupportedDocument(ctx: BotContext): boolean {
@@ -44,15 +44,15 @@ export class DocumentMessageHandler {
     
     const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
     
-    this.db.registerUser(ctx.from!.id, ctx.from!.username, ctx.from!.first_name);
-    this.db.logAction(ctx.from!.id, 'upload', document.file_size || 0);
+    await this.db.registerUser(ctx.from!.id, ctx.from!.username, ctx.from!.first_name);
+    await this.db.logAction(ctx.from!.id, 'upload', document.file_size || 0);
     
     await this.logger.logToTelegram(
             `📄 <b>File Received</b>\nName: ${document.file_name}\nSize: ${(document.file_size! / 1024 / 1024).toFixed(2)} MB`,
             'DocumentHandler',
             { user: ctx.from!, message: ctx.message!, errorText: 'Start Analysis', botName: this.config.botName }
         );
-    this.logger.logToFile('system/document.log', `RECEIVED | User: ${ctx.from?.id} | File: ${document.file_name}`);
+    await this.logger.logToFile('system/document.log', `RECEIVED | User: ${ctx.from?.id} | File: ${document.file_name}`);
     
     const statusMsg = await ctx.reply(this.localization.t(lang,'analyzing'),{
       

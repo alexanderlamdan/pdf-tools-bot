@@ -24,13 +24,16 @@ export class TextHandler {
         this.fileService = new FileService(this.config, this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
-        this.db = new DatabaseService();
+        this.db = new DatabaseService(this.logger);
     }
     async handle(ctx) {
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
         const text = ctx.message?.text;
         if (!text)
             return;
+        if (ctx.from) {
+            await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
+        }
         if (text.startsWith('/') || this.localization.getActionKeyByText(text))
             return;
         const action = ctx.session.currentAction;
@@ -53,7 +56,7 @@ export class TextHandler {
             let resultPath = null;
             try {
                 resultPath = await this.workerService.encrypt(filePath, password);
-                this.db.logAction(ctx.from.id, 'protect', 0);
+                await this.db.logAction(ctx.from.id, 'protect', 0);
                 const suffix = this.localization.t(lang, 'suffix_protected');
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName, suffix);

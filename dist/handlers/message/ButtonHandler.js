@@ -24,7 +24,7 @@ export class ButtonHandler {
         this.fileService = new FileService(this.config, this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
-        this.db = new DatabaseService();
+        this.db = new DatabaseService(this.logger);
     }
     async handle(ctx) {
         const text = ctx.message?.text;
@@ -39,15 +39,15 @@ export class ButtonHandler {
         await this.logger.logToTelegram(`❌ <b>BUTTON CLICK|User</b>\n${ctx.from?.id}`, `Key: ${actionKey}`, { user: ctx.from, message: ctx.message, botName: this.config.botName });
         if (actionKey === 'btn_status') {
             const userId = ctx.from.id;
-            const user = this.db.getUser(userId);
+            const user = await this.db.getUser(userId);
             if (!user) {
                 await ctx.reply(this.localization.t(lang, 'status_show_error'));
                 return;
             }
             const usedMB = (user.totalTrafficBytes / 1024 / 1024).toFixed(2);
             if (userId === this.config.adminId) {
-                const global = this.db.getGlobalStats();
-                const counts = this.db.getUserCounts();
+                const global = await this.db.getGlobalStats();
+                const counts = await this.db.getUserCounts();
                 const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
                 let actionStats = '';
                 const sortedActions = Object.entries(global.actions).sort((a, b) => b[1] - a[1]);
@@ -156,7 +156,7 @@ export class ButtonHandler {
             });
             try {
                 const crackResult = await this.workerService.crack(localPath);
-                this.db.logAction(ctx.from.id, 'unlock', 0);
+                await this.db.logAction(ctx.from.id, 'unlock', 0);
                 const safeName = FileNameUtils.getSafeName(originalName, '');
                 await ctx.reply(this.localization.t(lang, 'crack_success').replace('{{password}}', crackResult.password), {
                     parse_mode: 'HTML'
@@ -192,7 +192,7 @@ export class ButtonHandler {
             });
             try {
                 const resultPath = await this.workerService.compress(localPath);
-                this.db.logAction(ctx.from.id, 'compress', 0);
+                await this.db.logAction(ctx.from.id, 'compress', 0);
                 const safeName = FileNameUtils.getSafeName(originalName, this.localization.t(lang, 'suffix_compressed'));
                 await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                     reply_markup: this.keyboards.getMainMenu(lang)
