@@ -1,24 +1,31 @@
 import { Postgresql } from '../Postgresql.js';
 import {QueryBuilder} from '../query/QueryBuilder.js';
-
+import { CaseConverter } from '../../utils/ CaseConverter.js';
 export abstract class  BaseRepository<T>{
     
     protected db = Postgresql.getInstance();
     
     constructor(protected tableName:string){}
     
+    protected normalize(rows:any[]):T[]{
+        
+        return rows.map(row=>CaseConverter.objectToCamel(row)) as T[];
+        
+    }
+    
     public async findOne(criteria:Partial<T>):Promise<T|undefined>{
         
         const {sql,values} = QueryBuilder.select(this.tableName,criteria,1);
         const res = await this.db.query(sql,values);
-        return res[0] as T;
+        return this.normalize(res)[0];
         
     }
     
     public async findAll(criteria:Partial<T> = {},limit:number = 100,orderBy?:string):Promise<T[]>{
         
         const {sql,values} = QueryBuilder.select(this.tableName,criteria,limit,orderBy);
-        return await this.db.query(sql,values) as T[];
+        const res = await this.db.query(sql,values);
+        return this.normalize(res);
         
     }
     
@@ -26,7 +33,7 @@ export abstract class  BaseRepository<T>{
         
         const {sql,values} = QueryBuilder.insert(this.tableName,data);
         const res = await this.db.query(sql,values);
-        return res[0] as T;
+        return this.normalize(res)[0];
         
     }
     
@@ -34,7 +41,7 @@ export abstract class  BaseRepository<T>{
         
         const {sql,values} = QueryBuilder.upsert(this.tableName,data,conflictKey);
         const res = await this.db.query(sql,values);
-        return res[0] as T;
+        return this.normalize(res)[0];
         
     }
     
@@ -42,7 +49,7 @@ export abstract class  BaseRepository<T>{
         
         const {sql,values} = QueryBuilder.update(this.tableName,criteria,data);
         const res = await this.db.query(sql,values);
-        return res[0] as T;
+        return this.normalize(res)[0];
         
     }
     

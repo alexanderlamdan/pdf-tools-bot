@@ -1,9 +1,10 @@
+import { CaseConverter } from '../../utils/ CaseConverter.js';
 export class QueryBuilder{
     
     static buildWhere(criteria:Record<string,any>,startParamIndex = 1){
-        
-        const keys = Object.keys(criteria);
-        const values = Object.values(criteria);
+        const snakeCriteria = CaseConverter.objectToSnake(criteria);
+        const keys = Object.keys(snakeCriteria);
+        const values = Object.values(snakeCriteria);
         
         if(keys.length === 0) return {clause:'',values:[],nextIndex:startParamIndex};
         
@@ -14,8 +15,10 @@ export class QueryBuilder{
     
     static insert(table:string,data:Record<string,any>){
         
-        const keys = Object.keys(data);
-        const values = Object.values(data);
+        const snakeData = CaseConverter.objectToSnake(data);
+        
+        const keys = Object.keys(snakeData);
+        const values = Object.values(snakeData);
         
         const columns = keys.map(k=>`"${k}"`).join(', ');
         const placeholders = keys.map((_,i)=>`$${i+1}`).join(', ');
@@ -27,16 +30,18 @@ export class QueryBuilder{
     
     static upsert(table:string,data:Record<string,any>,conflictKey:string = 'id'){
         
-        const keys = Object.keys(data);
-        const values = Object.values(data);
+        const snakeData = CaseConverter.objectToSnake(data);
+        const snakeConflictKey = CaseConverter.toSnake(conflictKey);
+        const keys = Object.keys(snakeData);
+        const values = Object.values(snakeData);
         const columns = keys.map(k=>`"${k}"`).join(', ');
         const placeholders = keys.map((_,i)=>`$${i+1}`).join(', ');
         
-        const updateColumns = keys.filter(k=>k !== conflictKey);
+        const updateColumns = keys.filter(k=>k !== snakeConflictKey);
         const updateClause = updateColumns.map(k=>`"${k}" = EXCLUDED."${k}"`).join(', ');
         const sql = `
             INSERT INTO ${table} (${columns})
-            VALUES (${placeholders}) ON CONFLICT ("${conflictKey}") DO UPDATE SET ${updateClause} RETURNING *
+            VALUES (${placeholders}) ON CONFLICT ("${snakeConflictKey}") DO UPDATE SET ${updateClause} RETURNING *
         `;
         
         return {sql,values};
@@ -44,9 +49,9 @@ export class QueryBuilder{
     }
     
     static update(table:string,criteria:Record<string,any>,data:Record<string,any>){
-        
-        const dataKeys = Object.keys(data);
-        const dataValues = Object.values(data);
+        const snakeData = CaseConverter.objectToSnake(data);
+        const dataKeys = Object.keys(snakeData);
+        const dataValues = Object.values(snakeData);
         
         let idx = 1;
         const setClause = dataKeys.map(k=>`"${k}" = $${idx++}`).join(', ');
