@@ -3,6 +3,7 @@ import {LogRepository} from '../database/repositories/LogRepository.js';
 import {DbInit} from '../database/DbInit.js';
 import {DbLogger} from '../database/DbLogger.js';
 import {Migrator} from '../database/migrations/Migrator.js';
+import { Postgresql } from '../database/Postgresql.js';
 import type {LoggerService} from './LoggerService.js';
 import type {IUser} from '../types/User.js';
 
@@ -20,17 +21,20 @@ export class DatabaseService{
         
     }
     
-    private async init(){
+    public async initDatabase() {
+        console.log('🚀 [System] Connecting to PostgreSQL...');
         
-        if(this.initialized) return;
-        await DbInit.run();
-        this.initialized = true;
-        
+        await Postgresql.getInstance().query('SELECT NOW()');
+        console.log('✅ [System] PostgreSQL connected.');
+
+        console.log('📦 [System] Checking migrations...');
+        const migrator = new Migrator();
+        await migrator.migrate();
+        console.log('✅ [System] Database is ready.');
     }
     
     public async registerUser(userId:number,username:string = '',firstName:string = ''){
         
-        await this.init();
         const existing = await this.userRepo.findOne({id:userId} as any);
         
         if(existing){
@@ -58,7 +62,6 @@ export class DatabaseService{
     
     public async logAction(userId:number,action:string,size:number){
         
-        await this.init();
         await this.logRepo.log(userId,action,size);
         if(size > 0) await this.userRepo.incrementTraffic(userId,size);
         
@@ -66,7 +69,6 @@ export class DatabaseService{
     
     public async getUser(id:number):Promise<IUser|undefined>{
         
-        await this.init();
         const user = await this.userRepo.findOne({id} as any);
         if(user){
             
@@ -81,7 +83,6 @@ export class DatabaseService{
     
     public async getGlobalStats(){
         
-        await this.init();
         return {
             
             traffic:0,
@@ -93,7 +94,6 @@ export class DatabaseService{
     
     public async getUserCounts(){
         
-        await this.init();
         return{
             
             total:await this.userRepo.count(),

@@ -3,6 +3,7 @@ import { LogRepository } from '../database/repositories/LogRepository.js';
 import { DbInit } from '../database/DbInit.js';
 import { DbLogger } from '../database/DbLogger.js';
 import { Migrator } from '../database/migrations/Migrator.js';
+import { Postgresql } from '../database/Postgresql.js';
 export class DatabaseService {
     userRepo;
     logRepo;
@@ -15,8 +16,21 @@ export class DatabaseService {
     async init() {
         if (this.initialized)
             return;
-        await DbInit.run();
-        this.initialized = true;
+        console.log('🔌 [DatabaseService] Initialization started...');
+        try {
+            console.log('⏳ [DatabaseService] Testing connection to Postgres...');
+            await Postgresql.getInstance().query('SELECT NOW()');
+            console.log('✅ [DatabaseService] Connection successful!');
+            console.log('📦 [DatabaseService] Running migrations...');
+            const migrator = new Migrator();
+            await migrator.migrate();
+            console.log('✅ [DatabaseService] Migrations done.');
+            this.initialized = true;
+        }
+        catch (error) {
+            console.error('❌ [DatabaseService] FATAL ERROR during init:', error);
+            throw error;
+        }
     }
     async registerUser(userId, username = '', firstName = '') {
         await this.init();
