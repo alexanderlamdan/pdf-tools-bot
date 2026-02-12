@@ -10,11 +10,11 @@ export class UserRepository extends BaseRepository {
         return this.findAll({ is_vip: true });
     }
     async incrementTraffic(userId, bytes) {
-        await this.query(`UPDATE users SET monthly_traffic = COALESCE(monthly_traffic,0) + $1 WHERE id=$2`, [bytes, userId]);
+        await this.query(`UPDATE users SET monthlyTraffic = COALESCE(monthlyTraffic,0) + $1 WHERE id=$2`, [bytes, userId]);
     }
     async countActive(minutes) {
         const time = Date.now() - minutes * 60 * 1000;
-        const res = await this.query(`SELECT COUNT(*) as c FROM users WHERE last_active_at > $1`, [time]);
+        const res = await this.query(`SELECT COUNT(*) as c FROM users WHERE lastActiveAt > $1`, [time]);
         return Number(res[0].c);
     }
 }
