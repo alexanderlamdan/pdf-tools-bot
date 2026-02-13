@@ -3,6 +3,7 @@ export function initialSession() {
         currentAction: 'idle',
         step: 'idle',
         filePaths: [],
-        tempParams: {}
+        tempParams: {},
+        lastRequestTime: 0
     };
 }

@@ -11,6 +11,7 @@ export interface SessionData{
         originalName?:string
     };
     
+    lastRequestTime:number;
 }
 
 export function initialSession():SessionData{
@@ -20,7 +21,8 @@ export function initialSession():SessionData{
         currentAction:'idle',
         step:'idle',
         filePaths:[],
-        tempParams:{}
+        tempParams:{},
+        lastRequestTime:0
         
     };
     

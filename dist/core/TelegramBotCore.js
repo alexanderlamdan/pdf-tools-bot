@@ -6,6 +6,7 @@ import { LocalizationService } from "../services/LocalizationService.js";
 import { BotMenuService } from "../services/BotMenuService.js";
 import { initialSession } from "../types/SessionData.js";
 import { DatabaseService } from '../services/DatabaseService.js';
+import { AntiSpamService } from '../services/AntiSpamService.js';
 export class TelegramBotCore extends AbstractTelegramBotCore {
     bot;
     webhookHandler;
@@ -15,10 +16,12 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
     localization;
     menuService;
     db;
+    antiSpam;
     constructor(configSource) {
         super();
         this.config = configSource;
         this.localization = new LocalizationService();
+        this.antiSpam = new AntiSpamService();
         this.bot = new Bot(this.config.token);
         this.bot.use(session({
             initial: initialSession,
@@ -29,6 +32,16 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
         this.logger = new LoggerService(this.config);
         this.db = new DatabaseService(this.logger);
         this.menuService = new BotMenuService(this.bot);
+        this.bot.use(async (ctx, next) => {
+            if (!ctx.session)
+                return next();
+            const shouldReply = await this.antiSpam.check(ctx);
+            if (shouldReply) {
+                await next();
+            }
+            else {
+            }
+        });
         new HandlerRegistry(this.bot, this.config, this.localApi, this.localization).registerAll();
     }
     async init() {
