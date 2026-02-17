@@ -49,7 +49,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "crack":
 		resp = h.service.Crack(req)
 	case "compress":
-		resp = h.service.Optimize(req)
+		resp = h.service.Compress(req)
 	default:
 		resp = domain.Response{Status: "error", Error: "Unknown action"}
 	}
