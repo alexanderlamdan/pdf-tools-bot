@@ -108,6 +108,8 @@ export class TextHandler{
                 
             }
             
+            return;
+            
         }
         
         else if(action === 'unlock' && step === 'waiting_for_password'){
@@ -151,6 +153,8 @@ export class TextHandler{
                 await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
                 
             }
+            
+            return;
             
         }
         await this.logger.logAction(ctx.from!,'Spam text',text);
