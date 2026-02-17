@@ -75,7 +75,7 @@ export class ButtonHandler {
         const localPath = hasFile ? ctx.session.filePaths[0] : null;
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         const fileRequiredButtons = [
-            'btn_compress', 'btn_protect', 'btn_unlock', 'btn_split',
+            'btn_protect', 'btn_unlock', 'btn_split',
             'btn_convert', 'btn_extract', 'btn_watermark', 'btn_repair',
             'btn_to_long_image', 'btn_metadata_wiper', 'btn_merge'
         ];
@@ -111,33 +111,6 @@ export class ButtonHandler {
             }
             return;
         }
-        if (fullActionKey.endsWith('btn_compress')) {
-            if (!hasFile) {
-                ctx.session.currentAction = 'compress';
-                await ctx.reply(this.localization.t(lang, 'messages.actions.ask_compress'));
-                return;
-            }
-            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.compressing'), { parse_mode: 'HTML' });
-            try {
-                const resultPath = await this.workerService.compress(localPath);
-                await this.db.logAction(ctx.from.id, 'compress', 0);
-                const safeName = FileNameUtils.getSafeName(originalName, this.localization.t(lang, 'suffix_compressed'));
-                await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
-                    reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
-                });
-                await this.fileService.deleteFile(resultPath);
-                await this.fileService.deleteFile(localPath);
-                ctx.session = initialSession();
-            }
-            catch (e) {
-                await ctx.reply(`Error: ${e.message}`);
-                await this.logger.error('Compress', e, { user: ctx.from, message: ctx.message });
-            }
-            finally {
-                await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
-            }
-            return;
-        }
         if (fullActionKey.endsWith('btn_protect')) {
             ctx.session.currentAction = 'protect';
             ctx.session.step = 'waiting_for_password';
@@ -147,7 +120,7 @@ export class ButtonHandler {
             });
             return;
         }
-        await ctx.reply(this.localization.t(lang, 'messages.common.in_development'), { parse_mode: 'HTML' });
+        await ctx.reply(this.localization.t(lang, 'messages.buttons.common.in_development'), { parse_mode: 'HTML' });
         await this.logger.logAction(ctx.from, 'Feature request', `Clicked dev feature: ${fullActionKey}`);
     }
     async handleStatus(ctx, lang) {

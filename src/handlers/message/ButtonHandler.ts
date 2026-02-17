@@ -106,7 +106,7 @@ export class ButtonHandler{
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         
         const fileRequiredButtons = [
-            'btn_compress','btn_protect','btn_unlock','btn_split',
+            'btn_protect','btn_unlock','btn_split',
             'btn_convert','btn_extract','btn_watermark','btn_repair',
             'btn_to_long_image','btn_metadata_wiper','btn_merge'
         ];
@@ -162,49 +162,49 @@ export class ButtonHandler{
             
         }
         
-        if(fullActionKey.endsWith('btn_compress')){
+        // if(fullActionKey.endsWith('btn_compress')){
             
-            if(!hasFile){
+        //     if(!hasFile){
                 
-                ctx.session.currentAction = 'compress';
-                await ctx.reply(this.localization.t(lang,'messages.actions.ask_compress'));
-                return;
+        //         ctx.session.currentAction = 'compress';
+        //         await ctx.reply(this.localization.t(lang,'messages.actions.ask_compress'));
+        //         return;
                 
-            }
+        //     }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.compressing'),{parse_mode:'HTML'});
+        //     const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.compressing'),{parse_mode:'HTML'});
             
-            try{
+        //     try{
                 
-                const resultPath = await this.workerService.compress(localPath!);
-                await this.db.logAction(ctx.from!.id,'compress',0);
+        //         const resultPath = await this.workerService.compress(localPath!);
+        //         await this.db.logAction(ctx.from!.id,'compress',0);
                 
-                const safeName = FileNameUtils.getSafeName(originalName,this.localization.t(lang,'suffix_compressed'));
+        //         const safeName = FileNameUtils.getSafeName(originalName,this.localization.t(lang,'suffix_compressed'));
                 
-                await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
+        //         await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     
-                    reply_markup:this.keyboards.getMainMenu(lang,ctx.from!.id === this.config.adminId)
+        //             reply_markup:this.keyboards.getMainMenu(lang,ctx.from!.id === this.config.adminId)
                     
-                });
+        //         });
                 
-                await this.fileService.deleteFile(resultPath);
-                await this.fileService.deleteFile(localPath!);
-                ctx.session = initialSession();
+        //         await this.fileService.deleteFile(resultPath);
+        //         await this.fileService.deleteFile(localPath!);
+        //         ctx.session = initialSession();
                 
-            }catch(e:any){
+        //     }catch(e:any){
                 
-                await ctx.reply(`Error: ${e.message}`);
-                await this.logger.error('Compress',e,{user:ctx.from!,message:ctx.message!});
+        //         await ctx.reply(`Error: ${e.message}`);
+        //         await this.logger.error('Compress',e,{user:ctx.from!,message:ctx.message!});
                 
-            }finally{
+        //     }finally{
                 
-                await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
+        //         await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
                 
-            }
+        //     }
             
-            return;
+        //     return;
             
-        }
+        // }
         
         if(fullActionKey.endsWith('btn_protect')){
             
@@ -220,7 +220,7 @@ export class ButtonHandler{
             
         }
         
-        await ctx.reply(this.localization.t(lang,'messages.common.in_development'),{parse_mode:'HTML'});
+        await ctx.reply(this.localization.t(lang,'messages.buttons.common.in_development'),{parse_mode:'HTML'});
         await this.logger.logAction(ctx.from!,'Feature request',`Clicked dev feature: ${fullActionKey}`);
         
     }

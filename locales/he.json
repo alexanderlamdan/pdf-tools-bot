@@ -23,7 +23,8 @@
       "btn_metadata_wiper": "🧹 ניקוי מידע רקע"
     },
     "common": {
-      "btn_cancel": "❌ ביטול"
+      "btn_cancel": "❌ ביטול",
+      "in_development":"כרגע בתהליכי פיתוח"
     }
   },
   "messages": {

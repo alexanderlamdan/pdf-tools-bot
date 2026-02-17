@@ -23,7 +23,8 @@
       "btn_metadata_wiper": "🧹 Очистка метаданных"
     },
     "common": {
-      "btn_cancel": "❌ Отмена"
+      "btn_cancel": "❌ Отмена",
+      "in_development":"В разработке"
     }
   },
   "messages": {
