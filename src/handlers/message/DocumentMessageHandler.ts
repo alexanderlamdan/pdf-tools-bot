@@ -211,7 +211,8 @@ export class DocumentMessageHandler{
     // 1. Имя, Размер, Страницы
     text += t('messages.analysis.field_name').replace('{{name}}', FileNameUtils.escapeHtml(doc.file_name || 'doc.pdf')) + '\n';
     text += t('messages.analysis.field_size').replace('{{size}}', this.formatSize(info.size)) + '\n';
-    text += t('messages.analysis.field_pages').replace('{{pages}}', info.pages.toString()) + '\n';
+    const pageCount = (info.pages !== undefined && info.pages !== null) ? info.pages.toString() : '0';
+    text += t('messages.analysis.field_pages').replace('{{pages}}', pageCount) + '\n';
 
     // 2. Тип файла (Скан/Текст)
     let typeStr = t('messages.analysis.type_standard');

@@ -138,7 +138,8 @@ export class DocumentMessageHandler {
         let text = t('messages.analysis.result_title') + '\n\n';
         text += t('messages.analysis.field_name').replace('{{name}}', FileNameUtils.escapeHtml(doc.file_name || 'doc.pdf')) + '\n';
         text += t('messages.analysis.field_size').replace('{{size}}', this.formatSize(info.size)) + '\n';
-        text += t('messages.analysis.field_pages').replace('{{pages}}', info.pages.toString()) + '\n';
+        const pageCount = (info.pages !== undefined && info.pages !== null) ? info.pages.toString() : '0';
+        text += t('messages.analysis.field_pages').replace('{{pages}}', pageCount) + '\n';
         let typeStr = t('messages.analysis.type_standard');
         if (info.is_scanned) {
             typeStr = t('messages.analysis.type_scanned');
