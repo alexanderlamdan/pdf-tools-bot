@@ -23,8 +23,7 @@
       "btn_metadata_wiper": "🧹 ניקוי מידע רקע"
     },
     "common": {
-      "btn_cancel": "❌ ביטול",
-      "in_development":"כרגע בתהליכי פיתוח"
+      "btn_cancel": "❌ ביטול"
     }
   },
   "messages": {
@@ -96,7 +95,8 @@
         "vip_role":"אדום חשוב"
       },
       "empty": "אין פעילות",
-      "error": "שגיאה בטעינת הפרופיל"
+      "error": "שגיאה בטעינת הפרופיל",
+      "in_development":"כרגע בתהליכי פיתוח"
     },
     "actions": {
       "ask_compress": "שלחו את ה-PDF שתרצו להקטין.",

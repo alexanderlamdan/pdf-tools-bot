@@ -23,8 +23,7 @@
       "btn_metadata_wiper": "🧹 Wipe Metadata"
     },
     "common": {
-      "btn_cancel": "❌ Cancel",
-      "in_development":"In development progress"
+      "btn_cancel": "❌ Cancel"
     }
   },
   "messages": {
@@ -96,7 +95,8 @@
         "vip_role":"VIP"
       },
       "empty": "No activity yet",
-      "error": "Error loading profile"
+      "error": "Error loading profile",
+      "in_development":"In development progress"
     },
     "actions": {
       "ask_compress": "Send me the PDF file you want to compress.",

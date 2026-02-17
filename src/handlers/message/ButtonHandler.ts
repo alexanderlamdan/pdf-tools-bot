@@ -220,7 +220,7 @@ export class ButtonHandler{
             
         }
         
-        await ctx.reply(this.localization.t(lang,'messages.buttons.common.in_development'),{parse_mode:'HTML'});
+        await ctx.reply(this.localization.t(lang,'messages.in_development'),{parse_mode:'HTML'});
         await this.logger.logAction(ctx.from!,'Feature request',`Clicked dev feature: ${fullActionKey}`);
         
     }

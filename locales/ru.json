@@ -23,8 +23,7 @@
       "btn_metadata_wiper": "🧹 Очистка метаданных"
     },
     "common": {
-      "btn_cancel": "❌ Отмена",
-      "in_development":"В разработке"
+      "btn_cancel": "❌ Отмена"
     }
   },
   "messages": {
@@ -96,7 +95,8 @@
         "vip_role":"Особо важное лицо"
       },
       "empty": "Нет активности",
-      "error": "Ошибка загрузки профиля"
+      "error": "Ошибка загрузки профиля",
+      "in_development":"В разработке"
     },
     "actions": {
       "ask_compress": "Отправьте PDF, который нужно сжать.",
