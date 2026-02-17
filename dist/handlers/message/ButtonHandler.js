@@ -114,7 +114,7 @@ export class ButtonHandler {
         if (fullActionKey.endsWith('btn_protect')) {
             ctx.session.currentAction = 'protect';
             ctx.session.step = 'waiting_for_password';
-            await ctx.reply(this.localization.t(lang, 'message.actions.ask_protect'), {
+            await ctx.reply(this.localization.t(lang, 'messages.actions.ask_protect'), {
                 parse_mode: 'HTML',
                 reply_markup: { force_reply: true }
             });
