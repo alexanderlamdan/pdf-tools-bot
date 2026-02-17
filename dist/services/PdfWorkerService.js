@@ -39,9 +39,7 @@ export class PdfWorkerService {
             inputPath: filePath,
             lang: lang
         });
-        if (data.status === 'error')
-            throw new Error(data.error);
-        return data.info || 'No Information';
+        return data.info;
     }
     async encrypt(filePath, password) {
         const data = await this.sendRequest({
@@ -72,7 +70,7 @@ export class PdfWorkerService {
             throw new Error(data.error);
         return {
             path: data.path,
-            password: data.info || 'found'
+            password: data.info
         };
     }
     async compress(filePath) {

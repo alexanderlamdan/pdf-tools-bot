@@ -12,15 +12,12 @@ import (
 
 	"pdf-worker/internal/handler"
 	"pdf-worker/internal/service"
-
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
 const socketPath = "/run/bots/pdf-worker.sock"
 
 func main() {
 
-	api.DisableConfigDir()
 	setupSocket()
 
 	pdfService := service.NewPdfService()

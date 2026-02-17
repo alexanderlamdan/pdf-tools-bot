@@ -8,8 +8,8 @@ type Request struct {
 }
 
 type Response struct {
-	Status string `json:"status"`
-	Info   string `json:"info,omitempty"`
-	Error  string `json:"error,omitempty"`
-	Path   string `json:"path,omitempty"`
+	Status string      `json:"status"`
+	Info   interface{} `json:"info,omitempty"`
+	Error  string      `json:"error,omitempty"`
+	Path   string      `json:"path,omitempty"`
 }

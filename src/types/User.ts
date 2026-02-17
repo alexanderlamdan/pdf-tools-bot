@@ -1,6 +1,6 @@
 export interface ISubscription{
     
-    type:'free' | 'pro' | 'premium' | 'enterprise';
+    type:'free' | 'pro' | 'premium' | 'enterprise' | 'sovereign_protocol';
     period:'monthly' | 'yearly';
     expiresAt:number;
     

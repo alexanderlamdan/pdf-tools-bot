@@ -45,14 +45,15 @@ export class HandlerRegistry {
         });
         this.bot.on(["message:photo", "message:voice", "message:video", "message:sticker", "message:audio", "message:animation", "message:video_note"], async (ctx) => {
             const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
-            await this.logger.logToTelegram(`🗑 <b>TRASH MEDIA REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nType: Non-document media`, 'Log: Trash', { user: ctx.from, message: ctx.message, botName: this.config.botName, errorText: 'Media rejected' });
+            const isAdmin = ctx.from?.id === this.config.adminId;
+            await this.logger.logAction(ctx.from, 'Trash media', `Type: ${Object.keys(ctx.message || {}).join(',')}`);
             try {
                 await ctx.deleteMessage();
             }
             catch { }
             await ctx.reply(this.localization.t(lang, 'file_rejected'), {
                 parse_mode: 'HTML',
-                reply_markup: new Keyboards(this.localization).getMainMenu(lang)
+                reply_markup: new Keyboards(this.localization).getMainMenu(lang, isAdmin)
             });
         });
     }

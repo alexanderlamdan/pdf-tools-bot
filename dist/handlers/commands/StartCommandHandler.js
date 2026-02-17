@@ -15,38 +15,25 @@ export class StartCommandHandler {
     async handle(ctx) {
         const userCode = ctx.from?.language_code;
         const { lang, isFallback } = this.localization.getUserLanguage(userCode);
-        await this.logger.logToTelegram(`🟢 <b>COMMAND: /start</b>\nUser: <code>${ctx.from?.id}</code>\nName: ${ctx.from?.first_name}`, 'Log: Command', {
-            user: ctx.from,
-            message: ctx.message,
-            errorText: 'User started bot',
-            botName: this.config.botName
-        });
-        this.logger.logToFile('system/commands.log', `START | User: ${ctx.from?.id}`);
+        const isAdmin = ctx.from?.id === this.config.adminId;
+        await this.logger.logAction(ctx.from, 'Command', '/start');
         try {
             if (isFallback) {
-                await ctx.reply(this.localization.t('en', 'language_not_supported'));
+                await ctx.reply(this.localization.t('en', 'errors.language_not_supported'));
             }
-            const keyboard = this.keyboards.getMainMenu(lang);
-            await ctx.reply(this.localization.t(lang, 'start_message'), {
+            const keyboard = this.keyboards.getMainMenu(lang, isAdmin);
+            await ctx.reply(this.localization.t(lang, 'messages.start'), {
                 parse_mode: 'HTML',
                 reply_markup: keyboard
             });
-            this.logger.logToFile('system/command-info.log', `COMMAND /start | Success response sent to User ${ctx.from.id}`);
         }
         catch (e) {
-            const errorStack = e.stack ?? String(e);
-            await this.logger.logToTelegram(`❌ <b>Error on /start</b>\n${e.message}`, 'Error in StartCommandHandler', {
-                user: ctx.from,
-                message: ctx.message,
-                errorText: errorStack,
-                botName: ctx.me?.username ?? 'unknown'
-            });
-            this.logger.logToFile('system/command-errors.log', `ERROR /start | ${errorStack}`);
+            await this.logger.error('StartCommandHandler', e, { user: ctx.from, message: ctx.message });
         }
         try {
-            await ctx.reply(this.localization.t(lang, 'spam_warning'), {
+            await ctx.reply(this.localization.t(lang, 'errors.spam_warning'), {
                 parse_mode: 'HTML',
-                reply_markup: this.keyboards.getMainMenu(lang)
+                reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
             });
         }
         catch (e) {

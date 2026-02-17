@@ -21,41 +21,23 @@ export class HelpCommandHandler{
 		
 		const userCode = ctx.from?.language_code;
 		const {lang} = this.localization.getUserLanguage(userCode);
+        const isAdmin = ctx.from?.id === this.config.adminId;
 		
-		await this.logger.logToTelegram(
-            `ℹ️ <b>COMMAND: /help</b>\nUser: <code>${ctx.from?.id}</code>`,
-            'Log: Command',
-            { user: ctx.from!, message: ctx.message!, errorText: 'Help requested', botName: this.config.botName }
-        );
-
-        this.logger.logToFile('system/commands.log', `HELP | User: ${ctx.from?.id}`);
-		
+        await this.logger.logAction(ctx.from!, 'Command','/help');
+        
 		try{
 			
 			await ctx.reply(
-				this.localization.t(lang,'help_full_message'),
+				this.localization.t(lang,'messages.help'),
 				{
                     parse_mode:'HTML',
-                    reply_markup:this.keyboards.getMainMenu(lang)
+                    reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
                 }
 			);
 			
 		}catch(e){
 			
-			const errorStack = (e as Error).stack ?? String(e);
-            
-            await this.logger.logToTelegram(
-                `❌ <b>Error on /help</b>\n${(e as Error).message}`,
-                'Error in HelpCommandHandler',
-                {
-                    user: ctx.from,
-                    message: ctx.message,
-                    errorText: errorStack,
-                    botName: ctx.me?.username ?? 'unknown'
-                }
-            );
-
-            this.logger.logToFile('system/command-errors.log', `ERROR /help | ${errorStack}`);
+			await this.logger.error('HelpCommandHandler',e as Error, {user:ctx.from,message:ctx.message});
 			
 		}
 		

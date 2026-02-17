@@ -30,103 +30,31 @@ export class ButtonHandler {
         const text = ctx.message?.text;
         if (!text)
             return;
-        const actionKey = this.localization.getActionKeyByText(text);
-        if (!actionKey)
+        const fullActionKey = this.localization.getActionKeyByText(text);
+        if (!fullActionKey)
             return;
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
-        this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
-        this.logger.logToFile('system/buttons.log', `BUTTON CLICK | User: ${ctx.from?.id} | Key: ${actionKey}`);
-        await this.logger.logToTelegram(`❌ <b>BUTTON CLICK|User</b>\n${ctx.from?.id}`, `Key: ${actionKey}`, { user: ctx.from, message: ctx.message, botName: this.config.botName });
-        if (actionKey === 'btn_status') {
-            const userId = ctx.from.id;
-            const user = await this.db.getUser(userId);
-            if (!user) {
-                await ctx.reply(this.localization.t(lang, 'status_show_error'));
+        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
+        await this.logger.logAction(ctx.from, 'Button click', `Key: ${fullActionKey} | Text: ${text}`);
+        if (fullActionKey.includes('adm_btn_')) {
+            if (ctx.from.id !== this.config.adminId)
                 return;
+            if (fullActionKey.endsWith('adm_btn_stats')) {
+                await this.handleAdminStats(ctx, lang);
             }
-            const usedMB = (user.totalTrafficBytes / 1024 / 1024).toFixed(2);
-            if (userId === this.config.adminId) {
-                const global = await this.db.getGlobalStats();
-                const counts = await this.db.getUserCounts();
-                const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
-                let actionStats = '';
-                const sortedActions = Object.entries(global.actions).sort((a, b) => b[1] - a[1]);
-                if (sortedActions.length === 0) {
-                    actionStats = this.localization.t(lang, 'no_activity');
-                }
-                else {
-                    for (const [action, count] of sortedActions) {
-                        const translationKey = `status_${action}`;
-                        let actionLabel = this.localization.t(lang, translationKey);
-                        if (actionLabel === translationKey) {
-                            actionLabel = this.capitalize(action) + ":";
-                        }
-                        actionStats += `${actionLabel} <b>${count}</b>\n`;
-                    }
-                }
-                const msg = this.localization.t(lang, 'msg_admin_status') +
-                    `👥 <b>Users:</b> ${counts.total} (🟢 ${counts.active})\n\n` +
-                    `📊 <b>${this.localization.t(lang, 'msg_global_stats')}:</b>\n` +
-                    actionStats +
-                    `\n💾 <b>${this.localization.t(lang, 'msg_traffic')}:</b> ${totalGB} GB\n\n` +
-                    `💎 <b>${this.localization.t(lang, 'msg_subs')}:</b> VIP:${counts.subscribers.vip} | Pro:${counts.subscribers.pro} | Prem:${counts.subscribers.premium} | Ent:${counts.subscribers.enterprise}`;
-                await ctx.reply(msg, { parse_mode: 'HTML' });
-                return;
+            else if (fullActionKey.endsWith('adm_btn_logs')) {
+                await ctx.reply('Logs feature coming soon');
             }
-            let maxStorage = '1GB';
-            let role = 'Free';
-            if (user.isVip) {
-                maxStorage = 'Unlimited';
-                role = "💎 VIP";
+            else if (fullActionKey.endsWith('adm_btn_reload')) {
+                await ctx.reply('Reload button coming soon');
             }
-            else if (user.subType === 'pro') {
-                maxStorage = '4GB';
-                role = 'Pro';
-            }
-            else if (user.subType === 'premium') {
-                maxStorage = '8GB';
-                role = 'Premium';
-            }
-            else if (user.subType === 'enterprise') {
-                maxStorage = '24GB';
-                role = 'Enterprise';
-            }
-            ;
-            let myStats = '';
-            const userActions = Object.entries(user.stats || {}).sort((a, b) => b[1] - a[1]);
-            if (userActions.length === 0) {
-                myStats = this.localization.t(lang, 'no_activity');
-            }
-            else {
-                for (const [action, count] of userActions) {
-                    const translationKey = `status_${action}`;
-                    let actionLabel = this.localization.t(lang, translationKey);
-                    if (actionLabel === translationKey) {
-                        actionLabel = this.capitalize(action) + ":";
-                    }
-                    myStats += `${actionLabel} <b>${count}</b>\n`;
-                }
-            }
-            let planInfo = '';
-            if (user.subExpiresAt > 0) {
-                const subEnd = new Date(user.subExpiresAt).toLocaleDateString();
-                planInfo = `${user.subPeriod} (${this.localization.t(lang, 'msg_end')}: ${subEnd})`;
-            }
-            else {
-                planInfo = this.localization.t(lang, 'no_active_sub');
-            }
-            const subEnd = user.subExpiresAt > 0 ? new Date(user.subExpiresAt).toLocaleDateString() : this.localization.t(lang, 'no_active_sub');
-            const msg = this.localization.t(lang, 'msg_status') +
-                `📛 <b>${this.localization.t(lang, 'msg_name')}:</b> ${user.firstName}\n` +
-                `🏷 <b>${this.localization.t(lang, 'msg_role')}:</b> ${role}\n` +
-                `💾 <b>${this.localization.t(lang, 'msg_usage')}:</b> ${usedMB} MB / ${maxStorage}\n\n` +
-                `📊 <b>${this.localization.t(lang, 'msg_stats')}:</b>\n` +
-                myStats +
-                `\n💳 <b>${this.localization.t(lang, 'msg_plan')}:</b>${planInfo}`;
-            await ctx.reply(msg, { parse_mode: 'HTML' });
             return;
         }
-        if (actionKey === 'btn_cancel' || text === '/cancel') {
+        if (fullActionKey.endsWith('btn_status')) {
+            await this.handleStatus(ctx, lang);
+            return;
+        }
+        if (fullActionKey.endsWith('btn_cancel') || text === '/cancel') {
             if (ctx.session.filePaths) {
                 for (const path of ctx.session.filePaths) {
                     await this.fileService.deleteFile(path);
@@ -134,68 +62,68 @@ export class ButtonHandler {
             }
             ctx.session = initialSession();
             await ctx.reply("❌", { reply_markup: { remove_keyboard: true } });
-            await ctx.reply(this.localization.t(lang, 'start_message'), {
-                reply_markup: this.keyboards.getMainMenu(lang)
+            await ctx.reply(this.localization.t(lang, 'messages.start'), {
+                reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
             });
+            return;
+        }
+        if (fullActionKey.endsWith('btn_help')) {
+            await ctx.reply(this.localization.t(lang, 'messages.help'), { parse_mode: 'HTML' });
             return;
         }
         const hasFile = ctx.session.filePaths && ctx.session.filePaths.length > 0;
         const localPath = hasFile ? ctx.session.filePaths[0] : null;
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
-        if (['btn_unlock', 'btn_compress', 'btn_protect'].includes(actionKey) && !hasFile) {
-            await ctx.reply(this.localization.t(lang, 'file_lost'));
+        const fileRequiredButtons = [
+            'btn_compress', 'btn_protect', 'btn_unlock', 'btn_split',
+            'btn_convert', 'btn_extract', 'btn_watermark', 'btn_repair',
+            'btn_to_long_image', 'btn_metadata_wiper', 'btn_merge'
+        ];
+        const isFileActions = fileRequiredButtons.some(k => fullActionKey.endsWith(k));
+        if (isFileActions && !hasFile) {
+            await ctx.reply(this.localization.t(lang, 'messages.actions.file_lost'));
             return;
         }
-        if (actionKey === 'btn_unlock') {
-            if (!hasFile) {
-                await ctx.reply(this.localization.t(lang, 'file_lost'));
-                return;
-            }
-            const statusMsg = await ctx.reply(this.localization.t(lang, 'cracking_proccess'), {
-                parse_mode: 'HTML'
-            });
+        if (fullActionKey.endsWith('btn_unlock')) {
+            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.cracking'), { parse_mode: 'HTML' });
             try {
                 const crackResult = await this.workerService.crack(localPath);
                 await this.db.logAction(ctx.from.id, 'unlock', 0);
                 const safeName = FileNameUtils.getSafeName(originalName, '');
-                await ctx.reply(this.localization.t(lang, 'crack_success').replace('{{password}}', crackResult.password), {
+                await ctx.reply(this.localization.t(lang, 'messages.actions.success_crack').replace('{{password}}', crackResult.password), {
                     parse_mode: 'HTML'
                 });
                 await ctx.replyWithDocument(new InputFile(crackResult.path, safeName), {
-                    reply_markup: this.keyboards.getMainMenu(lang)
+                    reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
                 });
                 await this.fileService.deleteFile(crackResult.path);
                 await this.fileService.deleteFile(localPath);
                 ctx.session = initialSession();
             }
             catch (e) {
-                await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id);
-                await ctx.reply(this.localization.t(lang, 'manual_pass_req'), {
+                await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+                await ctx.reply(this.localization.t(lang, 'messages.actions.fail_manual'), {
                     parse_mode: 'HTML',
-                    reply_markup: {
-                        force_reply: true
-                    }
+                    reply_markup: { force_reply: true }
                 });
                 ctx.session.currentAction = 'unlock';
                 ctx.session.step = 'waiting_for_password';
             }
             return;
         }
-        if (actionKey === 'btn_compress') {
+        if (fullActionKey.endsWith('btn_compress')) {
             if (!hasFile) {
                 ctx.session.currentAction = 'compress';
-                await ctx.reply(this.localization.t(lang, 'btn_compress_reply'));
+                await ctx.reply(this.localization.t(lang, 'messages.actions.ask_compress'));
                 return;
             }
-            const statusMsg = await ctx.reply(this.localization.t(lang, 'compress_info_proccess'), {
-                parse_mode: 'HTML'
-            });
+            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.compressing'), { parse_mode: 'HTML' });
             try {
                 const resultPath = await this.workerService.compress(localPath);
                 await this.db.logAction(ctx.from.id, 'compress', 0);
                 const safeName = FileNameUtils.getSafeName(originalName, this.localization.t(lang, 'suffix_compressed'));
                 await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
-                    reply_markup: this.keyboards.getMainMenu(lang)
+                    reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
                 });
                 await this.fileService.deleteFile(resultPath);
                 await this.fileService.deleteFile(localPath);
@@ -203,38 +131,106 @@ export class ButtonHandler {
             }
             catch (e) {
                 await ctx.reply(`Error: ${e.message}`);
-                await this.logger.logToTelegram(`Compress Error: ${e.message}`, 'ButtonHandler', { user: ctx.from, message: ctx.message, errorText: e.message, botName: this.config.botName });
+                await this.logger.error('Compress', e, { user: ctx.from, message: ctx.message });
             }
             finally {
                 await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
             }
             return;
         }
-        if (actionKey === 'btn_protect') {
-            if (!hasFile) {
-                await ctx.reply(this.localization.t(lang, 'file_lost'));
-                return;
-            }
+        if (fullActionKey.endsWith('btn_protect')) {
             ctx.session.currentAction = 'protect';
             ctx.session.step = 'waiting_for_password';
-            await ctx.reply(this.localization.t(lang, 'set_password'), {
+            await ctx.reply(this.localization.t(lang, 'message.actions.ask_protect'), {
                 parse_mode: 'HTML',
                 reply_markup: { force_reply: true }
             });
             return;
         }
-        if (actionKey === 'btn_help') {
-            await ctx.reply(this.localization.t(lang, 'help_message'), { parse_mode: 'HTML' });
-        }
+        await ctx.reply(this.localization.t(lang, 'messages.common.in_development'), { parse_mode: 'HTML' });
+        await this.logger.logAction(ctx.from, 'Feature request', `Clicked dev feature: ${fullActionKey}`);
     }
-    getActionIcon(action) {
-        switch (action) {
-            case 'upload': return '📂';
-            case 'compress': return '🗜';
-            case 'unlock': return '🔓';
-            case 'protect': return '🔐';
-            default: return '🔹';
+    async handleStatus(ctx, lang) {
+        const userId = ctx.from.id;
+        const user = await this.db.getUser(userId);
+        if (!user) {
+            await ctx.reply(this.localization.t(lang, 'messages.status.error'));
+            return;
         }
+        const usedMB = (user.totalTrafficBytes / 1024 / 1024).toFixed(2);
+        let maxStorage = this.localization.t(lang, 'messages.status.subscriptions.free_storage');
+        let role = this.localization.t(lang, 'messages.status.subscriptions.no_sub');
+        if (user.isVip) {
+            maxStorage = this.localization.t(lang, 'messages.status.subscriptions.unlimited');
+            role = this.localization.t(lang, 'messages.status.subscriptions.vip_role');
+        }
+        else if (user.subType === 'pro') {
+            maxStorage = this.localization.t(lang, 'messages.status.subscriptions.pro_storage');
+            role = this.localization.t(lang, 'messages.status.subscriptions.pro_role');
+        }
+        else if (user.subType === 'premium') {
+            maxStorage = this.localization.t(lang, 'messages.status.subscriptions.premium_storage');
+            role = this.localization.t(lang, 'messages.status.subscriptions.premium_role');
+        }
+        else if (user.subType === 'enterprise') {
+            maxStorage = this.localization.t(lang, 'messages.status.subscriptions.enterprise_storage');
+            role = this.localization.t(lang, 'messages.status.subscription.premium_role');
+        }
+        else if (user.subType === 'sovereign_protocol') {
+            maxStorage = this.localization.t(lang, 'messages.status.subscriptions.sovereign_protocol_storage');
+            role = this.localization.t(lang, 'messages.status.subscription.sovereign_protocol_role');
+        }
+        let myStats = '';
+        const userActions = Object.entries(user.stats || {}).sort((a, b) => b[1] - a[1]);
+        if (userActions.length === 0) {
+            myStats = this.localization.t(lang, 'messages.status.empty');
+        }
+        else {
+            for (const [action, count] of userActions) {
+                const translationKey = `messages.status.actions.${action}`;
+                let actionLabel = this.localization.t(lang, translationKey);
+                if (actionLabel.includes('MISSING')) {
+                    actionLabel = this.capitalize(action);
+                }
+                myStats += `${actionLabel}: <b>${count}</b>\n`;
+            }
+        }
+        const subEnd = user.subExpiresAt > 0 ? new Date(user.subExpiresAt).toLocaleDateString() : this.localization.t(lang, 'messages.status.subscriptions.no_sub');
+        const msg = this.localization.t(lang, 'messages.status.user.title') +
+            `📛 <b>${this.localization.t(lang, 'messages.status.user.name')}:</b> ${user.firstName}\n` +
+            `🏷 <b>${this.localization.t(lang, 'messages.status.user.role')}:</b> ${role}\n` +
+            `💾 <b>${this.localization.t(lang, 'messages.status.user.usage')}:</b> ${usedMB} MB / ${maxStorage}\n\n` +
+            `📊 <b>${this.localization.t(lang, 'messages.status.user.stats')}:</b>\n` +
+            myStats +
+            `\n💳 <b>${this.localization.t(lang, 'messages.status.user.plan')}:</b> ${user.subPeriod || subEnd}`;
+        await ctx.reply(msg, { parse_mode: 'HTML' });
+    }
+    async handleAdminStats(ctx, lang) {
+        const global = await this.db.getGlobalStats();
+        const counts = await this.db.getUserCounts();
+        const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
+        let actionStats = '';
+        const sortedActions = Object.entries(global.actions).sort((a, b) => b[1] - a[1]);
+        if (sortedActions.length === 0) {
+            actionStats = this.localization.t(lang, 'messages.status.empty');
+        }
+        else {
+            for (const [action, count] of sortedActions) {
+                const translationKey = `messages.status.actions.${action}`;
+                let actionLabel = this.localization.t(lang, translationKey);
+                if (actionLabel.includes('MISSING')) {
+                    actionLabel = this.capitalize(action);
+                }
+                actionStats += `${actionLabel}: <b>${count}</b>`;
+            }
+        }
+        const msg = this.localization.t(lang, 'messages.status.admin.title') +
+            `👥 <b>Users:</b> ${counts.total} (🟢 ${counts.active})\n\n` +
+            `📊 <b>${this.localization.t(lang, 'messages.status.admin.global_stats')}:</b>\n` +
+            actionStats +
+            `\n💾 <b>${this.localization.t(lang, 'messages.status.admin.traffic')}:</b> ${totalGB} GB\n\n` +
+            `💎 <b>${this.localization.t(lang, 'messages.status.admin.subs')}:</b> VIP:${counts.subscribers.vip} | Pro:${counts.subscribers.pro} | Premium:${counts.subscribers.premium} | Enterprise:${counts.subscribers.enterprise} | Sovereign Protocol: ${counts.subscribers.sovereign}`;
+        await ctx.reply(msg, { parse_mode: 'HTML' });
     }
     capitalize(s) {
         return s.charAt(0).toUpperCase() + s.slice(1);

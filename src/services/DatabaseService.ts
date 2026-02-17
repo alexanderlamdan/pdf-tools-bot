@@ -103,7 +103,8 @@ export class DatabaseService{
                 pro:await this.userRepo.count({sub_type:'pro'} as any),
                 premium:await this.userRepo.count({sub_type:'premium'} as any),
                 enterprise: await this.userRepo.count({sub_type:'enterprise'} as any),
-                vip:await this.userRepo.count({is_vip:true} as any)
+                vip:await this.userRepo.count({is_vip:true} as any),
+                sovereign: await this.userRepo.count({sub_type:'sovereign_protocol'} as any)
                 
             },
             models:{monthly:0,yearly:0}

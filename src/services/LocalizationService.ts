@@ -5,7 +5,7 @@ export class LocalizationService{
     
     private readonly locales:Record<string,Record<string,string>> = {};
     private readonly defaultLang = 'en';
-    private readonly supportedLangs = ['en','he','ru'];
+    private availableLangs:string[] = [];
     
     constructor(){
         
@@ -23,20 +23,22 @@ export class LocalizationService{
             return;
         }
         
-        for(const lang of this.supportedLangs){
+        const files = fs.readdirSync(localesDir);
+        for(const file of files){
             
-            const filePath = path.join(localesDir,`${lang}.json`);
-            if(fs.existsSync(filePath)){
+            if(file.endsWith('.json')){
                 
+                const lang = file.replace('.json','');
                 try{
                     
-                    const content = fs.readFileSync(filePath,'utf-8');
+                    const content = fs.readFileSync(path.join(localesDir,file),'utf-8');
                     this.locales[lang] = JSON.parse(content);
-                    console.log(`[LocalizationService] Loaded ${lang}`);
+                    this.availableLangs.push(lang);
+                    console.log(`[Localization] Loaded ${lang}`);
                     
                 }catch(e){
                     
-                    console.error(`[LocalizationService] Error loading ${lang}`);
+                    console.error(`[LocalizationService] Error loading ${lang}`,e);
                     
                 }
                 
@@ -52,7 +54,7 @@ export class LocalizationService{
         
         const shortCode = code.split('-')[0];
         
-        if(this.supportedLangs.includes(shortCode)){
+        if(this.availableLangs.includes(shortCode)){
             
             return {lang:shortCode,isFallback:false};
             
@@ -64,30 +66,134 @@ export class LocalizationService{
     
     public t(lang:string,key:string):string{
         
-        const dict = this.locales[lang] || this.locales[this.defaultLang];
-        return dict?.[key] || `[MISSING: ${key}]`;
+        let val = this.getValue(this.locales[lang],key);
+        if(!val && lang !== this.defaultLang){
+            
+            val = this.getValue(this.locales[this.defaultLang],key);
+            
+        }
+        
+        return val || `[MISSING: ${key}]`;
+        
+    }
+    
+    private getValue(obj:any,path:string):string|null{
+        
+        if(!obj) return null;
+        const keys = path.split('.');
+        let current = obj;
+        
+        for(const k of keys){
+            
+            if(current[k] === undefined) return null;
+            current = current[k];
+            
+        }
+        
+        return typeof current === 'string' ? current : null;
         
     }
     
     public getActionKeyByText(text:string):string | null{
         
-        for(const lang of Object.keys(this.locales)){
+        for(const lang of this.availableLangs){
             
-            const dict = this.locales[lang];
+            const foundKey = this.findKeyByValue(this.locales[lang]?.buttons,text);
+            if(foundKey) return `buttons.${foundKey}`;
             
-            for(const [key,value] of Object.entries(dict)){
+        }
+        
+        return null;
+        
+    }
+    
+    private findKeyByValue(obj:any,value:string,currentPath:string = ''):string|null{
+        
+        if(!obj) return null;
+        for(const key of Object.keys(obj)){
+            
+            const newPath = currentPath ? `${currentPath}.${key}` : key;
+            if(typeof obj[key] === 'object'){
                 
-                if(value === text){
-                    
-                    return key;
-                    
-                }
+                const found = this.findKeyByValue(obj[key], value,newPath);
+                if(found) return found;
+                
+            }else if(obj[key] === value){
+                
+                return newPath;
                 
             }
             
         }
         
         return null;
+        
+    }
+    
+    public getMainMenuButtons(lang:string,isAdmin:boolean):string[]{
+        
+        const main = this.getSection(lang,'buttons.main');
+        const admin = isAdmin ? this.getSection(lang,'buttons.admin') : {};
+        
+        return [...Object.values(main), ...Object.values(admin)] as string[];
+        
+    }
+    
+    public getFileActionsButtons(lang:string,excludeKeys:string[] = []):string[]{
+        
+        const files = this.getSection(lang,'buttons.files');
+        const common = this.getSection(lang,'buttons.common');
+        
+        const result:string[] = [];
+        for(const [key,val] of Object.entries(files)){
+            
+            if(!excludeKeys.includes(`buttons.files.${key}`)){
+                
+                result.push(val as string);
+                
+            }
+            
+        }
+        
+        return [...result,...(Object.values(common) as string[])];
+        
+    }
+    
+    public getEncryptedMenuButtons(lang:string):string[]{
+        
+        const unlock = this.t(lang,'buttons.files.btn_unlock');
+        const cancel = this.t(lang,'buttons.common.btn_cancel');
+        return [unlock,cancel];
+        
+    }
+    
+    private getSection(lang:string,sectionPath:string):Record<string,string>{
+        
+        let obj = this.getValueAsObject(this.locales[lang],sectionPath);
+        if(!obj && lang !== this.defaultLang){
+            
+            obj = this.getValueAsObject(this.locales[this.defaultLang],sectionPath);
+            
+        }
+        
+        return obj || {};
+        
+    }
+    
+    private getValueAsObject(obj:any,path:string):Record<string,string> | null{
+        
+        if(!obj) return null;
+        
+        const keys = path.split('.');
+        let current = obj;
+        for(const k of keys){
+            
+            if(current[k] === undefined) return null;
+            current = current[k];
+            
+        }
+        
+        return typeof current === 'object' ? current : null;
         
     }
     

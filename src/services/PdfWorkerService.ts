@@ -2,10 +2,28 @@ import axios from "axios"
 import fs from "fs";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 
+export interface IPdfInfo {
+    pages: number;
+    version: string;
+    encrypted: boolean;
+    size: number;
+    author: string;
+    
+    can_compress: boolean;
+    can_split: boolean;
+    can_merge: boolean;
+    
+    has_metadata: boolean;
+    is_scanned: boolean;
+    
+    is_corrupt: boolean;
+    cant_compress_reason: string;
+}
+
 interface WorkerResponse{
     
     status: 'ok' | 'error';
-    info?:string;
+    info?:unknown;
     error?:string;
     path?:string;
     
@@ -55,7 +73,7 @@ export class PdfWorkerService{
         
     }
     
-    public async getPdfInfo(filePath:string,lang:string):Promise<string>{
+    public async getPdfInfo(filePath:string,lang:string):Promise<IPdfInfo>{
         
         const data = await this.sendRequest({
             
@@ -65,8 +83,7 @@ export class PdfWorkerService{
             
         });
         
-        if (data.status === 'error') throw new Error(data.error);
-        return data.info || 'No Information';
+        return data.info as unknown as IPdfInfo;
     }
     
     public async encrypt(filePath:string,password:string):Promise<string>{
@@ -112,7 +129,7 @@ export class PdfWorkerService{
         return {
             
             path:data.path!,
-            password:data.info || 'found'
+            password:data.info as string
             
         };
         

@@ -63,11 +63,7 @@ export class DbLogger{
             
             try{
                 
-                await this.loggerService.logToTelegram(adminMsg,'DB_CRASH',{
-                    
-                    errorText:stack
-                    
-                });
+               await this.loggerService.error('DB_CRASH',new Error(adminMsg));
 
             }catch(e){
                 

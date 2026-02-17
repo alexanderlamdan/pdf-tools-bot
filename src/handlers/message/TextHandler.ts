@@ -36,6 +36,7 @@ export class TextHandler{
         
         const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
         const text = ctx.message?.text;
+        const isAdmin = ctx.from?.id === this.config.adminId;
         if(!text) return;
         
         if(ctx.from){
@@ -49,15 +50,15 @@ export class TextHandler{
         const action = ctx.session.currentAction;
         const step = ctx.session.step;
         
-        const logText = (step === 'waiting_for_password') ? '***PASSWORD***' : text;
-        this.logger.logToFile('system/text.log', `TEXT | User: ${ctx.from?.id} | Action: ${action} | Content: ${logText}`);
-        
         if(action === 'protect' && step === 'waiting_for_password'){
+            
+            await this.logger.logAction(ctx.from!, 'Input password','***HIDDEN***');
+            
             
             const password = text.trim();
             if(password.length < 1){
                 
-                await ctx.reply(this.localization.t(lang,'password_empty'));
+                await ctx.reply(this.localization.t(lang,'errors.password_empty'));
                 return;
                 
             }
@@ -65,13 +66,13 @@ export class TextHandler{
             const filePath = ctx.session.filePaths[0];
             if(!filePath){
                 
-                await ctx.reply(this.localization.t(lang,'file_lost'));
+                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'));
                 ctx.session = initialSession();
                 return;
                 
             }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'set_encrypt'));
+            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.encrypting'));
             let resultPath:string | null = null;
             
             try{
@@ -86,9 +87,9 @@ export class TextHandler{
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     
-                    caption:this.localization.t(lang,'encrypt_caption_finished'),
+                    caption:this.localization.t(lang,'messages.actions.success_protect'),
                     parse_mode:'HTML',
-                    reply_markup:this.keyboards.getMainMenu(lang)
+                    reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
                     
                 });
                 
@@ -98,7 +99,7 @@ export class TextHandler{
                 
             }catch(e:any){
 
-                await this.logger.logToTelegram(`Protect Error: ${e.message}`, 'TextHandler', {user:ctx.from!, message:ctx.message!, errorText:e.message, botName:this.config.botName});
+                await this.logger.error('TextHandler:protect',e,{user:ctx.from!,message:ctx.message!});
                 ctx.session = initialSession();
                 
             }finally{
@@ -116,12 +117,12 @@ export class TextHandler{
             
             if(!filePath){
                 
-                await ctx.reply(this.localization.t(lang,'file_lost'));
+                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'));
                 return;
                 
             }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'decrypting'));
+            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.decrypting'));
             try{
                 
                 const resultPath = await this.workerService.decrypt(filePath, password);
@@ -130,9 +131,9 @@ export class TextHandler{
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     
-                    caption:this.localization.t(lang,'decrypt_success'),
+                    caption:this.localization.t(lang,'messages.actions.success_crack').replace('{{password}}', password),
                     parse_mode:'HTML',
-                    reply_markup:this.keyboards.getMainMenu(lang)
+                    reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
                     
                 });
                 
@@ -142,8 +143,8 @@ export class TextHandler{
                 
             }catch(e:any){
                 
-                await ctx.reply(this.localization.t(lang,'decrypt_fail'));
-                this.logger.logToFile('system/auth.log', `DECRYPT FAIL | User: ${ctx.from?.id} | Wrong pass entered`);
+                await ctx.reply(this.localization.t(lang,'messages.actions.decrypt_fail'));
+                await this.logger.logAction(ctx.from!,'Unlock Failed','Wrong password');
                 
             }finally{
                 
@@ -152,19 +153,11 @@ export class TextHandler{
             }
             
         }
-        
-        this.logger.logToFile('system/spam.log', `SPAM TEXT | User: ${ctx.from?.id} | Content: ${text}`);
-        
-        await this.logger.logToTelegram(
-            `🗑 <b>SPAM TEXT REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nText: "${text}"`,
-            'Log: Spam',
-            { user: ctx.from!, message: ctx.message!, botName: this.config.botName, errorText: 'Invalid text input' }
-        );
-
+        await this.logger.logAction(ctx.from!,'Spam text',text);
         // 2. Настойчиво отвечаем
-        await ctx.reply(this.localization.t(lang, 'text_rejected'), {
+        await ctx.reply(this.localization.t(lang, 'errors.text_rejected'), {
             parse_mode: 'HTML',
-            reply_markup: this.keyboards.getMainMenu(lang)
+            reply_markup: this.keyboards.getMainMenu(lang,isAdmin)
         });
         
     }

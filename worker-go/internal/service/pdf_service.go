@@ -1,16 +1,14 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"os"
-
+	"os/exec"
 	"path/filepath"
-
 	"pdf-worker/internal/domain"
-	"pdf-worker/internal/i18n"
-
-	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"strconv"
+	"strings"
 )
 
 var commonPasswords = []string{
@@ -27,131 +25,198 @@ func NewPdfService() *PdfService {
 
 }
 
+type PdfInfo struct {
+	PageCount int    `json:"pages"`
+	Version   string `json:"version"`
+	Encrypted bool   `json:"encrypted"`
+	FileSize  int64  `json:"size"`
+	Author    string `json:"author"`
+
+	CanCompress bool `json:"can_compress"`
+	CanSplit    bool `json:"can_split"`
+	CanMerge    bool `json:"can_merge"`
+
+	HasMetadata bool `json:"has_metadata"`
+	HasImages   bool `json:"has_images"`
+	HasText     bool `json:"has_text"`
+	IsScanned   bool `json:"is_scanned"`
+
+	IsCorrupt      bool   `json:"is_corrupt"`
+	CantCompReason string `json:"cant_compress_reason"`
+}
+
 func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 
-	resp := domain.Response{Status: "ok"}
+	fileInfo, err := os.Stat(req.InputPath)
+	var size int64 = 0
+	if err == nil {
 
-	ctx, err := api.ReadContextFile(req.InputPath)
-
-	if err != nil {
-
-		resp.Info = fmt.Sprintf("⚠️ %s (Protected PDF)", i18n.T(req.Lang, "enc"))
-		return resp
+		size = fileInfo.Size()
 
 	}
 
-	fi, _ := os.Stat(req.InputPath)
-	sizeMB := float64(fi.Size()) / (1024 * 1024)
+	info := PdfInfo{
 
-	resp.Info = fmt.Sprintf(
-		"PDF v%s\n%s: %d\n%s: %s\n%s: %.2f MB",
-		ctx.HeaderVersion.String(),
-		i18n.T(req.Lang, "pages"), ctx.PageCount,
-		i18n.T(req.Lang, "author"), ctx.Author,
-		i18n.T(req.Lang, "size"), sizeMB,
-	)
+		FileSize:    size,
+		Author:      "No author",
+		HasMetadata: true,
+		CanSplit:    true,
+		CanMerge:    true,
+	}
 
-	return resp
+	cmd := exec.Command("pdfinfo", req.InputPath)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err = cmd.Run()
+
+	output := out.String()
+
+	if err != nil {
+
+		if strings.Contains(output, "Encrypted:yes") {
+
+			info.Encrypted = true
+			info.IsCorrupt = false
+			info.CantCompReason = "File is encrypted"
+
+			parsePdfInfoOutput(output, &info)
+
+		} else {
+
+			info.IsCorrupt = true
+			info.CantCompReason = "File is corrupted"
+			info.CanCompress = false
+			info.CanMerge = false
+			info.CanSplit = false
+
+		}
+
+		return domain.Response{Status: "ok", Info: info}
+
+	}
+
+	parsePdfInfoOutput(output, &info)
+
+	if !info.Encrypted {
+
+		cmdText := exec.Command("pdftotext", "-l", "1", req.InputPath, "-")
+		var outText bytes.Buffer
+		cmdText.Stdout = &outText
+		errText := cmdText.Run()
+
+		if errText == nil {
+
+			text := strings.TrimSpace(outText.String())
+			if len(text) < 5 {
+
+				info.IsScanned = true
+
+			}
+		}
+
+	}
+
+	info.CanSplit = true
+	info.CanMerge = true
+	info.HasMetadata = true
+
+	if info.IsScanned {
+
+		info.CanCompress = false
+		info.CantCompReason = "Scanned documents(or images)"
+
+	} else {
+
+		info.CanCompress = true
+
+	}
+
+	return domain.Response{Status: "ok", Info: info}
+}
+
+func (s *PdfService) Compress(req domain.Request) domain.Response {
+
+	outputPath := getOutputPath(req.InputPath, "_opt.pdf")
+
+	cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompabilityLevel=1.4", "-dPDFSETTINGS=/ebook", "-dNOPAUSE", "-dQUIET", "-dBATCH", fmt.Sprintf("-sOutputFile=%s", outputPath), req.InputPath)
+
+	if output, err := cmd.CombinedOutput(); err != nil {
+
+		return domain.Response{Status: "error", Error: fmt.Sprintf("GS Error: %s", string(output))}
+
+	}
+
+	return domain.Response{Status: "ok", Path: outputPath}
 
 }
 
 func (s *PdfService) Encrypt(req domain.Request) domain.Response {
 
-	outputPath := getOutputPath(req.InputPath)
+	outputPath := getOutputPath(req.InputPath, "_enc.pdf")
+	cmd := exec.Command("qpdf", "--encrypt", req.Password, req.Password, "256", "--", req.InputPath, outputPath)
 
-	conf := model.NewAESConfiguration(req.Password, req.Password, 256)
-	err := api.EncryptFile(req.InputPath, outputPath, conf)
+	if output, err := cmd.CombinedOutput(); err != nil {
 
-	if err != nil {
-
-		return domain.Response{Status: "error", Error: err.Error()}
+		return domain.Response{Status: "error", Error: string(output)}
 
 	}
 
 	return domain.Response{Status: "ok", Path: outputPath}
-
 }
 
 func (s *PdfService) Decrypt(req domain.Request) domain.Response {
-
-	outputPath := getOutputPath(req.InputPath)
-	conf := model.NewAESConfiguration(req.Password, req.Password, 256)
-
-	err := api.DecryptFile(req.InputPath, outputPath, conf)
-
-	if err != nil {
-
-		return domain.Response{Status: "error", Error: "Wrong password or file error"}
-
+	outputPath := getOutputPath(req.InputPath, "_dec.pdf")
+	cmd := exec.Command("qpdf", "--decrypt", "--password="+req.Password, req.InputPath, outputPath)
+	if output, err := cmd.CombinedOutput(); err != nil {
+		if strings.Contains(string(output), "invalid password") {
+			return domain.Response{Status: "error", Error: "Wrong password"}
+		}
+		return domain.Response{Status: "error", Error: string(output)}
 	}
-
 	return domain.Response{Status: "ok", Path: outputPath}
-
 }
 
 func (s *PdfService) Crack(req domain.Request) domain.Response {
-
-	outputPath := getOutputPath(req.InputPath)
-
+	outputPath := getOutputPath(req.InputPath, "_cracked.pdf")
 	for _, pwd := range commonPasswords {
+		cmd := exec.Command("qpdf", "--decrypt", "--password="+pwd, req.InputPath, outputPath)
+		if err := cmd.Run(); err == nil {
+			return domain.Response{Status: "ok", Path: outputPath, Info: pwd}
+		}
+	}
+	return domain.Response{Status: "error", Error: "Password is too strong"}
+}
 
-		conf := model.NewAESConfiguration(pwd, pwd, 256)
-		f, err := os.Open(req.InputPath)
-
-		if err != nil {
-
+// --- Helpers ---
+func parsePdfInfoOutput(output string, info *PdfInfo) {
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) < 2 {
 			continue
-
 		}
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
 
-		_, err = api.ReadContext(f, conf)
-		f.Close()
-		if err == nil {
-
-			err := api.DecryptFile(req.InputPath, outputPath, conf)
-			if err != nil {
-
-				return domain.Response{Status: "error", Error: "Password found but decryption failed"}
-
+		switch key {
+		case "Pages":
+			info.PageCount, _ = strconv.Atoi(val)
+		case "PDF version":
+			info.Version = val
+		case "Author":
+			if val != "" {
+				info.Author = val
 			}
-
-			return domain.Response{
-				Status: "ok",
-				Path:   outputPath,
-				Info:   pwd,
+		case "Encrypted":
+			if strings.HasPrefix(val, "yes") {
+				info.Encrypted = true
 			}
-
 		}
-
 	}
-
-	return domain.Response{Status: "error", Error: "Password is too strong. Dictionary attack failed"}
-
 }
 
-func (s *PdfService) Optimize(req domain.Request) domain.Response {
-
-	outputPath := getOutputPath(req.InputPath)
-	conf := model.NewDefaultConfiguration()
-
-	conf.ValidationMode = model.ValidationRelaxed
-
-	err := api.OptimizeFile(req.InputPath, outputPath, conf)
-
-	if err != nil {
-
-		return domain.Response{Status: "error", Error: err.Error()}
-
-	}
-
-	return domain.Response{Status: "ok", Path: outputPath}
-
-}
-
-func getOutputPath(path string) string {
-
+func getOutputPath(path string, suffix string) string {
 	ext := filepath.Ext(path)
 	base := path[0 : len(path)-len(ext)]
-	return base + "_mod" + ext
-
+	return base + suffix
 }

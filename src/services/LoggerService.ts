@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import {exec} from 'child_process';
 import {Bot,InputFile} from 'grammy';
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import type {User,Message} from 'grammy/types';
 import {TelegramLogFormatter} from './telegramLogFormatter/TelegramLogFormatter.js';
+import { UserInfoFormatter } from '../utils/UserInfoFormatter.js';
 
 export class LoggerService{
 
@@ -12,6 +14,7 @@ export class LoggerService{
 	private readonly logChannelId:number;
 	private readonly logBot:Bot;
 	private readonly formatter:TelegramLogFormatter;
+	private readonly maxFileSize = 50 * 1024 * 1024;
 
 	constructor(private readonly config:IBotConfig){
 
@@ -37,84 +40,148 @@ export class LoggerService{
 
 		const fullPath = path.join(this.logDir,subpath);
 		const now = new Date();
-		const logLine = `[${now.toLocaleString('en-IL', {
-    timeZone: 'Asia/Jerusalem',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-}).replace(/[/]/g, '-').replace(',', '')}] ${message}\n`;
+		const timeString = `[${now.toLocaleString('en-IL', {timeZone: 'Asia/Jerusalem',
+    		year: 'numeric',
+   			month: '2-digit',
+    		day: '2-digit',
+    		hour: '2-digit',
+    		minute: '2-digit',
+    		second: '2-digit',
+    		hour12: false
+		}).replace(/[/]/g, '-').replace(',', '')}]`;
+		const logLine = `[${timeString}] ${message}\n`;
 
 		this.ensureDirSync(path.dirname(fullPath));
-		fs.appendFileSync(fullPath,logLine,'utf8');
+		
+		try{
+			
+			if(fs.existsSync(fullPath)){
+				
+				const stats = fs.statSync(fullPath);
+				if(stats.size >= this.maxFileSize){
+					
+					const timestamp = Date.now();
+					const rotatedPath = `${fullPath}.${timestamp}`;
+					
+					fs.renameSync(fullPath,rotatedPath);
+					
+					const archiveName = `${path.basename(rotatedPath)}.tar.gz`;
+					const dirName = path.dirname(fullPath);
+					
+					exec(`tar -czf "${archiveName}" "${path.basename(rotatedPath)}" && rm "${path.basename(rotatedPath)}"`,{cwd:dirName},(error)=>{
+						if(error){
+							
+							console.error(`[Logger] Failed to compress log: ${error.message}`);
+							
+						}else{
+							
+							console.log(`[Logger] Log archived: ${archiveName}`);
+							
+						}
+					});
+					
+				}
+				
+			}
+			
+		}catch(e){
+			
+			console.error('[Logger] Error during log rotation: ',e);
+			
+		}
+		
+		try{
+			
+			fs.appendFileSync(fullPath,logLine,'utf-8');
+			
+		}catch(e){
+			
+			console.error('[Logger] Failed to write to file: ',e);
+			
+		}
 
 	}
 
-	public async logToTelegram(
-		text:string,
-		title = 'Log',
-		options?: { user?: User; message?: Message; errorText?: string; botName?: string }
-	){
-
-		let body = text;
-		if(options?.user && options?.message && options?.errorText && options?.botName){
-
+	public async logAction(user:User,action:string,details:string = ''){
+		
+		const userLink = `<a href="tg://user?id=${user.id}">${user.first_name}</a>`;
+		const telegramText = `👤 <b>User:</b> ${userLink} (<code>${user.id}</code>)\n` +
+		`⚡️ <b>Action:</b> ${action}\n` +
+		(details ? `📝 <b>Details:</b> ${details}` : '');
+		
+		const fileLog = `ACTION | User: ${user.id} (${user.username || ''}) | Action: ${action} | ${details}`;
+		
+		this.logToFile('actions.log',fileLog);
+		await this.sendToTelegram(telegramText);
+		
+	}
+	
+	public async error(source:string,error:Error,context?:{user?:User,message?:Message}){
+		
+		const userStr = context?.user ? `User: ${context.user.id}` : 'System';
+		this.logToFile('errors.log', `ERROR | ${source} | ${userStr} | ${error.message} | Stack: ${error.stack}`);
+		
+		let body = '';
+		if(context?.user && context?.message){
+			
 			body = this.formatter.formatErrorLog({
-
-				botName:options.botName,
-				user:options.user,
-				message:options.message,
-				errorText:options.errorText
-
+				
+				botName:this.config.botName,
+				user:context.user,
+				message:context.message,
+				errorText:error.message
+				
 			});
-
+			
+		}else{
+			
+			body = `❌ <b>ERROR:</b> ${source}\nMessage: ${error.message}`;
+			
 		}
-
+		
+		await this.sendToTelegram(body);
+		
+	}
+	
+	private async sendToTelegram(body:string){
+		
 		try{
-
-			if(body.length <=1500){
-
+			
+			if(body.length <= 4000){
+				
 				await this.logBot.api.sendMessage(
-
 					this.logChannelId,
-					`<b>${title}</b>\n${body}`,
-					{parse_mode:"HTML"}
-
+					body,
+					{parse_mode:'HTML'}
 				);
-
+				
 			}else{
-
+				
 				const tmpDir = os.tmpdir();
-				const filename = `log_${Date.now()}.log`;
+				const filename = `log_${Date.now()}.html`;
 				const filePath = path.join(tmpDir,filename);
 				fs.writeFileSync(filePath,body);
-
+				
 				await this.logBot.api.sendDocument(
-
 					this.logChannelId,
 					new InputFile(filePath),
 					{
-
-						caption: `<b>${title}</b>\n(log added as a file)`,
-					  parse_mode: "HTML"
-
+						caption:`<b>Too long</b>`,
+						parse_mode:'HTML'
 					}
-
 				);
-
-				fs.unlink(filePath, ()=>{});
-
+				
+				fs.unlink(filePath,()=>{});
+				
 			}
-
+			
 		}catch(e){
-
-			this.logToFile('system/logger-errors.log',`ERROR logToTelegram: ${e}`);
-
+			
+			console.error('Logger fail: ',e);
+			this.logToFile('system/logger-errors.log', `ERROR sending to telegram: ${e}`);
+			
 		}
-
+		
 	}
 
 }

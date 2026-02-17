@@ -5,37 +5,27 @@ export class Keyboards {
     constructor(localization) {
         this.localization = localization;
     }
-    build(lang, layout) {
+    buildFromList(buttons, columns = 2) {
         const kb = new Keyboard();
-        for (const row of layout) {
-            for (const key of row) {
-                const text = key.startsWith('btn_') ? this.localization.t(lang, key) : key;
-                kb.text(text);
-            }
-            kb.row();
+        let i = 0;
+        for (const btn of buttons) {
+            kb.text(btn);
+            i++;
+            if (i % columns === 0)
+                kb.row();
         }
         return kb.resized();
     }
+    getMainMenu(lang, isAdmin) {
+        const buttons = this.localization.getMainMenuButtons(lang, isAdmin);
+        return this.buildFromList(buttons, 2);
+    }
     getFileActionsMenu(lang, excludeKeys = []) {
-        const fullLayout = [
-            ['btn_compress', 'btn_protect'],
-            ['btn_split', 'btn_extract'],
-            ['btn_cancel']
-        ];
-        const filteredLayout = fullLayout.map(row => {
-            return row.filter(key => !excludeKeys.includes(key));
-        }).filter(row => row.length > 0);
-        return this.build(lang, filteredLayout);
+        const buttons = this.localization.getFileActionsButtons(lang, excludeKeys);
+        return this.buildFromList(buttons, 2);
     }
     getEncryptedFileMenu(lang) {
-        return this.build(lang, [
-            ['btn_unlock'],
-            ['btn_cancel']
-        ]);
-    }
-    getMainMenu(lang) {
-        return this.build(lang, [
-            ['btn_status', 'btn_help']
-        ]);
+        const buttons = this.localization.getEncryptedMenuButtons(lang);
+        return this.buildFromList(buttons, 1);
     }
 }

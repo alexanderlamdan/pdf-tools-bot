@@ -9,7 +9,6 @@ import { initialSession} from "../../types/SessionData.js";
 import { InputFile } from "grammy";
 import { Keyboards } from "../../services/Keyboards.js";
 import { FileNameUtils } from "../../utils/FileNameUtils.js";
-import fs from 'fs';
 import { DatabaseService } from "../../services/DatabaseService.js";
 
 export class DocumentMessageHandler {
@@ -43,19 +42,16 @@ export class DocumentMessageHandler {
     if(!document) return;
     
     const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
+    const isAdmin = ctx.from?.id === this.config.adminId;
     
     if(document.mime_type !== 'application/pdf'){
       
-      await this.logger.logToTelegram(
-        `🗑 <b>TRASH FILE REJECTED</b>\nUser: <code>${ctx.from?.id}</code>\nName: ${document.file_name}\nMime: ${document.mime_type}`,
-        'Log: Trash',
-        { user: ctx.from!, message: ctx.message!, botName: this.config.botName, errorText: 'File is not PDF' }
-      );
+      await this.logger.logAction(ctx.from!, 'Trash upload',`Rejected: ${document.file_name}(${document.mime_type})`);
       
       try { await ctx.deleteMessage(); } catch (e) {}
-      await ctx.reply(this.localization.t(lang, 'file_rejected'), {
+      await ctx.reply(this.localization.t(lang, 'errors.not_pdf'), {
         parse_mode: 'HTML',
-        reply_markup: this.keyboards.getMainMenu(lang)
+        reply_markup: this.keyboards.getMainMenu(lang,isAdmin)
     });
     return;
       
@@ -63,15 +59,11 @@ export class DocumentMessageHandler {
     
     await this.db.registerUser(ctx.from!.id, ctx.from!.username, ctx.from!.first_name);
     await this.db.logAction(ctx.from!.id, 'upload', document.file_size || 0);
+    const sizeMB = (document.file_size! / 1024 / 1024).toFixed(2);
     
-    await this.logger.logToTelegram(
-            `📄 <b>File Received</b>\nName: ${document.file_name}\nSize: ${(document.file_size! / 1024 / 1024).toFixed(2)} MB`,
-            'DocumentHandler',
-            { user: ctx.from!, message: ctx.message!, errorText: 'Start Analysis', botName: this.config.botName }
-        );
-    await this.logger.logToFile('system/document.log', `RECEIVED | User: ${ctx.from?.id} | File: ${document.file_name}`);
+    await this.logger.logAction(ctx.from!,'File Upload',`📄 ${document.file_name} | ${sizeMB} MB`);
     
-    const statusMsg = await ctx.reply(this.localization.t(lang,'analyzing'),{
+    const statusMsg = await ctx.reply(this.localization.t(lang,'messages.analysis.processing'),{
       
       parse_mode:'HTML',
       reply_markup:{remove_keyboard:true}
@@ -83,40 +75,37 @@ export class DocumentMessageHandler {
     try{
       
       localPath = await this.fileService.downloadFile(ctx,document.file_id);
-      const infoText = await this.workerService.getPdfInfo(localPath,lang);
-      
-      const isEncrypted = infoText.includes('Protected PDF') || infoText.includes('Encrypted') || infoText.includes('Зашифрован') || infoText.includes('מוצפן');
+      const info = await this.workerService.getPdfInfo(localPath,lang);
       
       ctx.session.filePaths = [localPath];
       ctx.session.tempParams = {originalName:document.file_name};
       
       await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id);
       
-      if(isEncrypted){
+      if(info.encrypted){
         
         ctx.session.currentAction = 'unlock';
-        
-        await ctx.reply(this.localization.t(lang,'analysis_encrypted'),{
+        await ctx.reply(this.localization.t(lang,'messages.analysis.encrypted'),{
           parse_mode:'HTML',
           reply_markup:this.keyboards.getEncryptedFileMenu(lang)
         });
         
       }else{
         
-        const pagesMatch = infoText.match(/(\d+)/);
-        const pages = pagesMatch ? pagesMatch[0] : "?";
-        const sizeMB = (document.file_size! / 1024 / 1024).toFixed(2);
-        
-        const msgText = this.localization.t(lang,'analysis_success').replace('{{name}}',FileNameUtils.escapeHtml(document.file_name || 'document.pdf')).replace('{{size}}',sizeMB).replace('{{pages}}',pages).replace('{{protected}}',this.localization.t(lang,'no'));
+        const protectedText = this.localization.t(lang,'messages.common.no');
+        const msgText = this.localization.t(lang, 'messages.analysis.success')
+        .replace('{{name}}', FileNameUtils.escapeHtml(document.file_name || 'document.pdf'))
+        .replace('{{size}}', sizeMB)
+        .replace('{{pages}}', info.pages.toString())
+        .replace('{{protected}}', protectedText);
         
         ctx.session.currentAction = 'ready';
         
         await ctx.reply(msgText,{
-          
           parse_mode:'HTML',
           reply_markup:this.keyboards.getFileActionsMenu(lang)
-          
         });
+        
         localPath = null;
         
       }
@@ -124,17 +113,15 @@ export class DocumentMessageHandler {
     }catch(e:any){
       
       console.error(e);
-      const isCorrupt = e.message.includes('invalid') || e.message.includes('corrupt');
-      const errorKey = isCorrupt ? 'analysis_corrupt' : 'file_lost';
-      const errorText = isCorrupt ? this.localization.t(lang,'analysis_corrupt') : `Error: ${e.message}`;
+      const isCorrupt = e.message?.includes('invalid') || e.message?.includes('corrupt');
       
-      await this.logger.logToTelegram(
-                `❌ <b>Analysis Failed</b>\n${e.message}`,
-                'DocumentHandler Error',
-                { user: ctx.from!, message: ctx.message!, errorText: e.stack, botName: this.config.botName }
-      );
+      await this.logger.error('DocumentHandler',e,{user:ctx.from,message:ctx.message});
       
-      await ctx.api.editMessageText(ctx.chat!.id,statusMsg.message_id,errorText,{parse_mode:'HTML'});
+      const errorKey = isCorrupt ? 'messages.analysis.corrupt' : 'messages.actions.file_lost';
+      
+      const errorText = isCorrupt ? this.localization.t(lang,errorKey) : `Error: ${e.message}`;
+      
+      await ctx.api.editMessageText(ctx.chat!.id,statusMsg.message_id,errorText,{parse_mode:'HTML'}).catch(()=>{});
       
       if(localPath) await this.fileService.deleteFile(localPath);
       ctx.session = initialSession();
@@ -142,5 +129,4 @@ export class DocumentMessageHandler {
     }
     
   }
-  
 }
