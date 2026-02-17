@@ -95,8 +95,7 @@
         "vip_role":"VIP"
       },
       "empty": "No activity yet",
-      "error": "Error loading profile",
-      "in_development":"In development progress"
+      "error": "Error loading profile"
     },
     "actions": {
       "ask_compress": "Send me the PDF file you want to compress.",
@@ -117,7 +116,8 @@
     "common": {
       "yes": "Yes",
       "no": "No",
-      "wait": "⏳ Processing..."
+      "wait": "⏳ Processing...",
+      "in_development":"In development progress"
     }
   },
   "errors": {
