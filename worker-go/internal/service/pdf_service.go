@@ -65,12 +65,15 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 
 	outputBytes, err := exec.Command("pdfinfo", req.InputPath).CombinedOutput()
 	output := string(outputBytes)
+	lowerOutput := strings.ToLower(output)
 
 	parsePdfInfoOutput(output, &info)
+	isEncrypted := strings.Contains(lowerOutput, "encrypted") &&
+		(strings.Contains(lowerOutput, "yes") || strings.Contains(lowerOutput, "password required"))
 
 	if err != nil {
 
-		if info.Encrypted || strings.Contains(strings.ToLower(output), "encrypted: yes") {
+		if isEncrypted {
 
 			info.Encrypted = true
 			info.IsCorrupt = false
@@ -130,7 +133,7 @@ func (s *PdfService) Compress(req domain.Request) domain.Response {
 
 	outputPath := getOutputPath(req.InputPath, "_opt.pdf")
 
-	cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompabilityLevel=1.4", "-dPDFSETTINGS=/ebook", "-dNOPAUSE", "-dQUIET", "-dBATCH", fmt.Sprintf("-sOutputFile=%s", outputPath), req.InputPath)
+	cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", "-dPDFSETTINGS=/ebook", "-dNOPAUSE", "-dQUIET", "-dBATCH", fmt.Sprintf("-sOutputFile=%s", outputPath), req.InputPath)
 
 	if output, err := cmd.CombinedOutput(); err != nil {
 
