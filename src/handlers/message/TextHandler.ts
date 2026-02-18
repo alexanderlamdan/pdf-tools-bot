@@ -80,7 +80,7 @@ export class TextHandler{
                 resultPath = await this.workerService.encrypt(filePath,password);
                 await this.db.logAction(ctx.from!.id, 'protect', 0);
                 
-                const suffix = this.localization.t(lang,'suffix_protected');
+                const suffix = this.localization.t(lang,'messages.actions.suffix_protected');
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName,suffix);
                 const safePassword = FileNameUtils.escapeHtml(password);
@@ -96,7 +96,7 @@ export class TextHandler{
                 await this.fileService.deleteFile(filePath);
                 await this.fileService.deleteFile(resultPath);
                 ctx.session = initialSession();
-                
+                return;
             }catch(e:any){
 
                 await this.logger.error('TextHandler:protect',e,{user:ctx.from!,message:ctx.message!});
@@ -142,7 +142,7 @@ export class TextHandler{
                 await this.fileService.deleteFile(resultPath);
                 await this.fileService.deleteFile(filePath);
                 ctx.session = initialSession();
-                
+                return;
             }catch(e:any){
                 
                 await ctx.reply(this.localization.t(lang,'messages.actions.decrypt_fail'));

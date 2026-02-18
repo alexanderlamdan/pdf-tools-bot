@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -64,54 +63,46 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 		CanMerge:    true,
 	}
 
-	cmd := exec.Command("pdfinfo", req.InputPath)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err = cmd.Run()
+	outputBytes, err := exec.Command("pdfinfo", req.InputPath).CombinedOutput()
+	output := string(outputBytes)
 
-	output := out.String()
+	parsePdfInfoOutput(output, &info)
 
 	if err != nil {
 
-		if strings.Contains(output, "Encrypted:yes") {
+		if info.Encrypted || strings.Contains(output, "Encrypted: yes") {
 
 			info.Encrypted = true
 			info.IsCorrupt = false
 			info.CantCompReason = "File is encrypted"
-
-			parsePdfInfoOutput(output, &info)
-
-		} else {
-
-			info.IsCorrupt = true
-			info.CantCompReason = "File is corrupted"
-			info.CanCompress = false
-			info.CanMerge = false
-			info.CanSplit = false
+			return domain.Response{Status: "ok", Info: info}
 
 		}
+
+		info.IsCorrupt = true
+		info.CantCompReason = "File is corrupted or invalid"
+		info.CanCompress = false
+		info.CanMerge = false
+		info.CanSplit = false
 
 		return domain.Response{Status: "ok", Info: info}
 
 	}
 
-	parsePdfInfoOutput(output, &info)
-
 	if !info.Encrypted {
 
 		cmdText := exec.Command("pdftotext", "-l", "1", req.InputPath, "-")
-		var outText bytes.Buffer
-		cmdText.Stdout = &outText
-		errText := cmdText.Run()
+		outputBytes, errText := cmdText.CombinedOutput()
 
 		if errText == nil {
 
-			text := strings.TrimSpace(outText.String())
+			text := strings.TrimSpace(string(outputBytes))
 			if len(text) < 5 {
 
 				info.IsScanned = true
 
 			}
+
 		}
 
 	}
@@ -132,6 +123,7 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 	}
 
 	return domain.Response{Status: "ok", Info: info}
+
 }
 
 func (s *PdfService) Compress(req domain.Request) domain.Response {

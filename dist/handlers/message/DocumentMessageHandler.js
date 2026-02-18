@@ -31,6 +31,12 @@ export class DocumentMessageHandler {
             return;
         const lang = this.getLang(ctx);
         const isAdmin = ctx.from?.id === this.config.adminId;
+        if (ctx.session.filePaths && ctx.session.filePaths.length > 0) {
+            for (const oldPath of ctx.session.filePaths) {
+                await this.fileService.deleteFile(oldPath);
+            }
+            ctx.session.filePaths = [];
+        }
         if (!this.isSupportedDocument(ctx)) {
             await this.handleInvalidFormat(ctx, document, lang, isAdmin);
             return;

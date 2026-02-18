@@ -111,7 +111,8 @@
       "fail_crack": "❌ <b>לא הצלחנו.</b> הסיסמה מורכבת מדי.",
       "fail_manual": "❌ <b>המילון לא עזר.</b>\n👇 <i>הקלידו את הסיסמה ידנית אם אתם יודעים אותה:</i>",
       "file_lost": "❌ שגיאה: הקובץ אבד. נא לשלוח שוב.",
-      "suffix_compressed":"_COMPRESSED"
+      "suffix_compressed":"_COMPRESSED",
+      "suffix_protected":"_PROTECTED"
     },
     "common": {
       "yes": "כן",

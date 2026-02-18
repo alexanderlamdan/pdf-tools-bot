@@ -111,7 +111,8 @@
       "fail_crack": "❌ <b>Failed.</b> Password is too strong.",
       "fail_manual": "❌ <b>Dictionary failed.</b>\n👇 <i>Enter password manually if you know it:</i>",
       "file_lost": "❌ Error: File lost. Please upload again.",
-      "suffix_compressed":"_COMPRESSED"
+      "suffix_compressed":"_COMPRESSED",
+      "suffix_protected":"_PROTECTED"
     },
     "common": {
       "yes": "Yes",
