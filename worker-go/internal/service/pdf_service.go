@@ -67,9 +67,9 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 	output := string(outputBytes)
 	lowerOutput := strings.ToLower(output)
 
-	parsePdfInfoOutput(output, &info)
-	isEncrypted := strings.Contains(lowerOutput, "encrypted") &&
-		(strings.Contains(lowerOutput, "yes") || strings.Contains(lowerOutput, "password required"))
+	isEncrypted := strings.Contains(lowerOutput, "incorrect password") ||
+		strings.Contains(lowerOutput, "encrypted: yes") ||
+		strings.Contains(lowerOutput, "password required")
 
 	if err != nil {
 
@@ -78,6 +78,7 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 			info.Encrypted = true
 			info.IsCorrupt = false
 			info.CantCompReason = "File is encrypted"
+			parsePdfInfoOutput(output, &info)
 			return domain.Response{Status: "ok", Info: info}
 
 		}
