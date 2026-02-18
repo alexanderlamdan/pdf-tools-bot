@@ -1,5 +1,5 @@
 export const dbConfig = {
-    host: 'localhost',
+    host: '127.0.0.1',
     port: Number(63915),
     user: 'pdf-tools-bot',
     password: 'gNObfMruRFmnVL54osWnam5aZMRDzkKNmCqQyegCCZTVEadIdNIBwn9N7nPfhaYW09D3vte7G',

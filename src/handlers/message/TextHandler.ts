@@ -100,8 +100,15 @@ export class TextHandler{
                 ctx.session = initialSession();
                 return;
             }catch(e:any){
-
-                await this.logger.error('TextHandler:protect',e,{user:ctx.from!,message:ctx.message!});
+                
+                const safeError = e as Error;
+                if(safeError.message && safeError.message.length > 2000){
+                    
+                    safeError.message = safeError.message.substring(0,2000) + '... [TRUNCATED]';
+                    
+                }
+                
+                await this.logger.error('TextHandler:protect',safeError,{user:ctx.from!,message:ctx.message!});
                 ctx.session = initialSession();
                 
             }finally{

@@ -19,7 +19,11 @@ export class LoggerService {
             throw new Error('LoggerService: config.channelLogId is required');
         }
         this.logChannelId = config.channelLogId;
-        this.logBot = new Bot(config.token);
+        this.logBot = new Bot(config.token, {
+            client: {
+                apiRoot: this.config.localApiFile
+            }
+        });
         this.formatter = new TelegramLogFormatter();
     }
     ensureDirSync(dir) {
