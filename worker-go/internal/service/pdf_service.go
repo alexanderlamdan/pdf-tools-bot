@@ -67,6 +67,10 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 	output := string(outputBytes)
 	lowerOutput := strings.ToLower(output)
 
+	fmt.Printf("[DEBUG] pdfinfo output for %s:\n%s\n----------------\n", filepath.Base(req.InputPath), output)
+
+	parsePdfInfoOutput(output, &info)
+
 	isEncrypted := strings.Contains(lowerOutput, "incorrect password") ||
 		strings.Contains(lowerOutput, "encrypted: yes") ||
 		strings.Contains(lowerOutput, "password required")
