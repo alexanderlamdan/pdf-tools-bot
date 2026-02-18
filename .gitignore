@@ -25,3 +25,5 @@ dist/config/LocalConfig.js
 */*.swp
 /*/*/*/*.swp
 /*/*/*/*/*.swp
+dist/database/config/*.js
+src/database/config/*.ts
