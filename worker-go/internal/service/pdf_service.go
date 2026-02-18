@@ -200,7 +200,7 @@ func parsePdfInfoOutput(output string, info *PdfInfo) {
 				info.Author = val
 			}
 		case "Encrypted":
-			if strings.HasPrefix(val, "yes") {
+			if strings.Contains(strings.ToLower(val), "yes") {
 				info.Encrypted = true
 			}
 		}
