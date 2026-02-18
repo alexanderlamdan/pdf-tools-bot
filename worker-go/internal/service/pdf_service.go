@@ -70,7 +70,7 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 
 	if err != nil {
 
-		if info.Encrypted || strings.Contains(output, "Encrypted: yes") {
+		if info.Encrypted || strings.Contains(strings.ToLower(output), "encrypted: yes") {
 
 			info.Encrypted = true
 			info.IsCorrupt = false
