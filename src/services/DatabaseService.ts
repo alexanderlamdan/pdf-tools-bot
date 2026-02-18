@@ -73,7 +73,7 @@ export class DatabaseService{
         if(user){
             
             user.stats = await this.logRepo.getUserStats(id);
-            user.totalTrafficBytes = Number(user.totalTrafficBytes || (user as any).monthly_traffic || 0);
+            user.totalTrafficBytes = Number(user.totalTrafficBytes || (user as any).monthlyTraffic || 0);
             
         }
         

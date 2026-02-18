@@ -7,6 +7,7 @@ import { FileNameUtils } from "../../utils/FileNameUtils.js";
 import { Keyboards } from "../../services/Keyboards.js";
 import { LoggerService } from "../../services/LoggerService.js";
 import { DatabaseService } from "../../services/DatabaseService.js";
+import fs from 'fs';
 export class ButtonHandler {
     config;
     localApi;
@@ -88,7 +89,8 @@ export class ButtonHandler {
             const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.cracking'), { parse_mode: 'HTML' });
             try {
                 const crackResult = await this.workerService.crack(localPath);
-                await this.db.logAction(ctx.from.id, 'unlock', 0);
+                const stats = await fs.promises.stat(crackResult.path);
+                await this.db.logAction(ctx.from.id, 'unlock', stats.size);
                 const safeName = FileNameUtils.getSafeName(originalName, '');
                 await ctx.reply(this.localization.t(lang, 'messages.actions.success_crack').replace('{{password}}', crackResult.password), {
                     parse_mode: 'HTML'

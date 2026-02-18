@@ -10,6 +10,7 @@ import type { IBotConfig } from "../../config/interfaces/IBotConfig.js";
 import type { LocalApi } from "../../types/LocalApi.js";
 import { LoggerService } from "../../services/LoggerService.js";
 import { DatabaseService } from "../../services/DatabaseService.js";
+import fs from 'fs';
 
 export class ButtonHandler{
     
@@ -126,7 +127,8 @@ export class ButtonHandler{
             try{
                 
                 const crackResult = await this.workerService.crack(localPath!);
-                await this.db.logAction(ctx.from!.id,'unlock',0);
+                const stats = await fs.promises.stat(crackResult.path);
+                await this.db.logAction(ctx.from!.id,'unlock',stats.size);
                 
                 const safeName = FileNameUtils.getSafeName(originalName,'');
                 

@@ -50,7 +50,7 @@ export class DatabaseService {
         const user = await this.userRepo.findOne({ id });
         if (user) {
             user.stats = await this.logRepo.getUserStats(id);
-            user.totalTrafficBytes = Number(user.totalTrafficBytes || user.monthly_traffic || 0);
+            user.totalTrafficBytes = Number(user.totalTrafficBytes || user.monthlyTraffic || 0);
         }
         return user;
     }

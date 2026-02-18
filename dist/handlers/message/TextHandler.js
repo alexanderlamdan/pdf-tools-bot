@@ -7,6 +7,7 @@ import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { Keyboards } from '../../services/Keyboards.js';
 import { LoggerService } from '../../services/LoggerService.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
+import fs from 'fs';
 export class TextHandler {
     config;
     localApi;
@@ -56,7 +57,8 @@ export class TextHandler {
             let resultPath = null;
             try {
                 resultPath = await this.workerService.encrypt(filePath, password);
-                await this.db.logAction(ctx.from.id, 'protect', 0);
+                const stats = await fs.promises.stat(resultPath);
+                await this.db.logAction(ctx.from.id, 'protect', stats.size);
                 const suffix = this.localization.t(lang, 'messages.actions.suffix_protected');
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName, suffix);
@@ -90,7 +92,8 @@ export class TextHandler {
             const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.decrypting'));
             try {
                 const resultPath = await this.workerService.decrypt(filePath, password);
-                this.db.logAction(ctx.from.id, 'unlock', 0);
+                const stats = await fs.promises.stat(resultPath);
+                this.db.logAction(ctx.from.id, 'unlock', stats.size);
                 const safeName = FileNameUtils.getSafeName(ctx.session.tempParams?.originalName || 'doc.pdf', '');
                 await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                     caption: this.localization.t(lang, 'messages.actions.success_crack').replace('{{password}}', password),
