@@ -19,6 +19,7 @@ export class StartCommandHandler{
 		this.localization = localization;
 		this.logger = new LoggerService(config);
 		this.keyboards = new Keyboards(localization);
+		this.db = new DatabaseService(this.logger);
 		
 	}
 	

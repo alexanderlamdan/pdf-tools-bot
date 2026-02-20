@@ -13,6 +13,7 @@ export class StartCommandHandler {
         this.localization = localization;
         this.logger = new LoggerService(config);
         this.keyboards = new Keyboards(localization);
+        this.db = new DatabaseService(this.logger);
     }
     async handle(ctx) {
         const userCode = ctx.from?.language_code;
