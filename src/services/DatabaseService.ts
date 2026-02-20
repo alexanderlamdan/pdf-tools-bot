@@ -33,19 +33,28 @@ export class DatabaseService{
         console.log('✅ [System] Database is ready.');
     }
     
-    public async registerUser(userId:number,username:string = '',firstName:string = '',lang:string = 'en'){
+    public async registerUser(userId:number,username:string = '',firstName:string = '',lang?:string){
         
         const existing = await this.userRepo.findOne({id:userId} as any);
         
         if(existing){
             
-            await this.userRepo.update({id:userId} as any,{
-                username,
-                firstName,
-                lastActiveAt:Date.now(),
-                langCode:lang
-            }as any);
+          const updateData:any = {
             
+            username,
+            firstName,
+            lastActiveAt:Date.now()
+            
+          };
+            
+          if(lang){
+            
+            updateData.langCode = lang;
+            
+          }
+          
+          await this.userRepo.update({id:userId} as any,updateData);
+          
         }else{
             
             await this.userRepo.create({
@@ -54,7 +63,7 @@ export class DatabaseService{
                 firstName,
                 joinedAt:Date.now(),
                 lastActiveAt:Date.now(),
-                langCode:lang,
+                langCode:lang || 'en',
                 isVip:false
             } as any);
             

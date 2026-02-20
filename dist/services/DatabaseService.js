@@ -22,15 +22,18 @@ export class DatabaseService {
         await migrator.migrate();
         console.log('✅ [System] Database is ready.');
     }
-    async registerUser(userId, username = '', firstName = '', lang = 'en') {
+    async registerUser(userId, username = '', firstName = '', lang) {
         const existing = await this.userRepo.findOne({ id: userId });
         if (existing) {
-            await this.userRepo.update({ id: userId }, {
+            const updateData = {
                 username,
                 firstName,
-                lastActiveAt: Date.now(),
-                langCode: lang
-            });
+                lastActiveAt: Date.now()
+            };
+            if (lang) {
+                updateData.langCode = lang;
+            }
+            await this.userRepo.update({ id: userId }, updateData);
         }
         else {
             await this.userRepo.create({
@@ -39,7 +42,7 @@ export class DatabaseService {
                 firstName,
                 joinedAt: Date.now(),
                 lastActiveAt: Date.now(),
-                langCode: lang,
+                langCode: lang || 'en',
                 isVip: false
             });
         }
