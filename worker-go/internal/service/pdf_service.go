@@ -213,44 +213,61 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 		origSize = origStat.Size()
 
 	}
+	fmt.Printf("\n[DEBUG] === START REPAIR: %s (Size: %d bytes) ===\n", filepath.Base(req.InputPath), origSize)
 
-	isRecoverySuccessful := func(path string) bool {
-
+	// Встроенная умная проверка с подробным логированием
+	isRecoverySuccessful := func(path string, toolName string) bool {
 		info, err := os.Stat(path)
 		if err != nil || info.Size() == 0 {
-
+			fmt.Printf("[DEBUG] ❌ %s FAILED: File missing or 0 bytes.\n", toolName)
 			return false
-
 		}
 
-		if origSize > 1000000 && info.Size() < 10000 {
+		outSize := info.Size()
+		fmt.Printf("[DEBUG] 🟢 %s created file. Size: %d bytes.\n", toolName, outSize)
 
+		if origSize > 1000000 && outSize < 10000 {
+			fmt.Printf("[DEBUG] ❌ %s FAILED: File is a dummy wrapper (<10KB).\n", toolName)
 			return false
-
 		}
 
-		return isValidPdf(path)
+		cmd := exec.Command("pdfinfo", path)
+		outBytes, _ := cmd.CombinedOutput()
+		outStr := strings.ToLower(string(outBytes))
 
+		fmt.Printf("[DEBUG] 🔎 %s pdfinfo output:\n%s\n", toolName, outStr)
+
+		if strings.Contains(outStr, "pages:") {
+			if strings.Contains(outStr, "pages:          0") || strings.Contains(outStr, "pages: 0") {
+				fmt.Printf("[DEBUG] ❌ %s FAILED: pdfinfo reports 0 pages.\n", toolName)
+				return false
+			}
+			fmt.Printf("[DEBUG] ✅ %s SUCCESS: Valid PDF structure found.\n", toolName)
+			return true
+		}
+
+		fmt.Printf("[DEBUG] ❌ %s FAILED: pdfinfo could not find 'pages:' keyword.\n", toolName)
+		return false
 	}
 
 	exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
-	if isRecoverySuccessful(outputPath) {
+	if isRecoverySuccessful(outputPath, "QPDF") {
 		return domain.Response{Status: "ok", Path: outputPath}
 	}
 	os.Remove(outputPath)
 
 	exec.Command("qpdf", req.InputPath, outputPath).Run()
-	if isRecoverySuccessful(outputPath) {
+	if isRecoverySuccessful(outputPath, "MUTOOL") {
 		return domain.Response{Status: "ok", Path: outputPath}
 	}
 	os.Remove(outputPath)
 
 	exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath).Run()
-	if isRecoverySuccessful(outputPath) {
+	if isRecoverySuccessful(outputPath, "GS") {
 		return domain.Response{Status: "ok", Path: outputPath}
 	}
 	os.Remove(outputPath)
-
+	fmt.Printf("[DEBUG] === REPAIR COMPLETELY FAILED ===\n")
 	return domain.Response{
 		Status: "error",
 		Error:  "File data is completely destroyed. Recovery is impossible.",
