@@ -314,20 +314,16 @@ func cleanError(output string) string {
 func isValidPdf(filePath string) bool {
 
 	cmd := exec.Command("pdfinfo", filePath)
-	outputBytes, err := cmd.CombinedOutput()
-
-	if err != nil {
-
-		return false
-
-	}
+	outputBytes, _ := cmd.CombinedOutput()
 
 	output := strings.ToLower(string(outputBytes))
 
-	if strings.Contains(output, "pages:") && !strings.Contains(output, "pages:          0") {
+	if strings.Contains(output, "pages:") {
 
+		if strings.Contains(output, "pages:          0") || strings.Contains(output, "pages: 0") {
+			return false
+		}
 		return true
-
 	}
 
 	return false
