@@ -250,6 +250,12 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 		return false
 	}
 
+	exec.Command("pdftocairo", "-pdf", req.InputPath, outputPath).Run()
+	if isRecoverySuccessful(outputPath, "PDFTOCAIRO") {
+		return domain.Response{Status: "ok", Path: outputPath}
+	}
+	os.Remove(outputPath)
+
 	exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
 	if isRecoverySuccessful(outputPath, "QPDF") {
 		return domain.Response{Status: "ok", Path: outputPath}
