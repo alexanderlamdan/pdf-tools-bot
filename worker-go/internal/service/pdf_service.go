@@ -142,7 +142,7 @@ func (s *PdfService) Compress(req domain.Request) domain.Response {
 
 	if output, err := cmd.CombinedOutput(); err != nil {
 
-		return domain.Response{Status: "error", Error: fmt.Sprintf("GS Error: %s", string(output))}
+		return domain.Response{Status: "error", Error: cleanError(string(output))}
 
 	}
 
@@ -164,7 +164,7 @@ func (s *PdfService) Encrypt(req domain.Request) domain.Response {
 
 		}
 
-		return domain.Response{Status: "error", Error: string(output)}
+		return domain.Response{Status: "error", Error: cleanError(string(output))}
 
 	}
 
@@ -185,7 +185,7 @@ func (s *PdfService) Decrypt(req domain.Request) domain.Response {
 
 		}
 
-		return domain.Response{Status: "error", Error: string(output)}
+		return domain.Response{Status: "error", Error: cleanError(string(output))}
 	}
 	return domain.Response{Status: "ok", Path: outputPath}
 }
@@ -205,67 +205,32 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 
 	outputPath := getOutputPath(req.InputPath, "_repaired.pdf")
 
-	origStat, _ := os.Stat(req.InputPath)
-	origSize := int64(0)
-
-	if origStat != nil {
-
-		origSize = origStat.Size()
-
-	}
-
-	cmdMutool := exec.Command("mutool", "clean", req.InputPath, outputPath)
-	cmdMutool.Run()
-
-	if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
-
-		if origSize > 1000000 && info.Size() < 10000 {
-
-			os.Remove(outputPath)
-
-		} else {
-
-			return domain.Response{Status: "ok", Path: outputPath}
-
-		}
-
-	}
-
-	cmdQPDF := exec.Command("qpdf", req.InputPath, outputPath)
-	cmdQPDF.Run()
-
-	if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
-
-		if origSize > 1000000 && info.Size() < 10000 {
-
-			os.Remove(outputPath)
-
-		} else {
-
-			return domain.Response{Status: "ok", Path: outputPath}
-
-		}
-
-	}
-
-	cmdGS := exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath)
-	cmdGS.Run()
-
-	if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
-
-		if origSize > 1000000 && info.Size() < 10000 {
-
-			os.Remove(outputPath)
-			return domain.Response{
-
-				Status: "error",
-				Error:  "Recovery failed: content is completely unreadable. Resulting file was empty.",
-			}
-		}
+	exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
+	if isValidPdf(outputPath) {
 
 		return domain.Response{Status: "ok", Path: outputPath}
 
 	}
+
+	os.Remove(outputPath)
+
+	exec.Command("qpdf", req.InputPath, outputPath).Run()
+
+	if isValidPdf(outputPath) {
+
+		return domain.Response{Status: "ok", Path: outputPath}
+
+	}
+	os.Remove(outputPath)
+
+	exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath).Run()
+
+	if isValidPdf(outputPath) {
+
+		return domain.Response{Status: "ok", Path: outputPath}
+
+	}
+	os.Remove(outputPath)
 
 	return domain.Response{
 
@@ -307,4 +272,46 @@ func getOutputPath(path string, suffix string) string {
 	ext := filepath.Ext(path)
 	base := path[0 : len(path)-len(ext)]
 	return base + suffix
+}
+
+func cleanError(output string) string {
+
+	lower := strings.ToLower(output)
+	if strings.Contains(lower, "unable to find page tree") || strings.Contains(lower, "no pages") {
+
+		return "Zombie PDF: cant restore it"
+
+	}
+
+	if len(output) > 250 {
+
+		return output[:250] + "..."
+
+	}
+
+	return output
+
+}
+
+func isValidPdf(filePath string) bool {
+
+	cmd := exec.Command("pdfinfo", filePath)
+	outputBytes, err := cmd.CombinedOutput()
+
+	if err != nil {
+
+		return false
+
+	}
+
+	output := strings.ToLower(string(outputBytes))
+
+	if strings.Contains(output, "pages:") && !strings.Contains(output, "pages:          0") {
+
+		return true
+
+	}
+
+	return false
+
 }
