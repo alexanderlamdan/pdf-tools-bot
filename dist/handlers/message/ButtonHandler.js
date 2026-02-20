@@ -91,7 +91,7 @@ export class ButtonHandler {
                 const crackResult = await this.workerService.crack(localPath);
                 const stats = await fs.promises.stat(crackResult.path);
                 await this.db.logAction(ctx.from.id, 'unlock', stats.size);
-                const safeName = FileNameUtils.getSafeName(originalName, '');
+                const safeName = FileNameUtils.getSafeName(originalName, this.localization.t(lang, 'messages.actions.suffix_unlocked'));
                 await ctx.reply(this.localization.t(lang, 'messages.actions.success_crack').replace('{{password}}', crackResult.password), {
                     parse_mode: 'HTML'
                 });
@@ -137,7 +137,10 @@ export class ButtonHandler {
                 ctx.session.filePaths = [resultPath];
                 ctx.session.currentAction = 'ready';
                 await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+                const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
+                const safeName = FileNameUtils.getSafeName(originalName, this.localization.t(lang, 'messages.actions.suffix_repair'));
                 const successText = this.localization.t(lang, 'messages.actions.repair_success');
+                await ctx.replyWithDocument(new InputFile(resultPath, safeName));
                 await ctx.reply(successText, {
                     parse_mode: 'HTML',
                     reply_markup: this.keyboards.getFileActionsMenu(lang)
