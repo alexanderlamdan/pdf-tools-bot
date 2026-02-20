@@ -214,6 +214,23 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 
 	}
 
+	cmdMutool := exec.Command("mutool", "clean", req.InputPath, outputPath)
+	cmdMutool.Run()
+
+	if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
+
+		if origSize > 1000000 && info.Size() < 10000 {
+
+			os.Remove(outputPath)
+
+		} else {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+
+	}
+
 	cmdQPDF := exec.Command("qpdf", req.InputPath, outputPath)
 	cmdQPDF.Run()
 
