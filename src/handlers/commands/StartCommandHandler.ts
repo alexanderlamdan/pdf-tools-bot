@@ -3,6 +3,7 @@ import {LoggerService} from '../../services/LoggerService.js';
 import type {IBotConfig} from '../../config/interfaces/IBotConfig.js';
 import {LocalizationService} from '../../services/LocalizationService.js';
 import { Keyboards } from '../../services/Keyboards.js';
+import { DatabaseService } from '../../services/DatabaseService.js';
 
 export class StartCommandHandler{
 	
@@ -10,6 +11,7 @@ export class StartCommandHandler{
 	private readonly config:IBotConfig;
 	private readonly localization:LocalizationService;
 	private readonly keyboards:Keyboards;
+	private readonly db: DatabaseService
 	
 	constructor(config:IBotConfig,localization:LocalizationService){
 		
@@ -25,6 +27,17 @@ export class StartCommandHandler{
 		const userCode = ctx.from?.language_code;
 		const {lang,isFallback} = this.localization.getUserLanguage(userCode);
 		const isAdmin = ctx.from?.id === this.config.adminId;
+		
+		if(ctx.from){
+			
+			await this.db.registerUser(
+				ctx.from.id,
+				ctx.from.username,
+				ctx.from.first_name,
+				lang
+			);
+			
+		}
 		
 		await this.logger.logAction(ctx.from!, 'Command','/start');
 		

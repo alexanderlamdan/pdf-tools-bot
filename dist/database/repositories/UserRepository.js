@@ -17,4 +17,11 @@ export class UserRepository extends BaseRepository {
         const res = await this.query(`SELECT COUNT(*) as c FROM users WHERE last_active_at > $1`, [time]);
         return Number(res[0].c);
     }
+    async findIdsByLanguage(lang) {
+        const res = await this.query(`SELECT id, FROM users WHERE lang_code = $1`, [lang]);
+        return res.map((row) => Number(row.id));
+    }
+    async setVipStatus(userId, status) {
+        await this.update({ id: userId }, { is_vip: status });
+    }
 }

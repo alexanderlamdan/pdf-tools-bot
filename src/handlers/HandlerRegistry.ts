@@ -5,6 +5,7 @@ import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
 import { ButtonHandler } from "./message/ButtonHandler.js";
 import { TextHandler } from "./message/TextHandler.js";
+import { AdminCommandHandler } from './commands/AdminCommandHandler.js';
 
 import { UserService } from "../services/UserService.js";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
@@ -43,13 +44,22 @@ export class HandlerRegistry {
       const instance = new Handler(this.config,this.localization);
       this.bot.command(command, instance.handle.bind(instance));
     }
-
+    const adminHandler = new AdminCommandHandler(this.config,this.localization);
     const docHandler = new DocumentMessageHandler(this.config, this.localApi,this.localization);
     
     const buttonHandler = new ButtonHandler(this.config,this.localApi,this.localization);
     const textHandler = new TextHandler(this.config, this.localApi, this.localization);
 
-    this.bot.on("message:text",async (ctx)=>{
+    this.bot.on("message:text",async (ctx,next)=>{
+      
+      const text = ctx.message?.text;
+      if(text && (text.startsWith('/publish_') || text.startsWith('/add_vip'))){
+        
+        await adminHandler.handle(ctx);
+        return;
+        
+      }
+      await next();
       
       await buttonHandler.handle(ctx);
       

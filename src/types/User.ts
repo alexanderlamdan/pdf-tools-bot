@@ -22,4 +22,6 @@ export interface IUser{
     stats?:Record<string,number>;
     totalTrafficBytes:number;
     
+    langCode:string;
+    
 }

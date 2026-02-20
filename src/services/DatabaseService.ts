@@ -33,7 +33,7 @@ export class DatabaseService{
         console.log('✅ [System] Database is ready.');
     }
     
-    public async registerUser(userId:number,username:string = '',firstName:string = ''){
+    public async registerUser(userId:number,username:string = '',firstName:string = '',lang:string = 'en'){
         
         const existing = await this.userRepo.findOne({id:userId} as any);
         
@@ -42,7 +42,8 @@ export class DatabaseService{
             await this.userRepo.update({id:userId} as any,{
                 username,
                 firstName,
-                lastActiveAt:Date.now()
+                lastActiveAt:Date.now(),
+                langCode:lang
             }as any);
             
         }else{
@@ -52,7 +53,9 @@ export class DatabaseService{
                 username,
                 firstName,
                 joinedAt:Date.now(),
-                lastActiveAt:Date.now()
+                lastActiveAt:Date.now(),
+                langCode:lang,
+                isVip:false
             } as any);
             
         }
@@ -110,6 +113,18 @@ export class DatabaseService{
             models:{monthly:0,yearly:0}
             
         };
+        
+    }
+    
+    public async getUserIdsByLang(lang:string){
+        
+        return this.userRepo.findIdsByLanguage(lang);
+        
+    }
+    
+    public async setVip(userId:number){
+        
+        await this.userRepo.setVipStatus(userId, true);
         
     }
     

@@ -1,12 +1,14 @@
 import {Postgresql} from '../Postgresql.js';
 import {Migration001} from './files/001_Initial.js';
+import { Migration002 } from './files/002_AddLang.js';
 
 export class Migrator{
     
     private db = Postgresql.getInstance();
     
     private migrations:any[] = [
-        {name:'001_Initial',class:Migration001}
+        {name:'001_Initial',class:Migration001},
+        {name:'002_AddLang',class:Migration002}
     ];
     
     public async migrate(){

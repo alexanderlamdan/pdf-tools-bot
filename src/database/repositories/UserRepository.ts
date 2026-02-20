@@ -35,4 +35,17 @@ export class UserRepository extends BaseRepository<IUser>{
         
     }
     
+    public async findIdsByLanguage(lang:string):Promise<number[]>{
+        
+        const res = await this.query(`SELECT id, FROM users WHERE lang_code = $1`,[lang]);
+        return res.map((row:any) => Number(row.id));
+        
+    }
+    
+    public async setVipStatus(userId:number,status:boolean){
+        
+        await this.update({id:userId} as any,{is_vip:status} as any);
+        
+    }
+    
 }
