@@ -154,8 +154,15 @@ func (s *PdfService) Encrypt(req domain.Request) domain.Response {
 
 	outputPath := getOutputPath(req.InputPath, "_enc.pdf")
 	cmd := exec.Command("qpdf", "--encrypt", req.Password, req.Password, "256", "--", req.InputPath, outputPath)
+	output, err := cmd.CombinedOutput()
 
-	if output, err := cmd.CombinedOutput(); err != nil {
+	if err != nil {
+
+		if info, statErr := os.Stat(outputPath); statErr == nil && info.Size() > 0 {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
 
 		return domain.Response{Status: "error", Error: string(output)}
 
@@ -171,6 +178,13 @@ func (s *PdfService) Decrypt(req domain.Request) domain.Response {
 		if strings.Contains(string(output), "invalid password") {
 			return domain.Response{Status: "error", Error: "Wrong password"}
 		}
+
+		if info, statErr := os.Stat(outputPath); statErr == nil && info.Size() > 0 {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+
 		return domain.Response{Status: "error", Error: string(output)}
 	}
 	return domain.Response{Status: "ok", Path: outputPath}
