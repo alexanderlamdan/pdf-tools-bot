@@ -205,12 +205,25 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 
 	outputPath := getOutputPath(req.InputPath, "_repaired.pdf")
 
-	cmdGS := exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath)
-	errGS := cmdGS.Run()
+	origStat, _ := os.Stat(req.InputPath)
+	origSize := int64(0)
 
-	if errGS == nil {
+	if origStat != nil {
 
-		if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
+		origSize = origStat.Size()
+
+	}
+
+	cmdQPDF := exec.Command("qpdf", req.InputPath, outputPath)
+	cmdQPDF.Run()
+
+	if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
+
+		if origSize > 1000000 && info.Size() < 10000 {
+
+			os.Remove(outputPath)
+
+		} else {
 
 			return domain.Response{Status: "ok", Path: outputPath}
 
@@ -218,16 +231,22 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 
 	}
 
-	cmdQPDF := exec.Command("qpdf", req.InputPath, outputPath)
-	errQPDF := cmdQPDF.Run()
+	cmdGS := exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath)
+	cmdGS.Run()
 
-	if errQPDF == nil {
+	if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
 
-		if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
+		if origSize > 1000000 && info.Size() < 10000 {
 
-			return domain.Response{Status: "ok", Path: outputPath}
+			os.Remove(outputPath)
+			return domain.Response{
 
+				Status: "error",
+				Error:  "Recovery failed: content is completely unreadable. Resulting file was empty.",
+			}
 		}
+
+		return domain.Response{Status: "ok", Path: outputPath}
 
 	}
 
