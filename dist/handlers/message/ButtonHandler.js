@@ -35,7 +35,7 @@ export class ButtonHandler {
         if (!fullActionKey)
             return;
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
-        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
+        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         await this.logger.logAction(ctx.from, 'Button click', `Key: ${fullActionKey} | Text: ${text}`);
         if (fullActionKey.includes('adm_btn_')) {
             if (ctx.from.id !== this.config.adminId)

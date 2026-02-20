@@ -34,7 +34,7 @@ export class TextHandler {
         if (!text)
             return;
         if (ctx.from) {
-            await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
+            await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         }
         if (text.startsWith('/') || this.localization.getActionKeyByText(text))
             return;

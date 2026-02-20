@@ -42,7 +42,7 @@ export class TextHandler{
         
         if(ctx.from){
             
-            await this.db.registerUser(ctx.from.id,ctx.from.username,ctx.from.first_name);
+            await this.db.registerUser(ctx.from.id,ctx.from.username,ctx.from.first_name,lang);
             
         }
         

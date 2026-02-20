@@ -60,7 +60,7 @@ export class DocumentMessageHandler{
         return;
       }
       
-      await this.trackActivity(ctx,document);
+      await this.trackActivity(ctx,document,lang);
       
       const statusMsg = await ctx.reply(this.localization.t(lang,'messages.analysis.processing'),{
         parse_mode:'HTML',
@@ -147,9 +147,9 @@ export class DocumentMessageHandler{
       
     }
     
-    private async trackActivity(ctx:BotContext,doc:Document){
+    private async trackActivity(ctx:BotContext,doc:Document,lang:string){
       
-      await this.db.registerUser(ctx.from!.id,ctx.from!.username,ctx.from!.first_name);
+      await this.db.registerUser(ctx.from!.id,ctx.from!.username,ctx.from!.first_name,lang);
       await this.db.logAction(ctx.from!.id,'upload',doc.file_size || 0);
       
       const sizeFormatted = this.formatSize(doc.file_size ||0);

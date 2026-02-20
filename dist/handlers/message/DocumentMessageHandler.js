@@ -41,7 +41,7 @@ export class DocumentMessageHandler {
             await this.handleInvalidFormat(ctx, document, lang, isAdmin);
             return;
         }
-        await this.trackActivity(ctx, document);
+        await this.trackActivity(ctx, document, lang);
         const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.analysis.processing'), {
             parse_mode: 'HTML',
             reply_markup: { remove_keyboard: true }
@@ -95,8 +95,8 @@ export class DocumentMessageHandler {
             reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
         });
     }
-    async trackActivity(ctx, doc) {
-        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
+    async trackActivity(ctx, doc, lang) {
+        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         await this.db.logAction(ctx.from.id, 'upload', doc.file_size || 0);
         const sizeFormatted = this.formatSize(doc.file_size || 0);
         await this.logger.logAction(ctx.from, 'File upload', `📄 ${doc.file_name} | ${sizeFormatted}`);
