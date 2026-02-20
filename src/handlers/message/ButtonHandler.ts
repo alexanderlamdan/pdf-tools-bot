@@ -222,6 +222,55 @@ export class ButtonHandler{
             
         }
         
+        if(fullActionKey.endsWith('btn_repair')){
+            
+            if(!hasFile){
+                
+                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'));
+                return;
+                
+            }
+            
+            const warningText = this.localization.t(lang,'messages.actions.repair_warning');
+            const statusMsg = await ctx.reply(warningText,{parse_mode:'HTML'});
+            
+            try{
+                
+                const resultPath = await this.workerService.repair(localPath!);
+                const stats = await fs.promises.stat(resultPath);
+                
+                await this.db.logAction(ctx.from!.id,'repair',stats.size);
+                await this.fileService.deleteFile(localPath!);
+                
+                ctx.session.filePaths = [resultPath];
+                ctx.session.currentAction = 'ready';
+                
+                await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
+                
+                const successText = this.localization.t(lang,'messages.actions.repair_success');
+                await ctx.reply(successText,{
+                    parse_mode:'HTML',
+                    reply_markup:this.keyboards.getFileActionsMenu(lang)
+                });
+                
+            }catch(e:any){
+                
+                await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
+                const failText = this.localization.t(lang,'messages.actions.repair_fail');
+                
+                await ctx.reply(`${failText}\n\n<i>${this.localization.t(lang,'messages.common.technical_problem')} ${e.message}</i>`,{parse_mode:'HTML'});
+                
+                await this.logger.error('Repair',e,{user:ctx.from!,message:ctx.message!});
+                
+                await this.fileService.deleteFile(localPath!);
+                ctx.session = initialSession();
+                
+            }
+            
+            return;
+            
+        }
+        
         await ctx.reply(this.localization.t(lang,'messages.common.in_development'),{parse_mode:'HTML'});
         await this.logger.logAction(ctx.from!,'Feature request',`Clicked dev feature: ${fullActionKey}`);
         

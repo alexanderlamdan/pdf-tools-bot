@@ -149,4 +149,16 @@ export class PdfWorkerService{
         
     }
     
+    public async repair(filePath:string):Promise<string>{
+        
+        const data = await this.sendRequest({
+            action:'repair',
+            inputPath:filePath
+        });
+        
+        if(data.status === 'error') throw new Error(data.error);
+        return data.path!;
+        
+    }
+    
 }

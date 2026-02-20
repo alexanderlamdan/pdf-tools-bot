@@ -82,4 +82,13 @@ export class PdfWorkerService {
             throw new Error(data.error);
         return data.path;
     }
+    async repair(filePath) {
+        const data = await this.sendRequest({
+            action: 'repair',
+            inputPath: filePath
+        });
+        if (data.status === 'error')
+            throw new Error(data.error);
+        return data.path;
+    }
 }

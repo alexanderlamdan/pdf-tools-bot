@@ -112,13 +112,17 @@
       "fail_manual": "❌ <b>Dictionary failed.</b>\n👇 <i>Enter password manually if you know it:</i>",
       "file_lost": "❌ Error: File lost. Please upload again.",
       "suffix_compressed":"_COMPRESSED",
-      "suffix_protected":"_PROTECTED"
+      "suffix_protected":"_PROTECTED",
+      "repair_warning": "⚠️ <b>Attention! Starting repair...</b>\n\n🛠 We will try to rebuild the file structure from scratch. During this process, <b>text may shift, fonts might change, or the layout could look a bit messy</b>.\n\n🛑 <i>Note:</i> There is a chance that strict programs (like Adobe Acrobat) still won't be able to read this file because the original background data is missing, but most browsers and simple readers will open it.\n\n⏳ <i>Please wait...</i>",
+      "repair_success": "✅ <b>File successfully saved and restored!</b>\n\nIt is now stored in the bot's memory. Choose what you would like to do with it next:",
+      "repair_fail": "❌ <b>We're very sorry, but this file cannot be restored.</b>\n\nWe've tried all available methods, but the document structure is completely destroyed or critical data is missing. It's impossible to save this file. 🙏"
     },
     "common": {
       "yes": "Yes",
       "no": "No",
       "wait": "⏳ Processing...",
-      "in_development":"In development progress"
+      "in_development":"In development progress",
+      "technical_problem":"Technical problem:"
     }
   },
   "errors": {

@@ -201,6 +201,44 @@ func (s *PdfService) Crack(req domain.Request) domain.Response {
 	return domain.Response{Status: "error", Error: "Password is too strong"}
 }
 
+func (s *PdfService) Repair(req domain.Request) domain.Response {
+
+	outputPath := getOutputPath(req.InputPath, "_repaired.pdf")
+
+	cmdGS := exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath)
+	errGS := cmdGS.Run()
+
+	if errGS == nil {
+
+		if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+
+	}
+
+	cmdQPDF := exec.Command("qpdf", req.InputPath, outputPath)
+	errQPDF := cmdQPDF.Run()
+
+	if errQPDF == nil {
+
+		if info, err := os.Stat(outputPath); err == nil && info.Size() > 0 {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+
+	}
+
+	return domain.Response{
+
+		Status: "error",
+		Error:  "File data is completely destroyed or missing. Recovery is impossible.",
+	}
+
+}
+
 // --- Helpers ---
 func parsePdfInfoOutput(output string, info *PdfInfo) {
 	lines := strings.Split(output, "\n")

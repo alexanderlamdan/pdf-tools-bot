@@ -50,6 +50,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp = h.service.Crack(req)
 	case "compress":
 		resp = h.service.Compress(req)
+	case "repair":
+		resp = h.service.Repair(req)
 	default:
 		resp = domain.Response{Status: "error", Error: "Unknown action"}
 	}
