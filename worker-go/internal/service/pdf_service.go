@@ -205,37 +205,55 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 
 	outputPath := getOutputPath(req.InputPath, "_repaired.pdf")
 
-	exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
-	if isValidPdf(outputPath) {
+	origStat, _ := os.Stat(req.InputPath)
+	origSize := int64(0)
 
-		return domain.Response{Status: "ok", Path: outputPath}
+	if origStat != nil {
+
+		origSize = origStat.Size()
 
 	}
 
+	isRecoverySuccessful := func(path string) bool {
+
+		info, err := os.Stat(path)
+		if err != nil || info.Size() == 0 {
+
+			return false
+
+		}
+
+		if origSize > 1000000 && info.Size() < 10000 {
+
+			return false
+
+		}
+
+		return isValidPdf(path)
+
+	}
+
+	exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
+	if isRecoverySuccessful(outputPath) {
+		return domain.Response{Status: "ok", Path: outputPath}
+	}
 	os.Remove(outputPath)
 
 	exec.Command("qpdf", req.InputPath, outputPath).Run()
-
-	if isValidPdf(outputPath) {
-
+	if isRecoverySuccessful(outputPath) {
 		return domain.Response{Status: "ok", Path: outputPath}
-
 	}
 	os.Remove(outputPath)
 
 	exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath).Run()
-
-	if isValidPdf(outputPath) {
-
+	if isRecoverySuccessful(outputPath) {
 		return domain.Response{Status: "ok", Path: outputPath}
-
 	}
 	os.Remove(outputPath)
 
 	return domain.Response{
-
 		Status: "error",
-		Error:  "File data is completely destroyed or missing. Recovery is impossible.",
+		Error:  "File data is completely destroyed. Recovery is impossible.",
 	}
 
 }
