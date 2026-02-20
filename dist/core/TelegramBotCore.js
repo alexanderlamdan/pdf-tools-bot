@@ -22,7 +22,11 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
         this.config = configSource;
         this.localization = new LocalizationService();
         this.antiSpam = new AntiSpamService();
-        this.bot = new Bot(this.config.token);
+        this.bot = new Bot(this.config.token, {
+            client: {
+                apiRoot: this.config.localApiFile
+            }
+        });
         this.bot.use(session({
             initial: initialSession,
         }));
