@@ -27,11 +27,11 @@ export class DocumentMessageHandler{
       localization: LocalizationService
     ) {
       this.localization = localization;
-      this.fileService = new FileService(this.config, this.localApi);
-      this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
+      this.db = new DatabaseService(this.logger);
       this.logger = new LoggerService(this.config);
       this.keyboards = new Keyboards(this.localization);
-      this.db = new DatabaseService(this.logger);
+      this.fileService = new FileService(this.config, this.localApi);
+      this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
     }
     
     async handle(ctx:BotContext){

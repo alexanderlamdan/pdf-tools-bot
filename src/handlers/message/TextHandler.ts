@@ -25,11 +25,11 @@ export class TextHandler{
         private readonly localization:LocalizationService
     ){
         
-        this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
-        this.fileService = new FileService(this.config,this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
         this.db = new DatabaseService(this.logger);
+        this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
+        this.fileService = new FileService(this.config,this.localApi);
         
     }
     
