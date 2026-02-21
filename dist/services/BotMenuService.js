@@ -7,7 +7,7 @@ export class BotMenuService {
                 { command: 'start', description: 'Start Bot' },
                 { command: 'help', description: 'Show help' },
             ],
-            description: "🚀 PDF Tools Bot — Professional PDF management.\n\n" +
+            description: "🚀 PDF Tools Bot — Your professional PDF assistant.\n\n" +
                 "✅ Features:\n" +
                 "• Merge multiple files\n" +
                 "• Split PDF by pages\n" +

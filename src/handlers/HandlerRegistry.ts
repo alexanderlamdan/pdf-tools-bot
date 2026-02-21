@@ -3,6 +3,7 @@ import type { LocalApi } from "../types/LocalApi.js";
 
 import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
+import { AboutCommandHandler } from './commands/AboutCommandHandler.js';
 import { ButtonHandler } from "./message/ButtonHandler.js";
 import { TextHandler } from "./message/TextHandler.js";
 import { AdminCommandHandler } from './commands/AdminCommandHandler.js';
@@ -27,6 +28,7 @@ export class HandlerRegistry {
   private commandBindings: CommandBinding[] = [
     { command: "start", Handler: StartCommandHandler },
     { command: "help", Handler: HelpCommandHandler },
+    {command:"about",Handler:AboutCommandHandler}
   ];
 
   constructor(

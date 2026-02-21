@@ -1,5 +1,6 @@
 import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
+import { AboutCommandHandler } from './commands/AboutCommandHandler.js';
 import { ButtonHandler } from "./message/ButtonHandler.js";
 import { TextHandler } from "./message/TextHandler.js";
 import { AdminCommandHandler } from './commands/AdminCommandHandler.js';
@@ -18,6 +19,7 @@ export class HandlerRegistry {
     commandBindings = [
         { command: "start", Handler: StartCommandHandler },
         { command: "help", Handler: HelpCommandHandler },
+        { command: "about", Handler: AboutCommandHandler }
     ];
     constructor(bot, config, localApi, localization) {
         this.bot = bot;
