@@ -18,7 +18,7 @@ export class UserRepository extends BaseRepository {
         return Number(res[0].c);
     }
     async findIdsByLanguage(lang) {
-        const res = await this.query(`SELECT id, FROM users WHERE lang_code = $1`, [lang]);
+        const res = await this.query(`SELECT id FROM users WHERE lang_code = $1`, [lang]);
         return res.map((row) => Number(row.id));
     }
     async setVipStatus(userId, status) {
