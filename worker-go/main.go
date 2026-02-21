@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -11,6 +10,7 @@ import (
 	"syscall"
 
 	"pdf-worker/internal/handler"
+	"pdf-worker/internal/logger"
 	"pdf-worker/internal/service"
 )
 
@@ -18,20 +18,23 @@ const socketPath = "/run/bots/pdf-worker.sock"
 
 func main() {
 
-	setupSocket()
+	appLog := logger.NewLogger()
+	appLog.Info("Starting Go PDF Worker")
 
-	pdfService := service.NewPdfService()
+	setupSocket(appLog)
 
-	h := handler.NewHandler(pdfService)
+	pdfService := service.NewPdfService(appLog)
+
+	h := handler.NewHandler(pdfService, appLog)
 
 	http.Handle("/process", h)
 
-	fmt.Printf("✅ Go worker running structured on: %s\n", socketPath)
+	appLog.Info("✅ Go worker running structured on: %s\n", socketPath)
 
-	waitShutdown()
+	waitShutdown(appLog)
 
 }
-func setupSocket() {
+func setupSocket(appLog *logger.Logger) {
 
 	if _, err := os.Stat(socketPath); err == nil {
 
@@ -45,7 +48,7 @@ func setupSocket() {
 	listener, err := net.Listen("unix", socketPath)
 
 	if err != nil {
-
+		appLog.Error("CRITICAL: Failed to  listen on socket: %v", err)
 		log.Fatalf("CRITICAL: %v", err)
 
 	}
@@ -55,7 +58,7 @@ func setupSocket() {
 	go func() {
 
 		if err := http.Serve(listener, nil); err != nil {
-
+			appLog.Error("HTTP server failed: %v", err)
 			log.Fatal(err)
 
 		}
@@ -64,12 +67,12 @@ func setupSocket() {
 
 }
 
-func waitShutdown() {
+func waitShutdown(appLog *logger.Logger) {
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	<-c
-	fmt.Println("\nStopping")
+	appLog.Info("Shutdown signal received. Stopping worker...")
 	os.Remove(socketPath)
 	os.Exit(0)
 

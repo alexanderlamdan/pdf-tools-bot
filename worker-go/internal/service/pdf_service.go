@@ -8,6 +8,9 @@ import (
 	"pdf-worker/internal/domain"
 	"strconv"
 	"strings"
+	"time"
+
+	"pdf-worker/internal/logger"
 )
 
 var commonPasswords = []string{
@@ -16,11 +19,36 @@ var commonPasswords = []string{
 	"123123", "000000", "admin", "secret", "pdf", "document", "user", "master",
 }
 
-type PdfService struct{}
+type PdfService struct {
+	log          *logger.Logger
+	heavyTaskSem chan struct{}
+}
 
-func NewPdfService() *PdfService {
+func NewPdfService(l *logger.Logger) *PdfService {
 
-	return &PdfService{}
+	return &PdfService{
+		log:          l,
+		heavyTaskSem: make(chan struct{}, 2),
+	}
+
+}
+
+func (s *PdfService) executeHeavyTask(actionName string, inputPath string, task func() domain.Response) domain.Response {
+
+	s.log.Info("Queueing heavy task: %s | File: %s", actionName, filepath.Base(inputPath))
+	s.heavyTaskSem <- struct{}{}
+
+	start := time.Now()
+	s.log.Info("Started heavy task: %s | File: %s", actionName, filepath.Base(inputPath))
+
+	defer func() {
+
+		<-s.heavyTaskSem
+		s.log.TrackTime(start, actionName, inputPath)
+
+	}()
+
+	return task()
 
 }
 
@@ -67,7 +95,7 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 	output := string(outputBytes)
 	lowerOutput := strings.ToLower(output)
 
-	fmt.Printf("[DEBUG] pdfinfo output for %s:\n%s\n----------------\n", filepath.Base(req.InputPath), output)
+	s.log.Debug("[DEBUG] pdfinfo output for %s:\n%s\n----------------\n", filepath.Base(req.InputPath), output)
 
 	parsePdfInfoOutput(output, &info)
 
@@ -136,17 +164,23 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 
 func (s *PdfService) Compress(req domain.Request) domain.Response {
 
-	outputPath := getOutputPath(req.InputPath, "_opt.pdf")
+	return s.executeHeavyTask("Compress", req.InputPath, func() domain.Response {
 
-	cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", "-dPDFSETTINGS=/ebook", "-dNOPAUSE", "-dQUIET", "-dBATCH", fmt.Sprintf("-sOutputFile=%s", outputPath), req.InputPath)
+		outputPath := getOutputPath(req.InputPath, "_opt.pdf")
 
-	if output, err := cmd.CombinedOutput(); err != nil {
+		cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", "-dPDFSETTINGS=/ebook", "-dNOPAUSE", "-dQUIET", "-dBATCH", fmt.Sprintf("-sOutputFile=%s", outputPath), req.InputPath)
 
-		return domain.Response{Status: "error", Error: cleanError(string(output))}
+		if output, err := cmd.CombinedOutput(); err != nil {
 
-	}
+			s.log.Error("Compress failed for %s: %s", filepath.Base(req.InputPath), cleanError(string(output)))
 
-	return domain.Response{Status: "ok", Path: outputPath}
+			return domain.Response{Status: "error", Error: cleanError(string(output))}
+
+		}
+
+		return domain.Response{Status: "ok", Path: outputPath}
+
+	})
 
 }
 
@@ -164,6 +198,7 @@ func (s *PdfService) Encrypt(req domain.Request) domain.Response {
 
 		}
 
+		s.log.Error("Encrypt failed for %s: %s", filepath.Base(req.InputPath), cleanError(string(output)))
 		return domain.Response{Status: "error", Error: cleanError(string(output))}
 
 	}
@@ -174,8 +209,11 @@ func (s *PdfService) Encrypt(req domain.Request) domain.Response {
 func (s *PdfService) Decrypt(req domain.Request) domain.Response {
 	outputPath := getOutputPath(req.InputPath, "_dec.pdf")
 	cmd := exec.Command("qpdf", "--decrypt", "--password="+req.Password, req.InputPath, outputPath)
+
 	if output, err := cmd.CombinedOutput(); err != nil {
+
 		if strings.Contains(string(output), "invalid password") {
+
 			return domain.Response{Status: "error", Error: "Wrong password"}
 		}
 
@@ -184,100 +222,139 @@ func (s *PdfService) Decrypt(req domain.Request) domain.Response {
 			return domain.Response{Status: "ok", Path: outputPath}
 
 		}
-
+		s.log.Error("Decrypt failed for %s: %s", filepath.Base(req.InputPath), cleanError(string(output)))
 		return domain.Response{Status: "error", Error: cleanError(string(output))}
 	}
 	return domain.Response{Status: "ok", Path: outputPath}
 }
 
 func (s *PdfService) Crack(req domain.Request) domain.Response {
-	outputPath := getOutputPath(req.InputPath, "_cracked.pdf")
-	for _, pwd := range commonPasswords {
-		cmd := exec.Command("qpdf", "--decrypt", "--password="+pwd, req.InputPath, outputPath)
-		if err := cmd.Run(); err == nil {
-			return domain.Response{Status: "ok", Path: outputPath, Info: pwd}
+	return s.executeHeavyTask("Crack", req.InputPath, func() domain.Response {
+
+		outputPath := getOutputPath(req.InputPath, "_cracked.pdf")
+
+		for _, pwd := range commonPasswords {
+
+			cmd := exec.Command("qpdf", "--decrypt", "--password="+pwd, req.InputPath, outputPath)
+
+			if err := cmd.Run(); err == nil {
+
+				s.log.Info("Successfully cracked password for %s", filepath.Base(req.InputPath))
+				return domain.Response{Status: "ok", Path: outputPath, Info: pwd}
+
+			}
 		}
-	}
-	return domain.Response{Status: "error", Error: "Password is too strong"}
+		s.log.Info("Failed to crack password for %s: Too strong", filepath.Base(req.InputPath))
+		return domain.Response{Status: "error", Error: "Password is too strong"}
+
+	})
+
 }
 
 func (s *PdfService) Repair(req domain.Request) domain.Response {
 
-	outputPath := getOutputPath(req.InputPath, "_repaired.pdf")
+	return s.executeHeavyTask("Repair", req.InputPath, func() domain.Response {
 
-	origStat, _ := os.Stat(req.InputPath)
-	origSize := int64(0)
+		outputPath := getOutputPath(req.InputPath, "_repaired.pdf")
 
-	if origStat != nil {
+		origStat, _ := os.Stat(req.InputPath)
+		origSize := int64(0)
 
-		origSize = origStat.Size()
+		if origStat != nil {
 
-	}
-	fmt.Printf("\n[DEBUG] === START REPAIR: %s (Size: %d bytes) ===\n", filepath.Base(req.InputPath), origSize)
+			origSize = origStat.Size()
 
-	// Встроенная умная проверка с подробным логированием
-	isRecoverySuccessful := func(path string, toolName string) bool {
-		info, err := os.Stat(path)
-		if err != nil || info.Size() == 0 {
-			fmt.Printf("[DEBUG] ❌ %s FAILED: File missing or 0 bytes.\n", toolName)
-			return false
 		}
+		s.log.Debug("\n[DEBUG] === START REPAIR: %s (Size: %d bytes) ===\n", filepath.Base(req.InputPath), origSize)
 
-		outSize := info.Size()
-		fmt.Printf("[DEBUG] 🟢 %s created file. Size: %d bytes.\n", toolName, outSize)
+		isRecoverySuccessful := func(path string, toolName string) bool {
 
-		if origSize > 1000000 && outSize < 10000 {
-			fmt.Printf("[DEBUG] ❌ %s FAILED: File is a dummy wrapper (<10KB).\n", toolName)
-			return false
-		}
+			info, err := os.Stat(path)
 
-		cmd := exec.Command("pdfinfo", path)
-		outBytes, _ := cmd.CombinedOutput()
-		outStr := strings.ToLower(string(outBytes))
+			if err != nil || info.Size() == 0 {
 
-		fmt.Printf("[DEBUG] 🔎 %s pdfinfo output:\n%s\n", toolName, outStr)
-
-		if strings.Contains(outStr, "pages:") {
-			if strings.Contains(outStr, "pages:          0") || strings.Contains(outStr, "pages: 0") {
-				fmt.Printf("[DEBUG] ❌ %s FAILED: pdfinfo reports 0 pages.\n", toolName)
+				s.log.Debug("[DEBUG] ❌ %s FAILED: File missing or 0 bytes.\n", toolName)
 				return false
+
 			}
-			fmt.Printf("[DEBUG] ✅ %s SUCCESS: Valid PDF structure found.\n", toolName)
-			return true
+
+			outSize := info.Size()
+			s.log.Debug("[DEBUG] 🟢 %s created file. Size: %d bytes.\n", toolName, outSize)
+
+			if origSize > 1000000 && outSize < 10000 {
+
+				s.log.Debug("[DEBUG] ❌ %s FAILED: File is a dummy wrapper (<10KB).\n", toolName)
+				return false
+
+			}
+
+			cmd := exec.Command("pdfinfo", path)
+			outBytes, _ := cmd.CombinedOutput()
+			outStr := strings.ToLower(string(outBytes))
+
+			s.log.Debug("[DEBUG] 🔎 %s pdfinfo output:\n%s\n", toolName, outStr)
+
+			if strings.Contains(outStr, "pages:") {
+
+				if strings.Contains(outStr, "pages:          0") || strings.Contains(outStr, "pages: 0") {
+
+					s.log.Debug("[DEBUG] ❌ %s FAILED: pdfinfo reports 0 pages.\n", toolName)
+					return false
+
+				}
+
+				s.log.Debug("[DEBUG] ✅ %s SUCCESS: Valid PDF structure found.\n", toolName)
+				return true
+			}
+
+			s.log.Debug("[DEBUG] ❌ %s FAILED: pdfinfo could not find 'pages:' keyword.\n", toolName)
+			return false
 		}
 
-		fmt.Printf("[DEBUG] ❌ %s FAILED: pdfinfo could not find 'pages:' keyword.\n", toolName)
-		return false
-	}
+		exec.Command("pdftocairo", "-pdf", req.InputPath, outputPath).Run()
 
-	exec.Command("pdftocairo", "-pdf", req.InputPath, outputPath).Run()
-	if isRecoverySuccessful(outputPath, "PDFTOCAIRO") {
-		return domain.Response{Status: "ok", Path: outputPath}
-	}
-	os.Remove(outputPath)
+		if isRecoverySuccessful(outputPath, "PDFTOCAIRO") {
 
-	exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
-	if isRecoverySuccessful(outputPath, "QPDF") {
-		return domain.Response{Status: "ok", Path: outputPath}
-	}
-	os.Remove(outputPath)
+			return domain.Response{Status: "ok", Path: outputPath}
 
-	exec.Command("qpdf", req.InputPath, outputPath).Run()
-	if isRecoverySuccessful(outputPath, "MUTOOL") {
-		return domain.Response{Status: "ok", Path: outputPath}
-	}
-	os.Remove(outputPath)
+		}
 
-	exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath).Run()
-	if isRecoverySuccessful(outputPath, "GS") {
-		return domain.Response{Status: "ok", Path: outputPath}
-	}
-	os.Remove(outputPath)
-	fmt.Printf("[DEBUG] === REPAIR COMPLETELY FAILED ===\n")
-	return domain.Response{
-		Status: "error",
-		Error:  "File data is completely destroyed. Recovery is impossible.",
-	}
+		os.Remove(outputPath)
+
+		exec.Command("mutool", "clean", req.InputPath, outputPath).Run()
+
+		if isRecoverySuccessful(outputPath, "QPDF") {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+		os.Remove(outputPath)
+
+		exec.Command("qpdf", req.InputPath, outputPath).Run()
+
+		if isRecoverySuccessful(outputPath, "MUTOOL") {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+		os.Remove(outputPath)
+
+		exec.Command("gs", "-o", outputPath, "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/prepress", req.InputPath).Run()
+
+		if isRecoverySuccessful(outputPath, "GS") {
+
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		}
+		os.Remove(outputPath)
+
+		s.log.Error("REPAIR COMPLETELY FAILED for %s\n", filepath.Base(req.InputPath))
+		return domain.Response{
+			Status: "error",
+			Error:  "File data is completely destroyed. Recovery is impossible.",
+		}
+
+	})
 
 }
 

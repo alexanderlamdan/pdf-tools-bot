@@ -2,29 +2,34 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"time"
 
 	"pdf-worker/internal/domain"
+	"pdf-worker/internal/logger"
 	"pdf-worker/internal/service"
 )
 
 type Handler struct {
 	service *service.PdfService
+	log     *logger.Logger
 }
 
-func NewHandler(s *service.PdfService) *Handler {
+func NewHandler(s *service.PdfService, l *logger.Logger) *Handler {
 
-	return &Handler{service: s}
+	return &Handler{service: s, log: l}
 
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	start := time.Now()
+
 	var req domain.Request
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 
+		h.log.Error("Invalid JSON received: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 
@@ -34,7 +39,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.Lang = "en"
 	}
 
-	fmt.Printf("Action: %s | Lang: %s\n", req.Action, req.Lang)
+	h.log.Info("Request received | Action: %s | Lang: %s\n", req.Action, req.Lang)
 
 	var resp domain.Response
 
@@ -53,10 +58,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "repair":
 		resp = h.service.Repair(req)
 	default:
+		h.log.Error("Unknown action requested: %s", req.Action)
 		resp = domain.Response{Status: "error", Error: "Unknown action"}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+	h.log.Debug("Request completed in %s | Action: %s | Status: %s", time.Since(start), req.Action, resp.Status)
 
 }
