@@ -6,6 +6,7 @@ import { initialSession } from '../../types/SessionData.js';
 import { Keyboards } from '../../services/Keyboards.js';
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
+import { SmartQueueService } from '../../services/SmartQueueService.js';
 export class DocumentMessageHandler {
     config;
     localApi;
@@ -20,7 +21,7 @@ export class DocumentMessageHandler {
         this.localApi = localApi;
         this.localization = localization;
         this.fileService = new FileService(this.config, this.localApi);
-        this.workerService = new PdfWorkerService(this.config);
+        this.workerService = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
         this.logger = new LoggerService(this.config);
         this.keyboards = new Keyboards(this.localization);
         this.db = new DatabaseService(this.logger);
@@ -49,7 +50,7 @@ export class DocumentMessageHandler {
         let localPath = null;
         try {
             localPath = await this.fileService.downloadFile(ctx, document.file_id);
-            const info = await this.workerService.getPdfInfo(localPath, lang);
+            const info = await this.workerService.getPdfInfo(ctx, localPath, lang, document.file_size || 0);
             this.updateSession(ctx, localPath, document.file_name);
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id);
             if (info.is_corrupt && !info.encrypted) {

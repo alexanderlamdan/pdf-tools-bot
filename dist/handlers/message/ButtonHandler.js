@@ -8,6 +8,7 @@ import { Keyboards } from "../../services/Keyboards.js";
 import { LoggerService } from "../../services/LoggerService.js";
 import { DatabaseService } from "../../services/DatabaseService.js";
 import fs from 'fs';
+import { SmartQueueService } from '../../services/SmartQueueService.js';
 export class ButtonHandler {
     config;
     localApi;
@@ -21,7 +22,7 @@ export class ButtonHandler {
         this.config = config;
         this.localApi = localApi;
         this.localization = localization;
-        this.workerService = new PdfWorkerService(this.config);
+        this.workerService = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
         this.fileService = new FileService(this.config, this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
@@ -87,8 +88,9 @@ export class ButtonHandler {
         }
         if (fullActionKey.endsWith('btn_unlock')) {
             const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.cracking'), { parse_mode: 'HTML' });
+            const sizeBytes = fs.statSync(localPath).size;
             try {
-                const crackResult = await this.workerService.crack(localPath);
+                const crackResult = await this.workerService.crack(ctx, localPath, sizeBytes);
                 const stats = await fs.promises.stat(crackResult.path);
                 await this.db.logAction(ctx.from.id, 'unlock', stats.size);
                 const safeName = FileNameUtils.getSafeName(originalName, this.localization.t(lang, 'messages.actions.suffix_unlocked'));
@@ -129,8 +131,9 @@ export class ButtonHandler {
             }
             const warningText = this.localization.t(lang, 'messages.actions.repair_warning');
             const statusMsg = await ctx.reply(warningText, { parse_mode: 'HTML' });
+            const sizeBytes = fs.statSync(localPath).size;
             try {
-                const resultPath = await this.workerService.repair(localPath);
+                const resultPath = await this.workerService.repair(ctx, localPath, sizeBytes);
                 const stats = await fs.promises.stat(resultPath);
                 await this.db.logAction(ctx.from.id, 'repair', stats.size);
                 await this.fileService.deleteFile(localPath);

@@ -11,7 +11,7 @@ import { Keyboards } from '../../services/Keyboards.js';
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
 import type{ Document } from 'grammy/types';
-
+import { SmartQueueService } from '../../services/SmartQueueService.js';
 export class DocumentMessageHandler{
   
     private readonly fileService: FileService;
@@ -28,7 +28,7 @@ export class DocumentMessageHandler{
     ) {
       this.localization = localization;
       this.fileService = new FileService(this.config, this.localApi);
-      this.workerService = new PdfWorkerService(this.config);
+      this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
       this.logger = new LoggerService(this.config);
       this.keyboards = new Keyboards(this.localization);
       this.db = new DatabaseService(this.logger);
@@ -72,7 +72,7 @@ export class DocumentMessageHandler{
       try{
         
         localPath = await this.fileService.downloadFile(ctx,document.file_id);
-        const info = await this.workerService.getPdfInfo(localPath,lang);
+        const info = await this.workerService.getPdfInfo(ctx,localPath,lang,document.file_size || 0);
         
         this.updateSession(ctx,localPath,document.file_name);
         await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id);

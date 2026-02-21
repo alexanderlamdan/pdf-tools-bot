@@ -1,9 +1,12 @@
 import axios from "axios";
 import fs from "fs";
+import { SmartQueueService } from './SmartQueueService.js';
 export class PdfWorkerService {
     config;
-    constructor(config) {
+    queueService;
+    constructor(config, queueService) {
         this.config = config;
+        this.queueService = queueService;
     }
     async sendRequest(payload) {
         const socketPath = this.config.workerSocketPath;
@@ -33,62 +36,74 @@ export class PdfWorkerService {
             throw new Error(e.response?.data?.error || e.message);
         }
     }
-    async getPdfInfo(filePath, lang) {
-        const data = await this.sendRequest({
-            action: 'info',
-            inputPath: filePath,
-            lang: lang
+    async getPdfInfo(ctx, filePath, lang, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'info', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'info',
+                inputPath: filePath,
+                lang: lang
+            });
+            return data.info;
         });
-        return data.info;
     }
-    async encrypt(filePath, password) {
-        const data = await this.sendRequest({
-            action: 'encrypt',
-            inputPath: filePath,
-            password: password
+    async encrypt(ctx, filePath, password, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'encrypt', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'encrypt',
+                inputPath: filePath,
+                password: password
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
         });
-        if (data.status === 'error')
-            throw new Error(data.error);
-        return data.path;
     }
-    async decrypt(filePath, password) {
-        const data = await this.sendRequest({
-            action: 'decrypt',
-            inputPath: filePath,
-            password: password
+    async decrypt(ctx, filePath, password, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'decrypt', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'decrypt',
+                inputPath: filePath,
+                password: password
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
         });
-        if (data.status === 'error')
-            throw new Error(data.error);
-        return data.path;
     }
-    async crack(filePath) {
-        const data = await this.sendRequest({
-            action: 'crack',
-            inputPath: filePath
+    async crack(ctx, filePath, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'crack', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'crack',
+                inputPath: filePath
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return {
+                path: data.path,
+                password: data.info
+            };
         });
-        if (data.status === 'error')
-            throw new Error(data.error);
-        return {
-            path: data.path,
-            password: data.info
-        };
     }
-    async compress(filePath) {
-        const data = await this.sendRequest({
-            action: 'compress',
-            inputPath: filePath
+    async compress(ctx, filePath, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'compress', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'compress',
+                inputPath: filePath
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
         });
-        if (data.status === 'error')
-            throw new Error(data.error);
-        return data.path;
     }
-    async repair(filePath) {
-        const data = await this.sendRequest({
-            action: 'repair',
-            inputPath: filePath
+    async repair(ctx, filePath, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'repair', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'repair',
+                inputPath: filePath
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
         });
-        if (data.status === 'error')
-            throw new Error(data.error);
-        return data.path;
     }
 }

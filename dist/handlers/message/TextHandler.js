@@ -8,6 +8,7 @@ import { Keyboards } from '../../services/Keyboards.js';
 import { LoggerService } from '../../services/LoggerService.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
 import fs from 'fs';
+import { SmartQueueService } from '../../services/SmartQueueService.js';
 export class TextHandler {
     config;
     localApi;
@@ -21,7 +22,7 @@ export class TextHandler {
         this.config = config;
         this.localApi = localApi;
         this.localization = localization;
-        this.workerService = new PdfWorkerService(this.config);
+        this.workerService = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
         this.fileService = new FileService(this.config, this.localApi);
         this.keyboards = new Keyboards(this.localization);
         this.logger = new LoggerService(this.config);
@@ -55,8 +56,9 @@ export class TextHandler {
             }
             const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.encrypting'));
             let resultPath = null;
+            const sizeBytes = fs.statSync(filePath).size;
             try {
-                resultPath = await this.workerService.encrypt(filePath, password);
+                resultPath = await this.workerService.encrypt(ctx, filePath, password, sizeBytes);
                 const stats = await fs.promises.stat(resultPath);
                 await this.db.logAction(ctx.from.id, 'protect', stats.size);
                 const suffix = this.localization.t(lang, 'messages.actions.suffix_protected');
@@ -94,8 +96,9 @@ export class TextHandler {
                 return;
             }
             const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.decrypting'));
+            const sizeBytes = fs.statSync(filePath).size;
             try {
-                const resultPath = await this.workerService.decrypt(filePath, password);
+                const resultPath = await this.workerService.decrypt(ctx, filePath, password, sizeBytes);
                 const stats = await fs.promises.stat(resultPath);
                 this.db.logAction(ctx.from.id, 'unlock', stats.size);
                 const safeName = FileNameUtils.getSafeName(ctx.session.tempParams?.originalName || 'doc.pdf', '');

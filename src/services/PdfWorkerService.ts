@@ -1,6 +1,8 @@
 import axios from "axios"
 import fs from "fs";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
+import { SmartQueueService } from './SmartQueueService.js';
+import type { BotContext } from '../types/BotContext.js';
 
 export interface IPdfInfo {
     pages: number;
@@ -31,7 +33,7 @@ interface WorkerResponse{
 
 export class PdfWorkerService{
     
-    constructor(private readonly config:IBotConfig){}
+    constructor(private readonly config:IBotConfig,private readonly queueService:SmartQueueService){}
     
     public async sendRequest(payload:any):Promise<WorkerResponse>{
         
@@ -73,91 +75,111 @@ export class PdfWorkerService{
         
     }
     
-    public async getPdfInfo(filePath:string,lang:string):Promise<IPdfInfo>{
-        
-        const data = await this.sendRequest({
+    public async getPdfInfo(ctx:BotContext,filePath:string,lang:string,sizeBytes:number):Promise<IPdfInfo>{
+        return this.queueService.enqueue(ctx,'info',sizeBytes,async()=>{
             
-            action:'info',
-            inputPath:filePath,
-            lang:lang
+           const data = await this.sendRequest({
             
-        });
-        
-        return data.info as unknown as IPdfInfo;
+                action:'info',
+                inputPath:filePath,
+                lang:lang
+                
+            });
+            
+            return data.info as unknown as IPdfInfo;
+            
+        })
     }
     
-    public async encrypt(filePath:string,password:string):Promise<string>{
+    public async encrypt(ctx:BotContext,filePath:string,password:string,sizeBytes:number):Promise<string>{
         
-        const data = await this.sendRequest({
+        return this.queueService.enqueue(ctx, 'encrypt', sizeBytes, async()=>{
             
-            action:'encrypt',
-            inputPath:filePath,
-            password:password
+            const data = await this.sendRequest({
             
-        });
-        
-        if(data.status === 'error') throw new Error(data.error);
-        return data.path!;
-        
-    }
-    
-    public async decrypt(filePath:string, password:string):Promise<string>{
-        
-        const data = await this.sendRequest({
+                action:'encrypt',
+                inputPath:filePath,
+                password:password
+                
+            });
             
-            action:'decrypt',
-            inputPath:filePath,
-            password:password
+            if(data.status === 'error') throw new Error(data.error);
+            return data.path!;
             
         });
-        
-        if(data.status === 'error') throw new Error(data.error);
-        return data.path!;
         
     }
     
-    public async crack(filePath:string):Promise<{path:string,password:string}>{
-        
-        const data = await this.sendRequest({
+    public async decrypt(ctx:BotContext,filePath:string, password:string,sizeBytes:number):Promise<string>{
+        return this.queueService.enqueue(ctx, 'decrypt', sizeBytes, async()=>{
             
-            action:'crack',
-            inputPath:filePath
+            const data = await this.sendRequest({
+            
+                action:'decrypt',
+                inputPath:filePath,
+                password:password
+                
+            });
+            
+            if(data.status === 'error') throw new Error(data.error);
+            return data.path!;
             
         });
-        
-        if(data.status === 'error') throw new Error(data.error);
-        return {
-            
-            path:data.path!,
-            password:data.info as string
-            
-        };
         
     }
     
-    public async compress(filePath:string):Promise<string>{
-        
-        const data = await this.sendRequest({
+    public async crack(ctx:BotContext,filePath:string,sizeBytes:number):Promise<{path:string,password:string}>{
+        return this.queueService.enqueue(ctx, 'crack', sizeBytes, async()=>{
             
-            action:'compress',
-            inputPath:filePath
+            const data = await this.sendRequest({
+            
+                action:'crack',
+                inputPath:filePath
+                
+            });
+            
+            if(data.status === 'error') throw new Error(data.error);
+            return {
+                
+                path:data.path!,
+                password:data.info as string
+                
+            };
             
         });
+       
+    }
+    
+    public async compress(ctx:BotContext,filePath:string,sizeBytes:number):Promise<string>{
         
-        if(data.status === 'error') throw new Error(data.error);
-        return data.path!;
+        return this.queueService.enqueue(ctx, 'compress', sizeBytes, async()=>{
+            
+            const data = await this.sendRequest({
+            
+                action:'compress',
+                inputPath:filePath
+                
+            });
+            
+            if(data.status === 'error') throw new Error(data.error);
+            return data.path!;
+            
+        });
         
     }
     
-    public async repair(filePath:string):Promise<string>{
-        
-        const data = await this.sendRequest({
-            action:'repair',
-            inputPath:filePath
+    public async repair(ctx:BotContext,filePath:string,sizeBytes:number):Promise<string>{
+        return this.queueService.enqueue(ctx, 'repair', sizeBytes, async()=>{
+            
+            const data = await this.sendRequest({
+                action:'repair',
+                inputPath:filePath
+            });
+            
+            if(data.status === 'error') throw new Error(data.error);
+            return data.path!;
+            
         });
-        
-        if(data.status === 'error') throw new Error(data.error);
-        return data.path!;
         
     }
     
