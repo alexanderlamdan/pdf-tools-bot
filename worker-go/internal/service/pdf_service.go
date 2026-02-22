@@ -436,7 +436,7 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 		mergeArgs = append(mergeArgs, "--", pdfOutputPath)
 
 		cmdMerge := exec.Command("qpdf", mergeArgs...)
-		outputMerge, mergeErr := cmdMerge.CombinedOutput()
+		outputMerge, _ := cmdMerge.CombinedOutput()
 		if _, statErr := os.Stat(pdfOutputPath); statErr != nil {
 
 			s.log.Error("Failed to merge extracted pages: %s", cleanError(string(outputMerge)))
