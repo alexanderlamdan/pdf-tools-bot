@@ -20,8 +20,8 @@ export class DocumentMessageHandler {
         this.config = config;
         this.localApi = localApi;
         this.localization = localization;
-        this.db = new DatabaseService(this.logger);
         this.logger = new LoggerService(this.config);
+        this.db = new DatabaseService(this.logger);
         this.keyboards = new Keyboards(this.localization);
         this.fileService = new FileService(this.config, this.localApi);
         this.workerService = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
@@ -49,6 +49,7 @@ export class DocumentMessageHandler {
                     console.error("[Background Merge Error]: ", e);
                 }
             })();
+            return;
         }
         if (ctx.session.filePaths && ctx.session.filePaths.length > 0) {
             for (const oldPath of ctx.session.filePaths) {

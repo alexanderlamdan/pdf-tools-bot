@@ -27,8 +27,8 @@ export class DocumentMessageHandler{
       localization: LocalizationService
     ) {
       this.localization = localization;
-      this.db = new DatabaseService(this.logger);
       this.logger = new LoggerService(this.config);
+      this.db = new DatabaseService(this.logger);
       this.keyboards = new Keyboards(this.localization);
       this.fileService = new FileService(this.config, this.localApi);
       this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
@@ -71,7 +71,7 @@ export class DocumentMessageHandler{
           }
           
         })();
-        
+        return;
       }
       
       if(ctx.session.filePaths && ctx.session.filePaths.length > 0){
