@@ -116,7 +116,10 @@ export class PdfWorkerService {
             });
             if (data.status === 'error')
                 throw new Error(data.error);
-            return data.path;
+            return {
+                path: data.path,
+                zipPath: data.zipPath
+            };
         });
     }
     async merge(ctx, filePaths, sizeBytes) {

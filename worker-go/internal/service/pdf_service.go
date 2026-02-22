@@ -365,17 +365,45 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 
 	return s.executeHeavyTask("Split", req.InputPath, func() domain.Response {
 
-		pages, err := parsePages(req.Pages)
-		if err != nil || len(pages) == 0 {
+		cleanPages := NormalizePages(req.Pages)
+		if cleanPages == "" {
 
 			return domain.Response{Status: "error", Error: "Invalid page range format"}
+
+		}
+
+		pagesArray, err := parsePages(cleanPages)
+		if err != nil || len(pagesArray) == 0 {
+
+			return domain.Response{Status: "error", Error: "Invalid page range format"}
+
+		}
+
+		pageCount := len(pagesArray)
+
+		pdfOutputPath := getOutputPath(req.InputPath, "_splitted.pdf")
+		args := []string{req.InputPath, "--pages", ".", cleanPages, "--", pdfOutputPath}
+
+		cmd := exec.Command("qpdf", args...)
+		if output, err := cmd.CombinedOutput(); err != nil {
+
+			s.log.Error("Split PDF failed: %s", cleanError(string(output)))
+			return domain.Response{Status: "error", Error: "Failed to extract pages into PDF"}
+
+		}
+
+		if pageCount <= 10 {
+
+			s.log.Info("Successfully split %d pages into PDF %s", pageCount, filepath.Base(pdfOutputPath))
+			return domain.Response{Status: "ok", Path: pdfOutputPath}
 
 		}
 
 		tempDir, err := os.MkdirTemp("", "pdf_split_*")
 		if err != nil {
 
-			return domain.Response{Status: "error", Error: "Failed to create temp directory"}
+			s.log.Error("Failed to create temp dir for ZIP: %v", err)
+			return domain.Response{Status: "ok", Path: pdfOutputPath}
 
 		}
 
@@ -384,39 +412,41 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 		baseName := req.OriginalName
 		if baseName == "" {
 
-			baseName = "Document.pdf"
+			baseName = "Document"
+
+		} else {
+
+			baseName = strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
 		}
 
-		baseName = strings.TrimSuffix(baseName, filepath.Ext(baseName))
+		for _, p := range pagesArray {
 
-		for _, p := range pages {
-
-			outName := fmt.Sprintf("%s-page_%d_splitted.pdf", baseName, p)
+			outName := fmt.Sprintf("%s-page_%d.pdf", baseName, p)
 			outPath := filepath.Join(tempDir, outName)
 
-			args := []string{"--empty", "--pages", req.InputPath, strconv.Itoa(p), "--", outPath}
-			cmd := exec.Command("qpdf", args...)
+			argsSingle := []string{"--empty", "--pages", req.InputPath, strconv.Itoa(p), "--", outPath}
+			cmdSingle := exec.Command("qpdf", argsSingle...)
 
-			if output, cmdErr := cmd.CombinedOutput(); cmdErr != nil {
+			if output, cmdErr := cmdSingle.CombinedOutput(); cmdErr != nil {
 
-				s.log.Error("Failed to extract page %d: %s", p, cleanError(string(output)))
-				return domain.Response{Status: "error", Error: fmt.Sprintf("Failed to extract page %d. Does it exist?", p)}
+				s.log.Error("Failed to extract single page %d: %s", p, cleanError(string(output)))
+				continue
 
 			}
 
 		}
 
-		zipPath := getOutputPath(req.InputPath, "_splitted.pdf")
-		if err := zipDir(tempDir, zipPath); err != nil {
+		zipOutputPath := getOutputPath(req.InputPath, "_splitted.pdf")
+		if err := zipDir(tempDir, zipOutputPath); err != nil {
 
-			s.log.Error("ZIP creation failed: %v", err)
-			return domain.Response{Status: "error", Error: "Failed to create ZIP archive"}
+			s.log.Error("Zip creation failed: %v", err)
+			return domain.Response{Status: "ok", Path: pdfOutputPath}
 
 		}
 
-		s.log.Info("Successfully split %d pages into %s", len(pages), filepath.Base(zipPath))
-		return domain.Response{Status: "ok", Path: zipPath}
+		s.log.Info("Successfully split %d pages into PDF and ZIP", pageCount)
+		return domain.Response{Status: "ok", Path: pdfOutputPath, ZipPath: zipOutputPath}
 
 	})
 

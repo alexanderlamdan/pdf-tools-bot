@@ -28,6 +28,7 @@ interface WorkerResponse{
     info?:unknown;
     error?:string;
     path?:string;
+    zipPath?:string;
     
 }
 
@@ -183,7 +184,7 @@ export class PdfWorkerService{
         
     }
     
-    public async split(ctx:BotContext,filePath:string,pages:string,sizeBytes:number):Promise<string>{
+    public async split(ctx:BotContext,filePath:string,pages:string,sizeBytes:number):Promise<{path:string,zipPath?:string}>{
         
         return this.queueService.enqueue(ctx, 'split', sizeBytes, async ()=>{
             
@@ -197,7 +198,12 @@ export class PdfWorkerService{
             });
             
             if(data.status === 'error') throw new Error(data.error);
-            return data.path!;
+            return{
+                
+                path:data.path!,
+                zipPath:data.zipPath
+                
+            };
             
         });
         

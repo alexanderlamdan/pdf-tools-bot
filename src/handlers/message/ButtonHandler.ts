@@ -296,6 +296,8 @@ export class ButtonHandler{
                 reply_markup:{force_reply:true}
             });
             
+            return;
+            
          }
          
          if(fullActionKey.endsWith('btn_merge')){

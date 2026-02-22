@@ -132,19 +132,30 @@ export class TextHandler {
             const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.action.processing'), { parse_mode: 'HTML' });
             try {
                 const sizeBytes = fs.statSync(filePath).size;
-                const resultPath = await this.workerService.split(ctx, filePath, pages, sizeBytes);
-                const stats = await fs.promises.stat(resultPath);
-                await this.db.logAction(ctx.from.id, 'split', stats.size);
+                const result = await this.workerService.split(ctx, filePath, pages, sizeBytes);
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
-                const extension = resultPath.endsWith('.zip') ? '.zip' : '.pdf';
-                const safeName = `${originalName.replace(/\.pdf$/i, '')}_splitted${extension}`;
-                await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
-                    caption: this.localization.t(lang, 'messages.actions.split_caption_success'),
+                const safeNamePdf = FileNameUtils.getSafeName(originalName, 'splitted');
+                await ctx.replyWithDocument(new InputFile(result.path, safeNamePdf), {
+                    caption: ` ${this.localization.t(lang, 'messages.actions.split_caption_success')}`,
                     parse_mode: 'HTML',
-                    reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                    reply_markup: result.zipPath ? undefined : this.keyboards.getMainMenu(lang, isAdmin)
                 });
+                const statsPdf = await fs.promises.stat(result.path);
+                let totalLogSize = statsPdf.size;
+                if (result.zipPath) {
+                    const safeNameZip = safeNamePdf.replace('.pdf', '.zip');
+                    await ctx.replyWithDocument(new InputFile(result.zipPath, safeNameZip), {
+                        caption: `${this.localization.t(lang, 'messages.actions.split_caption_success')} ZIP`,
+                        parse_mode: 'HTML',
+                        reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                    });
+                    const statsZip = await fs.promises.stat(result.zipPath);
+                    totalLogSize += statsZip.size;
+                    await this.fileService.deleteFile(result.zipPath);
+                }
+                await this.db.logAction(ctx.from.id, 'split', totalLogSize);
                 await this.fileService.deleteFile(filePath);
-                await this.fileService.deleteFile(resultPath);
+                await this.fileService.deleteFile(result.path);
                 ctx.session = initialSession();
             }
             catch (e) {
