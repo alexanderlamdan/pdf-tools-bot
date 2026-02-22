@@ -197,7 +197,7 @@ export class TextHandler{
                 
                 await ctx.replyWithDocument(new InputFile(result.path,safeNamePdf),{
                     
-                    caption: ` ${this.localization.t(lang,'messages.actions.split_caption_success')}`,
+                    caption: ` ${this.localization.t(lang,'messages.actions.split_caption_success_file')}`,
                     parse_mode:'HTML',
                     reply_markup:result.zipPath ? undefined : this.keyboards.getMainMenu(lang, isAdmin)
                     
@@ -211,7 +211,7 @@ export class TextHandler{
                     const safeNameZip = safeNamePdf.replace('.pdf','.zip');
                     await ctx.replyWithDocument(new InputFile(result.zipPath,safeNameZip),{
                         
-                        caption: `${this.localization.t(lang,'messages.actions.split_caption_success')} ZIP`,
+                        caption: `${this.localization.t(lang,'messages.actions.split_caption_success_zip')}`,
                         parse_mode:'HTML',
                         reply_markup:this.keyboards.getMainMenu(lang, isAdmin)
                         
