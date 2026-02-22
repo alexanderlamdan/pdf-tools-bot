@@ -401,30 +401,34 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 			baseName = strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
 		}
-		var extractedPaths []string
+		var safePaths []string
+		var beautifulNames []string
 		for _, p := range pagesArray {
 
-			outName := fmt.Sprintf("%s-page_%d.pdf", baseName, p)
-			outPath := filepath.Join(tempDir, outName)
+			safeName := fmt.Sprintf("%d.pdf", p)
+			safePath := filepath.Join(tempDir, safeName)
 
-			argsSingle := []string{"--empty", "--pages", req.InputPath, strconv.Itoa(p), "--", outPath}
+			beautifulName := fmt.Sprintf("%s-page_%d.pdf", baseName, p)
+
+			argsSingle := []string{req.InputPath, "--pages", ".", strconv.Itoa(p), "--", safePath}
 			cmdSingle := exec.Command("qpdf", argsSingle...)
 
 			output, cmdErr := cmdSingle.CombinedOutput()
 
-			if _, statErr := os.Stat(outPath); statErr != nil {
+			if _, statErr := os.Stat(safePath); statErr == nil {
 
-				extractedPaths = append(extractedPaths, outPath)
+				safePaths = append(safePaths, safePath)
+				beautifulNames = append(beautifulNames, beautifulName)
 
 			} else {
 
-				s.log.Error("Failed to extract page %d: %v | Output: %s", p, cmdErr, string(output))
+				s.log.Error("Failed to extract page %d | statErr: %v | cmdErr: %v | Output: %s", p, statErr, cmdErr, string(output))
 
 			}
 
 		}
 
-		if len(extractedPaths) == 0 {
+		if len(safePaths) == 0 {
 
 			return domain.Response{Status: "error", Error: "Failed extract any pages. Check range"}
 
@@ -432,7 +436,7 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 
 		pdfOutputPath := getOutputPath(req.InputPath, "_splitted.pdf")
 		mergeArgs := []string{"--empty", "--pages"}
-		mergeArgs = append(mergeArgs, extractedPaths...)
+		mergeArgs = append(mergeArgs, safePaths...)
 		mergeArgs = append(mergeArgs, "--", pdfOutputPath)
 
 		cmdMerge := exec.Command("qpdf", mergeArgs...)
@@ -448,6 +452,13 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 
 			s.log.Info("Successfully split %d pages into PDF %s", pageCount, filepath.Base(pdfOutputPath))
 			return domain.Response{Status: "ok", Path: pdfOutputPath}
+
+		}
+
+		for i, safePath := range safePaths {
+
+			beautifulPath := filepath.Join(tempDir, beautifulNames[i])
+			os.Rename(safePath, beautifulPath)
 
 		}
 
