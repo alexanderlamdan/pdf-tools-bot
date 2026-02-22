@@ -381,29 +381,11 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 
 		pageCount := len(pagesArray)
 
-		pdfOutputPath := getOutputPath(req.InputPath, "_splitted.pdf")
-		args := []string{req.InputPath, "--pages", ".", cleanPages, "--", pdfOutputPath}
-
-		cmd := exec.Command("qpdf", args...)
-		if output, err := cmd.CombinedOutput(); err != nil {
-
-			s.log.Error("Split PDF failed: %s", cleanError(string(output)))
-			return domain.Response{Status: "error", Error: "Failed to extract pages into PDF"}
-
-		}
-
-		if pageCount <= 10 {
-
-			s.log.Info("Successfully split %d pages into PDF %s", pageCount, filepath.Base(pdfOutputPath))
-			return domain.Response{Status: "ok", Path: pdfOutputPath}
-
-		}
-
 		tempDir, err := os.MkdirTemp("", "pdf_split_*")
 		if err != nil {
 
-			s.log.Error("Failed to create temp dir for ZIP: %v", err)
-			return domain.Response{Status: "ok", Path: pdfOutputPath}
+			s.log.Error("Failed to create temp dir: %v", err)
+			return domain.Response{Status: "error", Error: "Failed to create temp dir"}
 
 		}
 
@@ -419,7 +401,7 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 			baseName = strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
 		}
-
+		var extractedPaths []string
 		for _, p := range pagesArray {
 
 			outName := fmt.Sprintf("%s-page_%d.pdf", baseName, p)
@@ -430,10 +412,39 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 
 			if output, cmdErr := cmdSingle.CombinedOutput(); cmdErr != nil {
 
+				extractedPaths = append(extractedPaths, outPath)
+
+			} else {
+
 				s.log.Error("Failed to extract single page %d: %s", p, cleanError(string(output)))
-				continue
 
 			}
+
+		}
+
+		if len(extractedPaths) == 0 {
+
+			return domain.Response{Status: "error", Error: "Failed extract any pages. Check range"}
+
+		}
+
+		pdfOutputPath := getOutputPath(req.InputPath, "_splitted.pdf")
+		mergeArgs := []string{"--empty", "--pages"}
+		mergeArgs = append(mergeArgs, extractedPaths...)
+		mergeArgs = append(mergeArgs, "--", pdfOutputPath)
+
+		cmdMerge := exec.Command("qpdf", mergeArgs...)
+		if output, err := cmdMerge.CombinedOutput(); err != nil {
+
+			s.log.Error("Failed to merge extracted pages: %s", cleanError(string(output)))
+			return domain.Response{Status: "error", Error: "Failed to build final PDF"}
+
+		}
+
+		if pageCount <= 10 {
+
+			s.log.Info("Successfully split %d pages into PDF %s", pageCount, filepath.Base(pdfOutputPath))
+			return domain.Response{Status: "ok", Path: pdfOutputPath}
 
 		}
 
