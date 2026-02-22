@@ -87,7 +87,9 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 	}
 	public getWebhookCallback(){
 
-		return webhookCallback(this.bot, "express");
+		return webhookCallback(this.bot, "express",{
+			timeoutMilliseconds:60000
+		});
 
 	}
 

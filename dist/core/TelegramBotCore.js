@@ -62,7 +62,9 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
         await this.menuService.syncMenu();
     }
     getWebhookCallback() {
-        return webhookCallback(this.bot, "express");
+        return webhookCallback(this.bot, "express", {
+            timeoutMilliseconds: 60000
+        });
     }
     getBot() {
         return this.bot;
