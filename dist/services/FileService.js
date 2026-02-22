@@ -19,7 +19,25 @@ export class FileService {
         }
     }
     async downloadFile(ctx, fileId) {
-        const fileInfo = await this.localApi.getFile(fileId);
+        let fileInfo;
+        let retries = 10;
+        const retryDelay = 3000;
+        while (retries > 0) {
+            try {
+                fileInfo = await this.localApi.getFile(fileId);
+                break;
+            }
+            catch (err) {
+                if (err.description?.includes('temporarily unavailable') && retries > 1) {
+                    console.log(`[FileService] Телега качает файл в кэш. Ждем 3 сек... (Осталось попыток: ${retries - 1})`);
+                    await sleep(retryDelay);
+                    retries--;
+                }
+                else {
+                    throw new Error(`Telegram API error: ${err.message}`);
+                }
+            }
+        }
         if (!fileInfo.file_path)
             throw new Error('API not returned file_path');
         const sourcePath = path.isAbsolute(fileInfo.file_path) ? fileInfo.file_path : path.join(this.config.telegramStoragePath, this.config.token, fileInfo.file_path);
@@ -32,12 +50,12 @@ export class FileService {
         const destination = path.join(userDir, `${fileId}${ext}`);
         console.log(`[FileService] Source path: ${sourcePath}`);
         console.log(`[FileService] Destination path: ${destination}`);
-        const timeoutMs = 2000;
-        const stepMs = 50;
+        const timeoutMs = 45000;
+        const stepMs = 500;
         const start = Date.now();
         while (!fs.existsSync(sourcePath)) {
             if (Date.now() - start > timeoutMs) {
-                throw new Error(`Timeout(2s): file not found on the path: ${sourcePath}`);
+                throw new Error(`Timeout (45s): file not found on the path: ${sourcePath}`);
             }
             await sleep(stepMs);
         }

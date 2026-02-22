@@ -129,14 +129,16 @@ export class TextHandler {
                 ctx.session = initialSession();
                 return;
             }
-            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.action.processing'), { parse_mode: 'HTML' });
+            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.common.wait'), { parse_mode: 'HTML' });
             try {
                 const sizeBytes = fs.statSync(filePath).size;
                 const result = await this.workerService.split(ctx, filePath, pages, sizeBytes);
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeNamePdf = FileNameUtils.getSafeName(originalName, 'splitted');
+                const captionPdf = this.localization.t(lang, 'messages.actions.split_caption_success_file') + `<b>${pages}</b>`;
+                const captionZip = this.localization.t(lang, 'messages.actions.split_caption_success_zip') + `<b>${pages}</b>`;
                 await ctx.replyWithDocument(new InputFile(result.path, safeNamePdf), {
-                    caption: ` ${this.localization.t(lang, 'messages.actions.split_caption_success_file')}`,
+                    caption: captionPdf,
                     parse_mode: 'HTML',
                     reply_markup: result.zipPath ? undefined : this.keyboards.getMainMenu(lang, isAdmin)
                 });
@@ -145,7 +147,7 @@ export class TextHandler {
                 if (result.zipPath) {
                     const safeNameZip = safeNamePdf.replace('.pdf', '.zip');
                     await ctx.replyWithDocument(new InputFile(result.zipPath, safeNameZip), {
-                        caption: `${this.localization.t(lang, 'messages.actions.split_caption_success_zip')}`,
+                        caption: captionZip,
                         parse_mode: 'HTML',
                         reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
                     });

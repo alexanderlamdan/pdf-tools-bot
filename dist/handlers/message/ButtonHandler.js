@@ -193,7 +193,7 @@ export class ButtonHandler {
                 await ctx.reply(this.localization.t(lang, 'messages.actions.merge_not_enough_files'));
                 return;
             }
-            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.processing'), { parse_mode: 'HTML' });
+            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.common.wait'), { parse_mode: 'HTML' });
             try {
                 let totalSize = 0;
                 for (const p of ctx.session.filePaths)

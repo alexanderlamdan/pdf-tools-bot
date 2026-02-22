@@ -335,7 +335,7 @@ export class ButtonHandler{
                 
             }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.processing'),{parse_mode:'HTML'});
+            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.common.wait'),{parse_mode:'HTML'});
             
             try{
                 
