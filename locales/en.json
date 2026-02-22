@@ -124,8 +124,8 @@
       "ask_merge_files": "📥 <b>Merge Mode</b>\nFirst file added! Send the next PDF files here one by one in the desired order.\nWhen you're finished, press the <b>✅ Merge Files</b> button.",
       "merge_not_enough_files": "⚠️ You need at least 2 files to merge. Please send more.",
       "merge_file_queue": "✅ File added!\nSend the next one or press the 'Merge' button.\nTotal files in queue: ",
-      "split_caption_success_file":"✂️ Pages extracted(Single PDF): ",
-      "split_caption_success_zip":"✂️ Pages extracted(ZIP archive with pdf pages one by one): "
+      "split_caption_success_file": "✂️ <b>Extracted Pages (Single File):</b>\n⚠️ <i>Note: In very complex PDFs, display errors may occur in the merged file. Use the archive below to guarantee 100% integrity.</i>\n\nPages: ",
+      "split_caption_success_zip": "📦 <b>Page-by-page Archive (100% Reliable):</b>\nPages: "
     },
     "common": {
       "yes": "Yes",
