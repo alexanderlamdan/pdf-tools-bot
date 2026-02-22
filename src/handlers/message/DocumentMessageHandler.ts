@@ -36,10 +36,13 @@ export class DocumentMessageHandler{
     
     async handle(ctx:BotContext){
       
+      const lang = this.getLang(ctx);
+      await ctx.reply(this.localization.t(lang,'messages.queue.file_upload'));
+      
       const document = ctx.message?.document;
       if(!document) return;
       
-      const lang = this.getLang(ctx);
+     
       const isAdmin = ctx.from?.id === this.config.adminId;
       
       if(ctx.session.step === 'waiting_for_merge_files'){
@@ -51,11 +54,23 @@ export class DocumentMessageHandler{
           
         }
         
-        const localPath = await this.fileService.downloadFile(ctx,document.file_id);
-        ctx.session.filePaths.push(localPath);
-        
-        await ctx.reply(`${this.localization.t(lang,'messages.actions.merge_file_queue')}<b>${ctx.session.filePaths.length}</b>`,{parse_mode:'HTML'});
-        return;
+        (async()=>{
+          
+          try{
+            
+              const localPath = await this.fileService.downloadFile(ctx,document.file_id);
+              ctx.session.filePaths.push(localPath);
+            
+              await ctx.reply(`${this.localization.t(lang,'messages.actions.merge_file_queue')}<b>${ctx.session.filePaths.length}</b>`,{parse_mode:'HTML'});
+              return;
+            
+          }catch(e:any){
+            
+            console.error("[Background Merge Error]: ",e);
+            
+          }
+          
+        })();
         
       }
       
@@ -84,9 +99,9 @@ export class DocumentMessageHandler{
         reply_markup:{remove_keyboard:true}
       });
       
-      let localPath:string|null = null;
-      
-      try{
+      (async()=>{
+        let localPath:string|null = null;
+        try{
         
         localPath = await this.fileService.downloadFile(ctx,document.file_id);
         const info = await this.workerService.getPdfInfo(ctx,localPath,lang,document.file_size || 0);
@@ -115,6 +130,8 @@ export class DocumentMessageHandler{
         await this.handleError(ctx,error as Error,statusMsg.message_id,localPath,lang);
         
       }
+        
+      })();
       
     }
     
