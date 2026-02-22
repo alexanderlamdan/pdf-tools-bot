@@ -57,6 +57,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp = h.service.Compress(req)
 	case "repair":
 		resp = h.service.Repair(req)
+	case "merge":
+		resp = h.service.Merge(req)
+	case "split":
+		resp = h.service.Split(req)
 	default:
 		h.log.Error("Unknown action requested: %s", req.Action)
 		resp = domain.Response{Status: "error", Error: "Unknown action"}

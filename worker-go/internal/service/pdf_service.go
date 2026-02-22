@@ -1,11 +1,14 @@
 package service
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"pdf-worker/internal/domain"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -358,6 +361,99 @@ func (s *PdfService) Repair(req domain.Request) domain.Response {
 
 }
 
+func (s *PdfService) Split(req domain.Request) domain.Response {
+
+	return s.executeHeavyTask("Split", req.InputPath, func() domain.Response {
+
+		pages, err := parsePages(req.Pages)
+		if err != nil || len(pages) == 0 {
+
+			return domain.Response{Status: "error", Error: "Invalid page range format"}
+
+		}
+
+		tempDir, err := os.MkdirTemp("", "pdf_split_*")
+		if err != nil {
+
+			return domain.Response{Status: "error", Error: "Failed to create temp directory"}
+
+		}
+
+		defer os.RemoveAll(tempDir)
+
+		baseName := req.OriginalName
+		if baseName == "" {
+
+			baseName = "Document.pdf"
+
+		}
+
+		baseName = strings.TrimSuffix(baseName, filepath.Ext(baseName))
+
+		for _, p := range pages {
+
+			outName := fmt.Sprintf("%s-page_%d_splitted.pdf", baseName, p)
+			outPath := filepath.Join(tempDir, outName)
+
+			args := []string{"--empty", "--pages", req.InputPath, strconv.Itoa(p), "--", outPath}
+			cmd := exec.Command("qpdf", args...)
+
+			if output, cmdErr := cmd.CombinedOutput(); cmdErr != nil {
+
+				s.log.Error("Failed to extract page %d: %s", p, cleanError(string(output)))
+				return domain.Response{Status: "error", Error: fmt.Sprintf("Failed to extract page %d. Does it exist?", p)}
+
+			}
+
+		}
+
+		zipPath := getOutputPath(req.InputPath, "_splitted.pdf")
+		if err := zipDir(tempDir, zipPath); err != nil {
+
+			s.log.Error("ZIP creation failed: %v", err)
+			return domain.Response{Status: "error", Error: "Failed to create ZIP archive"}
+
+		}
+
+		s.log.Info("Successfully split %d pages into %s", len(pages), filepath.Base(zipPath))
+		return domain.Response{Status: "ok", Path: zipPath}
+
+	})
+
+}
+
+func (s *PdfService) Merge(req domain.Request) domain.Response {
+
+	if len(req.InputPaths) < 2 {
+
+		return domain.Response{Status: "error", Error: "Need at least 2 files to merge"}
+
+	}
+
+	return s.executeHeavyTask("Merge", req.InputPaths[0], func() domain.Response {
+
+		outputPath := getOutputPath(req.InputPaths[0], "_merged.pdf")
+
+		args := []string{"--empty", "--pages"}
+		args = append(args, req.InputPaths...)
+		args = append(args, "--", outputPath)
+
+		cmd := exec.Command("qpdf", args...)
+
+		if output, err := cmd.CombinedOutput(); err != nil {
+
+			s.log.Error("Merge failed: %s", cleanError(string(output)))
+			return domain.Response{Status: "error", Error: cleanError(string(output))}
+
+		}
+
+		s.log.Info("Successfully merged %d files into %s", len(req.InputPaths), filepath.Base(outputPath))
+		return domain.Response{Status: "ok", Path: outputPath}
+
+	})
+
+}
+
 // --- Helpers ---
 func parsePdfInfoOutput(output string, info *PdfInfo) {
 	lines := strings.Split(output, "\n")
@@ -427,5 +523,132 @@ func isValidPdf(filePath string) bool {
 	}
 
 	return false
+
+}
+
+func NormalizePages(input string) string {
+
+	input = strings.ReplaceAll(input, "(", "")
+	input = strings.ReplaceAll(input, ")", "")
+	input = strings.ReplaceAll(input, "[", "")
+	input = strings.ReplaceAll(input, "]", "")
+
+	input = strings.ReplaceAll(input, ":", "-")
+	input = strings.ReplaceAll(input, "_", "-")
+
+	input = strings.ReplaceAll(input, " ", ",")
+	input = strings.ReplaceAll(input, ".", ",")
+	input = strings.ReplaceAll(input, ";", ",")
+
+	reComma := regexp.MustCompile(`,+`)
+	input = reComma.ReplaceAllString(input, ",")
+	reDash := regexp.MustCompile(`-+`)
+	input = reDash.ReplaceAllString(input, "-")
+
+	input = strings.Trim(input, ",- ")
+
+	return input
+
+}
+
+func parsePages(input string) ([]int, error) {
+
+	input = NormalizePages(input)
+	parts := strings.Split(input, ",")
+
+	var pages []int
+
+	for _, part := range parts {
+
+		if strings.Contains(part, "-") {
+
+			bounds := strings.Split(part, "-")
+			if len(bounds) == 2 {
+
+				start, err1 := strconv.Atoi(bounds[0])
+				end, err2 := strconv.Atoi(bounds[1])
+				if err1 == nil && err2 == nil && start <= end {
+
+					for i := start; i <= end; i++ {
+
+						pages = append(pages, i)
+
+					}
+
+				}
+
+			}
+
+		} else {
+
+			p, err := strconv.Atoi(part)
+			if err == nil {
+
+				pages = append(pages, p)
+
+			}
+
+		}
+
+	}
+	return pages, nil
+
+}
+
+func zipDir(sourceDir, zipPath string) error {
+
+	zipFile, err := os.Create(zipPath)
+	if err != nil {
+
+		return err
+
+	}
+
+	defer zipFile.Close()
+
+	archive := zip.NewWriter(zipFile)
+	defer archive.Close()
+
+	entries, err := os.ReadDir(sourceDir)
+	if err != nil {
+
+		return err
+
+	}
+
+	for _, entry := range entries {
+
+		if entry.IsDir() {
+
+			continue
+
+		}
+
+		filePath := filepath.Join(sourceDir, entry.Name())
+		file, err := os.Open(filePath)
+		if err != nil {
+
+			return err
+
+		}
+
+		defer file.Close()
+
+		w, err := archive.Create(entry.Name())
+		if err != nil {
+
+			return err
+
+		}
+
+		if _, err := io.Copy(w, file); err != nil {
+
+			return err
+
+		}
+
+	}
+
+	return nil
 
 }

@@ -32,6 +32,16 @@ export class DocumentMessageHandler {
             return;
         const lang = this.getLang(ctx);
         const isAdmin = ctx.from?.id === this.config.adminId;
+        if (ctx.session.step === 'waiting_for_merge_files') {
+            if (!this.isSupportedDocument(ctx)) {
+                await this.handleInvalidFormat(ctx, document, lang, isAdmin);
+                return;
+            }
+            const localPath = await this.fileService.downloadFile(ctx, document.file_id);
+            ctx.session.filePaths.push(localPath);
+            await ctx.reply(`${this.localization.t(lang, 'messages.actions.merge_file_queue')}<b>${ctx.session.filePaths.length}</b>`, { parse_mode: 'HTML' });
+            return;
+        }
         if (ctx.session.filePaths && ctx.session.filePaths.length > 0) {
             for (const oldPath of ctx.session.filePaths) {
                 await this.fileService.deleteFile(oldPath);

@@ -106,4 +106,28 @@ export class PdfWorkerService {
             return data.path;
         });
     }
+    async split(ctx, filePath, pages, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'split', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'split',
+                inputPath: filePath,
+                pages: pages,
+                originalName: ctx.session.tempParams?.originalName || 'Document.pdf'
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
+        });
+    }
+    async merge(ctx, filePaths, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'merge', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'merge',
+                inputPaths: filePaths
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
+        });
+    }
 }

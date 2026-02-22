@@ -169,6 +169,69 @@ export class TextHandler{
             return;
             
         }
+        
+        else if(action === 'split' && step === 'waiting_for_split_pages'){
+            
+            const pages = text.trim();
+            const filePath = ctx.session.filePaths[0];
+            
+            if(!filePath){
+                
+                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'),{parse_mode:'HTML'});
+                ctx.session = initialSession();
+                return;
+                
+            }
+            
+            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.action.processing'),{parse_mode:'HTML'});
+            
+            try{
+                
+                const sizeBytes = fs.statSync(filePath).size;
+                
+                const resultPath = await this.workerService.split(ctx,filePath,pages,sizeBytes);
+                const stats = await fs.promises.stat(resultPath);
+                
+                await this.db.logAction(ctx.from!.id,'split',stats.size);
+                
+                const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
+                const extension = resultPath.endsWith('.zip') ? '.zip' : '.pdf';
+                
+                const safeName = `${originalName.replace(/\.pdf$/i,'')}_splitted${extension}`;
+                
+                await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
+                    
+                    caption:this.localization.t(lang,'messages.actions.split_caption_success'),
+                    parse_mode:'HTML',
+                    reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
+                    
+                });
+                
+                await this.fileService.deleteFile(filePath);
+                await this.fileService.deleteFile(resultPath);
+                ctx.session = initialSession();
+                
+            }catch(e:any){
+                
+                await this.logger.error('TextHandler:split',e,{user:ctx.from!,message:ctx.message!});
+                await ctx.reply(`Error: ${e.message}`,{
+                    
+                    reply_markup:this.keyboards.getMainMenu(lang, isAdmin)
+                    
+                });
+                
+                ctx.session = initialSession();
+                
+            }finally{
+                
+                await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
+                
+            }
+            
+            return;
+            
+        }
+        
         await this.logger.logAction(ctx.from!,'Spam text',text);
         // 2. Настойчиво отвечаем
         await ctx.reply(this.localization.t(lang, 'errors.text_rejected'), {

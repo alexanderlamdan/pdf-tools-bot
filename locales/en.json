@@ -20,7 +20,8 @@
       "btn_watermark": "© Watermark",
       "btn_repair": "🚑 Repair",
       "btn_to_long_image": "📜 To Long Image",
-      "btn_metadata_wiper": "🧹 Wipe Metadata"
+      "btn_metadata_wiper": "🧹 Wipe Metadata",
+      "btn_execute_merge": "✅ Merge files"
     },
     "common": {
       "btn_cancel": "❌ Cancel"
@@ -118,7 +119,12 @@
       "suffix_unlocked":"_UNLOCKED",
       "repair_warning": "⚠️ <b>Attention! Starting repair...</b>\n\n🛠 We will try to rebuild the file structure from scratch. During this process, <b>text may shift, fonts might change, or the layout could look a bit messy</b>.\n\n🛑 <i>Note:</i> There is a chance that strict programs (like Adobe Acrobat) still won't be able to read this file because the original background data is missing, but most browsers and simple readers will open it.\n\n⏳ <i>Please wait...</i>",
       "repair_success": "✅ <b>File successfully saved and restored!</b>\n\nIt is now stored in the bot's memory. Choose what you would like to do with it next:",
-      "repair_fail": "❌ <b>We're very sorry, but this file cannot be restored.</b>\n\nWe've tried all available methods, but the document structure is completely destroyed or critical data is missing. It's impossible to save this file. 🙏"
+      "repair_fail": "❌ <b>We're very sorry, but this file cannot be restored.</b>\n\nWe've tried all available methods, but the document structure is completely destroyed or critical data is missing. It's impossible to save this file. 🙏",
+      "ask_split_pages": "✂️ <b>Split PDF</b>\n\nSend the page numbers you want to extract. I will send you a convenient ZIP archive with the results.\n<i>Examples:</i>\n• <code>5-12</code> (range)\n• <code>1, 3, 5</code> (comma separated)",
+      "ask_merge_files": "📥 <b>Merge Mode</b>\nFirst file added! Send the next PDF files here one by one in the desired order.\nWhen you're finished, press the <b>✅ Merge Files</b> button.",
+      "merge_not_enough_files": "⚠️ You need at least 2 files to merge. Please send more.",
+      "merge_file_queue": "✅ File added!\nSend the next one or press the 'Merge' button.\nTotal files in queue: ",
+      "split_caption_success":"✂️ Pages extracted: "
     },
     "common": {
       "yes": "Yes",

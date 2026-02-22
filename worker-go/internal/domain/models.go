@@ -1,10 +1,13 @@
 package domain
 
 type Request struct {
-	Action    string `json:"action"`
-	InputPath string `json:"inputPath"`
-	Lang      string `json:"lang"`
-	Password  string `json:"password,omitempty"`
+	Action       string   `json:"action"`
+	InputPath    string   `json:"inputPath"`
+	InputPaths   []string `json:"inputPaths,omitempty"`
+	Pages        string   `json:"pages,omitempty"`
+	OriginalName string   `json:"originalName,omitempty"`
+	Lang         string   `json:"lang"`
+	Password     string   `json:"password,omitempty"`
 }
 
 type Response struct {

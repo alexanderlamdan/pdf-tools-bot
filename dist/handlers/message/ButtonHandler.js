@@ -159,6 +159,66 @@ export class ButtonHandler {
             }
             return;
         }
+        if (fullActionKey.endsWith('btn_split')) {
+            if (!hasFile) {
+                await ctx.reply(this.localization.t(lang, 'messages.actions.file_lost'), { parse_mode: 'HTML' });
+                return;
+            }
+            ctx.session.currentAction = 'split';
+            ctx.session.step = 'waiting_for_split_pages';
+            await ctx.reply(this.localization.t(lang, 'messages.actions.ask_split_pages'), {
+                parse_mode: 'HTML',
+                reply_markup: { force_reply: true }
+            });
+        }
+        if (fullActionKey.endsWith('btn_merge')) {
+            if (!hasFile) {
+                await ctx.reply(this.localization.t(lang, 'messages.actions.file_lost'));
+                return;
+            }
+            ctx.session.currentAction = 'merge';
+            ctx.session.step = 'waiting_for_merge_files';
+            await ctx.reply(this.localization.t(lang, 'messages.actions.ask_merge_files'), {
+                parse_mode: 'HTML',
+                reply_markup: {
+                    keyboard: [[{ text: this.localization.t(lang, 'buttons.files.btn_execute_merge') }]],
+                    resize_keyboard: true
+                }
+            });
+            return;
+        }
+        if (fullActionKey.endsWith('btn_execute_merge') || text === this.localization.t(lang, 'buttons.files.btn_execute_merge')) {
+            if (ctx.session.filePaths.length < 2) {
+                await ctx.reply(this.localization.t(lang, 'messages.actions.merge_not_enough_files'));
+                return;
+            }
+            const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.actions.processing'), { parse_mode: 'HTML' });
+            try {
+                let totalSize = 0;
+                for (const p of ctx.session.filePaths)
+                    totalSize += fs.statSync(p).size;
+                const resultPath = await this.workerService.merge(ctx, ctx.session.filePaths, totalSize);
+                await this.db.logAction(ctx.from.id, 'merge', totalSize);
+                const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
+                const safeName = FileNameUtils.getSafeName(originalName, 'merged');
+                await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
+                    reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
+                });
+                for (const p of ctx.session.filePaths)
+                    await this.fileService.deleteFile(p);
+                await this.fileService.deleteFile(resultPath);
+                ctx.session = initialSession();
+            }
+            catch (e) {
+                await this.logger.error('Merge', e, { user: ctx.from });
+                await ctx.reply(`Error: ${e.message}`);
+                ctx.session = initialSession();
+            }
+            finally {
+                await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            }
+            return;
+        }
         await ctx.reply(this.localization.t(lang, 'messages.common.in_development'), { parse_mode: 'HTML' });
         await this.logger.logAction(ctx.from, 'Feature request', `Clicked dev feature: ${fullActionKey}`);
     }
