@@ -410,13 +410,15 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 			argsSingle := []string{"--empty", "--pages", req.InputPath, strconv.Itoa(p), "--", outPath}
 			cmdSingle := exec.Command("qpdf", argsSingle...)
 
-			if output, cmdErr := cmdSingle.CombinedOutput(); cmdErr != nil {
+			output, cmdErr := cmdSingle.CombinedOutput()
+
+			if _, statErr := os.Stat(outPath); statErr != nil {
 
 				extractedPaths = append(extractedPaths, outPath)
 
 			} else {
 
-				s.log.Error("Failed to extract single page %d: %s", p, cleanError(string(output)))
+				s.log.Error("Failed to extract page %d: %v | Output: %s", p, cmdErr, string(output))
 
 			}
 
@@ -434,9 +436,10 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 		mergeArgs = append(mergeArgs, "--", pdfOutputPath)
 
 		cmdMerge := exec.Command("qpdf", mergeArgs...)
-		if output, err := cmdMerge.CombinedOutput(); err != nil {
+		outputMerge, mergeErr := cmdMerge.CombinedOutput()
+		if _, statErr := os.Stat(pdfOutputPath); statErr != nil {
 
-			s.log.Error("Failed to merge extracted pages: %s", cleanError(string(output)))
+			s.log.Error("Failed to merge extracted pages: %s", cleanError(string(outputMerge)))
 			return domain.Response{Status: "error", Error: "Failed to build final PDF"}
 
 		}
