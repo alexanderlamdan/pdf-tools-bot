@@ -199,7 +199,7 @@ export class AdminLogService{
             const age = this.formatAge(f.mtimeMs);
             const size = this.formatSize(f.sizeBytes);
             const cleanMark = f.shouldClean ? ' (will be removed)' : '';
-            lines.push(`• <code>${this.esc(f.label)}</code>\n  💾 ${size} | 📅 ${age}${cleanMark}`);
+            lines.push(`• ${this.esc(f.label)}\n  💾 ${size} | 📅 ${age}${cleanMark}`);
             
             if(f.shouldClean){
                 
@@ -210,12 +210,12 @@ export class AdminLogService{
             
         }
         
-        let report = `📋 <b>Server logs</b>\n`;
-        report += `📦 Files: <b>${files.length}</b> | Summary: <b>${this.esc(this.formatSize(totalSize))}</b>\n`;
+        let report = `📋 Server logs\n`;
+        report += `📦 Files: ${files.length} | Summary: ${this.esc(this.formatSize(totalSize))}\n`;
         
         if(cleanedCount >0 ){
             
-            report += `🗑 Cleaned (>7days и >45MB): <b>${cleanedCount}</b> files (${this.esc(this.formatSize(cleanedSize))})\n`;
+            report += `🗑 Cleaned (>7days и >45MB): ${cleanedCount} files (${this.esc(this.formatSize(cleanedSize))})\n`;
             
         }else{
             
@@ -223,7 +223,7 @@ export class AdminLogService{
             
         }
         
-        report += `\n<b>Files:</b>\n${lines.join('\n')}`;
+        report += `\nFiles:\n${lines.join('\n')}`;
         
         return report;
         
@@ -251,8 +251,8 @@ export class AdminLogService{
         const days = Math.floor(diffMs / (24*60*60*1000));
         const hours = Math.floor(diffMs % (24*60*60*1000)/(60*60*1000));
         
-        if(days > 0) return `${days}d ${hours}h`;
-        return `${hours}h`;
+        if(days > 0) return `${days} days ${hours} hours`;
+        return `${hours} hours`;
         
     }
     

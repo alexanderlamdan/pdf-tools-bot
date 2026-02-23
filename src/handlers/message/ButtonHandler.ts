@@ -504,7 +504,7 @@ export class ButtonHandler{
     
     private async handleAdminLogs(ctx:BotContext){
         
-        const statusMsg = await ctx.reply('📦 <b>Collecting logs from server...</b>',{parse_mode:'HTML'});
+        const statusMsg = await ctx.reply('📦 Collecting logs from server...',{parse_mode:'HTML'});
         
         let archivePath:string | null = null;
         
@@ -520,7 +520,7 @@ export class ButtonHandler{
             const archiveName = `server_logs_${new Date().toISOString().slice(0,10)}.zip`;
             await ctx.replyWithDocument(
                 new InputFile(archivePath,archiveName),{
-                    caption: `🗂 <b>Server logs</b> | ${new Date().toLocaleString('en-US',{timeZone:'Asia/Jerusalem'})}`,
+                    caption: `🗂 Server logs | ${new Date().toLocaleString('en-US',{timeZone:'Asia/Jerusalem'})}`,
                     parse_mode:'HTML'
                 }
             );
@@ -529,7 +529,7 @@ export class ButtonHandler{
             
             await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
             const safeMsg = String(e.message || e).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            await ctx.reply(`❌ <b>Error collecting logs:</b>\n<code>${safeMsg}</code>`,{parse_mode:'HTML'});
+            await ctx.reply(`❌ Error collecting logs:\n${safeMsg}`,{parse_mode:'HTML'});
             await this.logger.error('AdminLogs',e as Error);
             
         }finally{
