@@ -45,7 +45,7 @@ export class AdminLogService {
             this.cleanOldLogs(allFiles);
             return { archivePath: tarPath, report };
         }
-        await execAsync(`rm -rf "${tmpDir}`);
+        await execAsync(`rm -rf "${tmpDir}"`);
         const report = this.buildReport(allFiles);
         this.cleanOldLogs(allFiles);
         return { archivePath, report };

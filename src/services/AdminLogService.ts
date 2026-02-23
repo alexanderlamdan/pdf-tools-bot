@@ -80,7 +80,7 @@ export class AdminLogService{
             
         }
         
-        await execAsync(`rm -rf "${tmpDir}`);
+        await execAsync(`rm -rf "${tmpDir}"`);
         const report = this.buildReport(allFiles);
         
         this.cleanOldLogs(allFiles);
