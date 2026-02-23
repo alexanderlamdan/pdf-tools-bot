@@ -28,7 +28,7 @@ export class AdminLogService{
     constructor(private readonly config:IBotConfig){
         
         this.botLogDir = `/srv/runtime/${config.botName}/logs`;
-        this.workerLogDir = `/srv/${config.botName}/worker-go/logs`;
+        this.workerLogDir = `/srv/bots/${config.botName}/worker-go/logs`;
     }
     
     public async collectAndArchive():Promise<{archivePath:string,report:string}>{

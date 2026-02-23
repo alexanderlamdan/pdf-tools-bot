@@ -13,7 +13,7 @@ export class AdminLogService {
     constructor(config) {
         this.config = config;
         this.botLogDir = `/srv/runtime/${config.botName}/logs`;
-        this.workerLogDir = `/srv/${config.botName}/worker-go/logs`;
+        this.workerLogDir = `/srv/bots/${config.botName}/worker-go/logs`;
     }
     async collectAndArchive() {
         const tmpDir = path.join(os.tmpdir(), `pdf-bot-logs-${Date.now()}`);
