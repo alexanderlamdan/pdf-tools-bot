@@ -24,11 +24,11 @@ export class LocalizationService{
     
     public t(lang:string,key:string):string{
         
-        let val = this.getValue(locales[lang],key);
+        let val = this.getValue((locales as any)[lang],key);
         
-        if(!val && lang !== this.defaultLang){
+        if(!val){
             
-            val = this.getValue(locales[this.defaultLang],key);
+            val = this.getValue((locales as any)[this.defaultLang],key);
             
         }
         
@@ -55,10 +55,12 @@ export class LocalizationService{
     
     public getActionKeyByText(text:string):string | null{
         
-        for(const lang of this.availableLangs){
+        for(const lang of Object.keys(locales)){
             
-            const foundKey = this.findKeyByValue(locales[lang]?.buttons,text);
-            if(foundKey) return `buttons.${foundKey}`;
+            const localeButtons = (locales as any)[lang]?.buttons;
+            if(!localeButtons)continue;
+            
+            const key = this.findKeyByValue(localeButtons, text);
             
         }
         

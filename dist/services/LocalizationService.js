@@ -13,7 +13,7 @@ export class LocalizationService {
     }
     t(lang, key) {
         let val = this.getValue(locales[lang], key);
-        if (!val && lang !== this.defaultLang) {
+        if (!val) {
             val = this.getValue(locales[this.defaultLang], key);
         }
         return val || `[MISSING: ${key}]`;
@@ -31,10 +31,11 @@ export class LocalizationService {
         return typeof current === 'string' ? current : null;
     }
     getActionKeyByText(text) {
-        for (const lang of this.availableLangs) {
-            const foundKey = this.findKeyByValue(locales[lang]?.buttons, text);
-            if (foundKey)
-                return `buttons.${foundKey}`;
+        for (const lang of Object.keys(locales)) {
+            const localeButtons = locales[lang]?.buttons;
+            if (!localeButtons)
+                continue;
+            const key = this.findKeyByValue(localeButtons, text);
         }
         return null;
     }
