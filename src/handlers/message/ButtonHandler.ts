@@ -47,19 +47,19 @@ export class ButtonHandler{
         
         await this.logger.logAction(ctx.from!, 'Button click',`Key: ${fullActionKey} | Text: ${text}`);
         
-        if(fullActionKey.includes('adm_btn_')){
+        if(fullActionKey.includes('buttons.admin.adm_btn_')){
             
             if(ctx.from!.id !== this.config.adminId) return;
             
-            if(fullActionKey.endsWith('adm_btn_stats')){
+            if(fullActionKey.endsWith('buttons.admin.adm_btn_stats')){
                 
                 await this.handleAdminStats(ctx,lang);
                 
-            }else if(fullActionKey.endsWith('adm_btn_logs')){
+            }else if(fullActionKey.endsWith('buttons.admin.adm_btn_logs')){
                 
                 await this.handleAdminLogs(ctx);
                 
-            }else if(fullActionKey.endsWith('adm_btn_reload')){
+            }else if(fullActionKey.endsWith('buttons.admin.adm_btn_reload')){
                 
                 await ctx.reply('Reload button coming soon');
                 
