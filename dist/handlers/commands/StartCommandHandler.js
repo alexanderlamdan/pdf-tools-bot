@@ -19,16 +19,17 @@ export class StartCommandHandler {
         const userCode = ctx.from?.language_code;
         const { lang, isFallback } = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
+        const i18n = this.localization.get(lang);
         if (ctx.from) {
             await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         }
         await this.logger.logAction(ctx.from, 'Command', '/start');
         try {
             if (isFallback) {
-                await ctx.reply(this.localization.t('en', 'errors.language_not_supported'));
+                await ctx.reply(i18n.errors.language_not_supported);
             }
             const keyboard = this.keyboards.getMainMenu(lang, isAdmin);
-            await ctx.reply(this.localization.t(lang, 'messages.start'), {
+            await ctx.reply(i18n.messages.start, {
                 parse_mode: 'HTML',
                 reply_markup: keyboard
             });
@@ -37,7 +38,7 @@ export class StartCommandHandler {
             await this.logger.error('StartCommandHandler', e, { user: ctx.from, message: ctx.message });
         }
         try {
-            await ctx.reply(this.localization.t(lang, 'errors.spam_warning'), {
+            await ctx.reply(i18n.errors.spam_warning, {
                 parse_mode: 'HTML',
                 reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
             });

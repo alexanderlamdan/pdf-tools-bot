@@ -36,6 +36,7 @@ export class TextHandler{
     async handle(ctx:BotContext){
         
         const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
+        const i18n = this.localization.get(lang);
         const text = ctx.message?.text;
         const isAdmin = ctx.from?.id === this.config.adminId;
         if(!text) return;
@@ -59,7 +60,7 @@ export class TextHandler{
             const password = text.trim();
             if(password.length < 1){
                 
-                await ctx.reply(this.localization.t(lang,'errors.password_empty'));
+                await ctx.reply(i18n.errors.password_empty);
                 return;
                 
             }
@@ -67,13 +68,13 @@ export class TextHandler{
             const filePath = ctx.session.filePaths[0];
             if(!filePath){
                 
-                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'));
+                await ctx.reply(i18n.messages.actions.file_lost);
                 ctx.session = initialSession();
                 return;
                 
             }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.encrypting'));
+            const statusMsg = await ctx.reply(i18n.messages.actions.encrypting);
             let resultPath:string | null = null;
             const sizeBytes = fs.statSync(filePath).size;
             
@@ -83,14 +84,14 @@ export class TextHandler{
                 const stats = await fs.promises.stat(resultPath);
                 await this.db.logAction(ctx.from!.id, 'protect', stats.size);
                 
-                const suffix = this.localization.t(lang,'messages.actions.suffix_protected');
+                const suffix = i18n.messages.actions.suffix_protected;
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName,suffix);
                 const safePassword = FileNameUtils.escapeHtml(password);
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     
-                    caption:this.localization.t(lang,'messages.actions.success_protect'),
+                    caption:i18n.messages.actions.success_protect,
                     parse_mode:'HTML',
                     reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
                     
@@ -129,12 +130,12 @@ export class TextHandler{
             
             if(!filePath){
                 
-                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'));
+                await ctx.reply(i18n.messages.actions.file_lost);
                 return;
                 
             }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.actions.decrypting'));
+            const statusMsg = await ctx.reply(i18n.messages.actions.decrypting);
             const sizeBytes = fs.statSync(filePath).size;
             try{
                 
@@ -145,7 +146,7 @@ export class TextHandler{
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     
-                    caption:this.localization.t(lang,'messages.actions.success_crack').replace('{{password}}', password),
+                    caption:i18n.messages.actions.success_crack.replace('{{password}}', password),
                     parse_mode:'HTML',
                     reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
                     
@@ -157,7 +158,7 @@ export class TextHandler{
                 return;
             }catch(e:any){
                 
-                await ctx.reply(this.localization.t(lang,'messages.actions.decrypt_fail'));
+                await ctx.reply(i18n.messages.actions.fail_crack);
                 await this.logger.logAction(ctx.from!,'Unlock Failed','Wrong password');
                 
             }finally{
@@ -177,13 +178,13 @@ export class TextHandler{
             
             if(!filePath){
                 
-                await ctx.reply(this.localization.t(lang,'messages.actions.file_lost'),{parse_mode:'HTML'});
+                await ctx.reply(i18n.messages.actions.file_lost,{parse_mode:'HTML'});
                 ctx.session = initialSession();
                 return;
                 
             }
             
-            const statusMsg = await ctx.reply(this.localization.t(lang,'messages.common.wait'),{parse_mode:'HTML'});
+            const statusMsg = await ctx.reply(i18n.messages.common.wait,{parse_mode:'HTML'});
             
             try{
                 
@@ -195,8 +196,8 @@ export class TextHandler{
                 
                 const safeNamePdf = FileNameUtils.getSafeName(originalName,'splitted');
                 
-                const captionPdf = this.localization.t(lang, 'messages.actions.split_caption_success_file') + `<b>${pages}</b>`;
-                const captionZip = this.localization.t(lang, 'messages.actions.split_caption_success_zip') + `<b>${pages}</b>`;
+                const captionPdf = i18n.messages.actions.split_caption_success_file + `<b>${pages}</b>`;
+                const captionZip = i18n.messages.actions.split_caption_success_zip + `<b>${pages}</b>`;
                 
                 await ctx.replyWithDocument(new InputFile(result.path,safeNamePdf),{
                     
@@ -256,7 +257,7 @@ export class TextHandler{
         
         await this.logger.logAction(ctx.from!,'Spam text',text);
         // 2. Настойчиво отвечаем
-        await ctx.reply(this.localization.t(lang, 'errors.text_rejected'), {
+        await ctx.reply(i18n.errors.text_rejected, {
             parse_mode: 'HTML',
             reply_markup: this.keyboards.getMainMenu(lang,isAdmin)
         });

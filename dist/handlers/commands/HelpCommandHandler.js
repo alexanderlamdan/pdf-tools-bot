@@ -16,9 +16,10 @@ export class HelpCommandHandler {
         const userCode = ctx.from?.language_code;
         const { lang } = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
+        const i18n = this.localization.get(lang);
         await this.logger.logAction(ctx.from, 'Command', '/help');
         try {
-            await ctx.reply(this.localization.t(lang, 'messages.help'), {
+            await ctx.reply(i18n.messages.help, {
                 parse_mode: 'HTML',
                 reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
             });

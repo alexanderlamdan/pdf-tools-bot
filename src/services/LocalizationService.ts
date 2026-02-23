@@ -1,10 +1,11 @@
-import locales from '../locales/index.js';
-import type {Locale} from '..//locales/index.js';
+import {locales} from '../locales/index.js';
+import type {Locale} from '../locales/index.js';
+import type {FullLocale} from '../locales/index.js';
 
 export class LocalizationService{
     
     private readonly defaultLang = 'en';
-    private availableLangs:string[] = [];
+    private availableLangs:string[] = Object.keys(locales);
     
     public getUserLanguage(code?:string):{lang:string,isFallback:boolean}{
         
@@ -21,35 +22,40 @@ export class LocalizationService{
         return {lang:this.defaultLang,isFallback:true};
         
     }
-    
-    public t(lang:string,key:string):string{
+    public get(lang:string):FullLocale{
         
-        let val = this.getValue((locales as any)[lang],key);
+        const baseI18n = (locales as any)[this.defaultLang];
+        const targetI18n = (locales as any)[lang];
         
-        if(!val){
+        if(!targetI18n || lang === this.defaultLang){
             
-            val = this.getValue((locales as any)[this.defaultLang],key);
+            return baseI18n as FullLocale;
             
         }
         
-        return val || `[MISSING: ${key}]`;
+        return this.deepMerge(baseI18n,targetI18n) as FullLocale;
         
     }
     
-    private getValue(locale:Locale | undefined, path:string):string|null{
+    private deepMerge(base:any,override:any):any{
         
-        if(!locale) return null;
-        const keys = path.split('.');
-        let current = locale;
+        const result = {...base};
         
-        for(const k of keys){
+        for(const key in override){
             
-            if(current[k] === undefined) return null;
-            current = current[k];
+            if(override[key] && typeof override[key] === 'object' && !Array.isArray(override[key])){
+                
+                result[key] = this.deepMerge(result[key],override[key]);
+                
+            }else if(override[key] !== undefined){
+                
+                result[key] = override[key];
+                
+            }
             
         }
         
-        return typeof current === 'string' ? current : null;
+        return result;
         
     }
     
@@ -59,14 +65,14 @@ export class LocalizationService{
             const buttons = (locales as any)[lang]?.buttons;
             if (!buttons) continue;
     
-            // Жесткий рекурсивный поиск значения по всем вложенным объектам
+
             const searchDeep = (obj: any): string | null => {
                 for (const key in obj) {
                     if (typeof obj[key] === 'object' && obj[key] !== null) {
                         const found = searchDeep(obj[key]);
-                        if (found) return found; // Если нашли внутри, отдаем наверх
+                        if (found) return found; 
                     } else if (obj[key] === text) {
-                        return key; // Нашли совпадение текста! Вернет 'btn_status', 'adm_btn_stats' и т.д.
+                        return key; 
                     }
                 }
                 return null;
@@ -78,93 +84,43 @@ export class LocalizationService{
         return null;
     }
     
-    private findKeyByValue(obj:any,value:string,currentPath:string = ''):string|null{
-        
-        if(!obj) return null;
-        for(const key of Object.keys(obj)){
-            
-            const newPath = currentPath ? `${currentPath}.${key}` : key;
-            if(typeof obj[key] === 'object'){
-                
-                const found = this.findKeyByValue(obj[key], value,newPath);
-                if(found) return found;
-                
-            }else if(obj[key] === value){
-                
-                return newPath;
-                
-            }
-            
-        }
-        
-        return null;
-        
-    }
-    
     public getMainMenuButtons(lang:string,isAdmin:boolean):string[]{
         
-        const main = this.getSection(lang,'buttons.main');
-        const admin = isAdmin ? this.getSection(lang,'buttons.admin') : {};
+        const i18n = this.get(lang);
+        const main = Object.values(i18n.buttons.main || {});
+        const admin = isAdmin ? Object.values(i18n.buttons.admin || {}) : [];
         
-        return [...Object.values(main), ...Object.values(admin)] as string[];
+        return [...main,...admin] as string[];
         
     }
     
     public getFileActionsButtons(lang:string,excludeKeys:string[] = []):string[]{
         
-        const files = this.getSection(lang,'buttons.files');
-        const common = this.getSection(lang,'buttons.common');
+       const i18n = this.get(lang);
+       const files = i18n.buttons.files || {};
+       const common = Object.values(i18n.buttons.common || {});
+       
+       const result:string[] = [];
+       for(const [key,val] of Object.entries(files)){
         
-        const result:string[] = [];
-        for(const [key,val] of Object.entries(files)){
-            
-            if(!excludeKeys.includes(`buttons.files.${key}`)){
+            if(!excludeKeys.includes(key)){
                 
                 result.push(val as string);
                 
             }
-            
-        }
         
-        return [...result,...(Object.values(common) as string[])];
+       }
         
+       return [...result,...(common as string[])];
+       
     }
     
     public getEncryptedMenuButtons(lang:string):string[]{
         
-        const unlock = this.t(lang,'buttons.files.btn_unlock');
-        const cancel = this.t(lang,'buttons.common.btn_cancel');
+        const i18n = this.get(lang);
+        const unlock = i18n.buttons.files.btn_unlock;
+        const cancel = i18n.buttons.common.btn_cancel;
         return [unlock,cancel];
-        
-    }
-    
-    private getSection(lang:string,sectionPath:string):Record<string,string>{
-        
-        let obj = this.getValueAsObject(locales[lang],sectionPath);
-        if(!obj && lang !== this.defaultLang){
-            
-            obj = this.getValueAsObject(locales[this.defaultLang],sectionPath);
-            
-        }
-        
-        return obj || {};
-        
-    }
-    
-    private getValueAsObject(obj:any,path:string):Record<string,string> | null{
-        
-        if(!obj) return null;
-        
-        const keys = path.split('.');
-        let current = obj;
-        for(const k of keys){
-            
-            if(current[k] === undefined) return null;
-            current = current[k];
-            
-        }
-        
-        return typeof current === 'object' ? current : null;
         
     }
     

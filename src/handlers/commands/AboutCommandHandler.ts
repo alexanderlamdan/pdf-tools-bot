@@ -22,13 +22,14 @@ export class AboutCommandHandler{
 		const userCode = ctx.from?.language_code;
 		const {lang} = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
+		const i18n = this.localization.get(lang);
 		
         await this.logger.logAction(ctx.from!, 'Command','/about');
         
 		try{
 			
 			await ctx.reply(
-				this.localization.t(lang,'messages.about'),
+				i18n.messages.about,
 				{
                     parse_mode:'HTML',
                     reply_markup:this.keyboards.getMainMenu(lang,isAdmin)

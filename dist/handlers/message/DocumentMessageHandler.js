@@ -28,7 +28,8 @@ export class DocumentMessageHandler {
     }
     async handle(ctx) {
         const lang = this.getLang(ctx);
-        await ctx.reply(this.localization.t(lang, 'messages.queue.file_upload'));
+        const i18n = this.localization.get(lang);
+        await ctx.reply(i18n.messages.queue.file_upload);
         const document = ctx.message?.document;
         if (!document)
             return;
@@ -42,7 +43,7 @@ export class DocumentMessageHandler {
                 try {
                     const localPath = await this.fileService.downloadFile(ctx, document.file_id);
                     ctx.session.filePaths.push(localPath);
-                    await ctx.reply(`${this.localization.t(lang, 'messages.actions.merge_file_queue')}<b>${ctx.session.filePaths.length}</b>`, { parse_mode: 'HTML' });
+                    await ctx.reply(`${i18n.messages.actions.merge_file_queue}<b>${ctx.session.filePaths.length}</b>`, { parse_mode: 'HTML' });
                     return;
                 }
                 catch (e) {
@@ -62,7 +63,7 @@ export class DocumentMessageHandler {
             return;
         }
         await this.trackActivity(ctx, document, lang);
-        const statusMsg = await ctx.reply(this.localization.t(lang, 'messages.analysis.processing'), {
+        const statusMsg = await ctx.reply(i18n.messages.analysis.processing, {
             parse_mode: 'HTML',
             reply_markup: { remove_keyboard: true }
         });
@@ -107,12 +108,13 @@ export class DocumentMessageHandler {
         return `${parseFloat(((bytes / Math.pow(k, i))).toFixed(2))} ${['Bytes', 'KB', 'MB', 'GB'][i]}`;
     }
     async handleInvalidFormat(ctx, doc, lang, isAdmin) {
+        const i18n = this.localization.get(lang);
         await this.logger.logAction(ctx.from, 'Trash upload', `Rejected: ${doc.file_name}(${doc.mime_type})`);
         try {
             await ctx.deleteMessage();
         }
         catch { }
-        await ctx.reply(this.localization.t(lang, 'errors.not_pdf'), {
+        await ctx.reply(i18n.errors.not_pdf, {
             parse_mode: 'HTML',
             reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
         });
@@ -124,17 +126,19 @@ export class DocumentMessageHandler {
         await this.logger.logAction(ctx.from, 'File upload', `📄 ${doc.file_name} | ${sizeFormatted}`);
     }
     async handleCorruptFile(ctx, lang) {
-        await ctx.reply(this.localization.t(lang, 'messages.analysis.corrupt'), {
+        const i18n = this.localization.get(lang);
+        await ctx.reply(i18n.messages.analysis.corrupt, {
             parse_mode: 'HTML',
             reply_markup: {
-                keyboard: [[{ text: this.localization.t(lang, 'buttons.files.btn_repair') }]],
+                keyboard: [[{ text: i18n.buttons.files.btn_repair }]],
                 resize_keyboard: true
             }
         });
     }
     async handleEncryptedFile(ctx, lang) {
+        const i18n = this.localization.get(lang);
         ctx.session.currentAction = 'unlock';
-        await ctx.reply(this.localization.t(lang, 'messages.analysis.encrypted'), {
+        await ctx.reply(i18n.messages.analysis.encrypted, {
             parse_mode: 'HTML',
             reply_markup: this.keyboards.getEncryptedFileMenu(lang)
         });
@@ -148,11 +152,12 @@ export class DocumentMessageHandler {
         });
     }
     async handleError(ctx, e, msgId, path, lang) {
+        const i18n = this.localization.get(lang);
         console.error(e);
         await this.logger.error('DocumentHandler', e, { user: ctx.from, message: ctx.message });
         const isCorrupt = e.message?.includes('invalid') || e.message?.includes('corrupt');
-        const errorKey = isCorrupt ? 'messages.analysis.corrupt' : 'messages.actions.file_lost';
-        const errorText = isCorrupt ? this.localization.t(lang, errorKey) : `Error: ${e.message}`;
+        const errorKey = isCorrupt ? i18n.messages.analysis.corrupt : i18n.messages.actions.file_lost;
+        const errorText = isCorrupt ? errorKey : `Error: ${e.message}`;
         await ctx.api.editMessageText(ctx.chat.id, msgId, errorText, { parse_mode: 'HTML' }).catch(() => { });
         if (path) {
             await this.fileService.deleteFile(path);
@@ -160,34 +165,34 @@ export class DocumentMessageHandler {
         ctx.session = initialSession();
     }
     generateAnalysisReport(doc, info, lang) {
-        const t = (k) => this.localization.t(lang, k);
-        const yes = t('messages.analysis.val_yes');
-        const no = t('messages.analysis.val_no');
-        let text = t('messages.analysis.result_title') + '\n\n';
-        text += t('messages.analysis.field_name').replace('{{name}}', FileNameUtils.escapeHtml(doc.file_name || 'doc.pdf')) + '\n';
-        text += t('messages.analysis.field_size').replace('{{size}}', this.formatSize(info.size)) + '\n';
+        const i18n = this.localization.get(lang);
+        const yes = i18n.messages.analysis.val_yes;
+        const no = i18n.messages.analysis.val_no;
+        let text = i18n.messages.analysis.result_title + '\n\n';
+        text += i18n.messages.analysis.field_name.replace('{{name}}', FileNameUtils.escapeHtml(doc.file_name || 'doc.pdf')) + '\n';
+        text += i18n.messages.analysis.field_size.replace('{{size}}', this.formatSize(info.size)) + '\n';
         const pageCount = (info.pages !== undefined && info.pages !== null) ? info.pages.toString() : '0';
-        text += t('messages.analysis.field_pages').replace('{{pages}}', pageCount) + '\n';
-        let typeStr = t('messages.analysis.type_standard');
+        text += i18n.messages.analysis.field_pages.replace('{{pages}}', pageCount) + '\n';
+        let typeStr = i18n.messages.analysis.type_standard;
         if (info.is_scanned) {
-            typeStr = t('messages.analysis.type_scanned');
+            typeStr = i18n.messages.analysis.type_scanned;
         }
-        text += t('messages.analysis.field_type').replace('{{type}}', typeStr) + '\n';
+        text += i18n.messages.analysis.field_type.replace('{{type}}', typeStr) + '\n';
         const encVal = info.encrypted ? yes : no;
-        text += t('messages.analysis.field_encrypted').replace('{{encrypted}}', encVal) + '\n\n';
+        text += i18n.messages.analysis.field_encrypted.replace('{{encrypted}}', encVal) + '\n\n';
         let compressStatus = info.can_compress ? yes : no;
         if (!info.can_compress) {
             if (info.is_scanned) {
-                compressStatus = t('messages.analysis.val_scanned');
+                compressStatus = i18n.messages.analysis.val_scanned;
             }
             else if (info.cant_compress_reason) {
-                compressStatus = t('messages.analysis.val_reason').replace('{{reason}}', info.cant_compress_reason);
+                compressStatus = i18n.messages.analysis.val_reason.replace('{{reason}}', info.cant_compress_reason);
             }
         }
         const splitVal = info.can_split ? yes : no;
         const mergeVal = info.can_merge ? yes : no;
         const metaVal = info.has_metadata ? yes : no;
-        text += t('messages.analysis.field_actions')
+        text += i18n.messages.analysis.field_actions
             .replace('{{compress}}', compressStatus)
             .replace('{{split}}', splitVal)
             .replace('{{merge}}', mergeVal)

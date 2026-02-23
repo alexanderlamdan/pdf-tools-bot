@@ -79,11 +79,11 @@ export class HandlerRegistry {
       
       const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
       const isAdmin = ctx.from?.id === this.config.adminId;
-      
+      const i18n = this.localization.get(lang);
       await this.logger.logAction(ctx.from!, 'Trash media',`Type: ${Object.keys(ctx.message || {}).join(',')}`);
       
       try { await ctx.deleteMessage(); } catch {}
-      await ctx.reply(this.localization.t(lang, 'file_rejected'), {
+      await ctx.reply(i18n.errors.not_pdf, {
         parse_mode: 'HTML',
         reply_markup: new Keyboards(this.localization).getMainMenu(lang, isAdmin)
       });

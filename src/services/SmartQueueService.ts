@@ -77,7 +77,7 @@ export class SmartQueueService{
         const userId = ctx.from!.id;
         const user = await this.db.getUser(userId);
         const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-        
+        const i18n = this.localization.get(lang);
         let role:UserRole = user?.subType as UserRole || 'free';
         if(user?.isVip) role = 'vip';
         
@@ -112,7 +112,7 @@ export class SmartQueueService{
         
         if(weight === 'heavy'){
             
-            await ctx.reply(this.localization.t(lang,'messages.queue.heavy_task_warning'),{parse_mode:'HTML'});
+            await ctx.reply(i18n.messages.queue.heavy_task_warning,{parse_mode:'HTML'});
             
         }
         
@@ -136,7 +136,7 @@ export class SmartQueueService{
             this.queue.sort((a,b)=>b.priorityScore - a.priorityScore);
             
             const position = this.queue.findIndex(t=>t.id === task.id) + 1;
-            const positionText = this.localization.t(lang,'messages.queue.position').replace('{{position}}',position.toString());
+            const positionText = i18n.messages.queue.position.replace('{{position}}',position.toString());
             
             ctx.reply(positionText,{parse_mode:'HTML'}).catch(()=>{});
             
@@ -164,6 +164,8 @@ export class SmartQueueService{
     
     private async handleVipAbuse(ctx:BotContext,userId:number,lang:string):Promise<'ok'|'warned'|'blocked'>{
         
+        const i18n = this.localization.get(lang);
+        
         const now = Date.now();
         if(!this.vipActivity.has(userId)){
             
@@ -179,7 +181,7 @@ export class SmartQueueService{
             
             if(now % 60000 < 5000){
                 
-                await ctx.reply(`${this.localization.t(lang,'messages.queue.vip_message_notice')} ${minutesLeft}`,{parse_mode:'HTML'}).catch(()=>{});
+                await ctx.reply(`${i18n.messages.queue.vip_message_notice} ${minutesLeft}`,{parse_mode:'HTML'}).catch(()=>{});
                 
             }
             
@@ -189,7 +191,7 @@ export class SmartQueueService{
             tracker.blockedUntil = 0;
             tracker.warned = false;
             tracker.timestamps = [];
-            await ctx.reply(`${this.localization.t(lang,'messages.queue.vip_unblock_notice')}`);
+            await ctx.reply(`${i18n.messages.queue.vip_unblock_notice}`);
             
         }
         
@@ -204,7 +206,7 @@ export class SmartQueueService{
         if(count >= 5 && !tracker.warned){
             
             tracker.warned = true;
-            await ctx.reply(this.localization.t(lang,'messages.queue.vip_warning'),{parse_mode:'HTML'});
+            await ctx.reply(i18n.messages.queue.vip_warning,{parse_mode:'HTML'});
             return 'warned';
             
         }
@@ -213,7 +215,7 @@ export class SmartQueueService{
             
             const BLOCK_DURATION = 15 * 60 * 1000;
             tracker.blockedUntil = now + BLOCK_DURATION;
-            await ctx.reply(this.localization.t(lang,'messages.queue.vip_blocked'),{parse_mode:'HTML',reply_markup:{remove_keyboard:true}});
+            await ctx.reply(i18n.messages.queue.vip_blocked,{parse_mode:'HTML',reply_markup:{remove_keyboard:true}});
             
             return 'blocked';
             

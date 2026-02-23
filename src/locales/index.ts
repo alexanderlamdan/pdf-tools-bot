@@ -8,10 +8,9 @@ type WidenStrings<T> = {
 type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
-export type Locale = DeepPartial<WidenStrings<typeof en>>;
-const locales: Record<string, Locale> = {
-    en: en as unknown as Locale,
-    ru: ru as unknown as Locale,
-    he: he as unknown as Locale
-};
-export default locales;
+
+export type FullLocale = WidenStrings<typeof en>;
+
+export type Locale = DeepPartial<FullLocale>;
+export const locales: Record<string, Locale> = {en,ru,he};
+
