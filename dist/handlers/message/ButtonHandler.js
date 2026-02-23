@@ -44,7 +44,7 @@ export class ButtonHandler {
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
         await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         await this.logger.logAction(ctx.from, 'Button click', `Key: ${fullActionKey} | Text: ${text}`);
-        if (fullActionKey.includes('buttons.admin.adm_btn_')) {
+        if (fullActionKey.includes('buttons.admin.adm_btn_*')) {
             if (ctx.from.id !== this.config.adminId)
                 return;
             if (fullActionKey.endsWith('buttons.admin.adm_btn_stats')) {

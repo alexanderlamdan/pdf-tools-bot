@@ -51,7 +51,7 @@ export class ButtonHandler{
         
         await this.logger.logAction(ctx.from!, 'Button click',`Key: ${fullActionKey} | Text: ${text}`);
         
-        if(fullActionKey.includes('buttons.admin.adm_btn_')){
+        if(fullActionKey.includes('buttons.admin.adm_btn_*')){
             
             if(ctx.from!.id !== this.config.adminId) return;
             
