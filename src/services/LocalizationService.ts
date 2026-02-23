@@ -1,52 +1,10 @@
-import fs from 'fs'; 
-import path from 'path';
+import locales from '../locales/index.js';
+import type {Locale} from '..//locales/index.js';
 
 export class LocalizationService{
     
-    private readonly locales:Record<string,Record<string,string>> = {};
     private readonly defaultLang = 'en';
     private availableLangs:string[] = [];
-    
-    constructor(){
-        
-        this.loadLocales();
-        
-    }
-    
-    private loadLocales(){
-        
-        const localesDir = path.join(process.cwd(),'locales');
-        
-        if(!fs.existsSync(localesDir)){
-            
-            console.warn(`[LocalizationService] Warning: Locales dir not found at ${localesDir}`);
-            return;
-        }
-        
-        const files = fs.readdirSync(localesDir);
-        for(const file of files){
-            
-            if(file.endsWith('.json')){
-                
-                const lang = file.replace('.json','');
-                try{
-                    
-                    const content = fs.readFileSync(path.join(localesDir,file),'utf-8');
-                    this.locales[lang] = JSON.parse(content);
-                    this.availableLangs.push(lang);
-                    console.log(`[Localization] Loaded ${lang}`);
-                    
-                }catch(e){
-                    
-                    console.error(`[LocalizationService] Error loading ${lang}`,e);
-                    
-                }
-                
-            }
-            
-        }
-        
-    }
     
     public getUserLanguage(code?:string):{lang:string,isFallback:boolean}{
         
@@ -66,10 +24,11 @@ export class LocalizationService{
     
     public t(lang:string,key:string):string{
         
-        let val = this.getValue(this.locales[lang],key);
+        let val = this.getValue(locales[lang],key);
+        
         if(!val && lang !== this.defaultLang){
             
-            val = this.getValue(this.locales[this.defaultLang],key);
+            val = this.getValue(locales[this.defaultLang],key);
             
         }
         
@@ -77,11 +36,11 @@ export class LocalizationService{
         
     }
     
-    private getValue(obj:any,path:string):string|null{
+    private getValue(locale:Locale | undefined, path:string):string|null{
         
-        if(!obj) return null;
+        if(!locale) return null;
         const keys = path.split('.');
-        let current = obj;
+        let current = locale;
         
         for(const k of keys){
             
@@ -98,7 +57,7 @@ export class LocalizationService{
         
         for(const lang of this.availableLangs){
             
-            const foundKey = this.findKeyByValue(this.locales[lang]?.buttons,text);
+            const foundKey = this.findKeyByValue(locales[lang]?.buttons,text);
             if(foundKey) return `buttons.${foundKey}`;
             
         }
@@ -169,10 +128,10 @@ export class LocalizationService{
     
     private getSection(lang:string,sectionPath:string):Record<string,string>{
         
-        let obj = this.getValueAsObject(this.locales[lang],sectionPath);
+        let obj = this.getValueAsObject(locales[lang],sectionPath);
         if(!obj && lang !== this.defaultLang){
             
-            obj = this.getValueAsObject(this.locales[this.defaultLang],sectionPath);
+            obj = this.getValueAsObject(locales[this.defaultLang],sectionPath);
             
         }
         

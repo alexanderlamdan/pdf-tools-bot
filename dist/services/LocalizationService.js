@@ -1,34 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import locales from '../locales/index.js';
 export class LocalizationService {
-    locales = {};
     defaultLang = 'en';
     availableLangs = [];
-    constructor() {
-        this.loadLocales();
-    }
-    loadLocales() {
-        const localesDir = path.join(process.cwd(), 'locales');
-        if (!fs.existsSync(localesDir)) {
-            console.warn(`[LocalizationService] Warning: Locales dir not found at ${localesDir}`);
-            return;
-        }
-        const files = fs.readdirSync(localesDir);
-        for (const file of files) {
-            if (file.endsWith('.json')) {
-                const lang = file.replace('.json', '');
-                try {
-                    const content = fs.readFileSync(path.join(localesDir, file), 'utf-8');
-                    this.locales[lang] = JSON.parse(content);
-                    this.availableLangs.push(lang);
-                    console.log(`[Localization] Loaded ${lang}`);
-                }
-                catch (e) {
-                    console.error(`[LocalizationService] Error loading ${lang}`, e);
-                }
-            }
-        }
-    }
     getUserLanguage(code) {
         if (!code)
             return { lang: this.defaultLang, isFallback: false };
@@ -39,17 +12,17 @@ export class LocalizationService {
         return { lang: this.defaultLang, isFallback: true };
     }
     t(lang, key) {
-        let val = this.getValue(this.locales[lang], key);
+        let val = this.getValue(locales[lang], key);
         if (!val && lang !== this.defaultLang) {
-            val = this.getValue(this.locales[this.defaultLang], key);
+            val = this.getValue(locales[this.defaultLang], key);
         }
         return val || `[MISSING: ${key}]`;
     }
-    getValue(obj, path) {
-        if (!obj)
+    getValue(locale, path) {
+        if (!locale)
             return null;
         const keys = path.split('.');
-        let current = obj;
+        let current = locale;
         for (const k of keys) {
             if (current[k] === undefined)
                 return null;
@@ -59,7 +32,7 @@ export class LocalizationService {
     }
     getActionKeyByText(text) {
         for (const lang of this.availableLangs) {
-            const foundKey = this.findKeyByValue(this.locales[lang]?.buttons, text);
+            const foundKey = this.findKeyByValue(locales[lang]?.buttons, text);
             if (foundKey)
                 return `buttons.${foundKey}`;
         }
@@ -103,9 +76,9 @@ export class LocalizationService {
         return [unlock, cancel];
     }
     getSection(lang, sectionPath) {
-        let obj = this.getValueAsObject(this.locales[lang], sectionPath);
+        let obj = this.getValueAsObject(locales[lang], sectionPath);
         if (!obj && lang !== this.defaultLang) {
-            obj = this.getValueAsObject(this.locales[this.defaultLang], sectionPath);
+            obj = this.getValueAsObject(locales[this.defaultLang], sectionPath);
         }
         return obj || {};
     }
