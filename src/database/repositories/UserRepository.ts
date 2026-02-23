@@ -48,4 +48,65 @@ export class UserRepository extends BaseRepository<IUser>{
         
     }
     
+    public async getTotalTrafficExcludingAdmin(adminId:number):Promise<number>{
+        
+        const res = await this.query(`SELECT SUM(monthly_traffic) as total FROM users WHERE id != $1`,[adminId]);
+        return Number(res[0]?.total || 0);
+        
+    }
+    
+    public async setVipStatusWithExpiry(userId:number,expiresAtMs:number){
+        
+       await this.update({id:userId} as any,{
+        
+        isVip:true,
+        subType:'vip',
+        subPeriod:'yearly',
+        subExpiresAt:expiresAtMs,
+        monthlyTraffic:0
+        
+       } as any);
+       
+    }
+    
+    public async getZeroTrafficVips():Promise<IUser[]>{
+        
+        return this.findAll({isVip:true,monthly_traffic:0} as any);
+        
+    }
+    
+    public async getExpiredVips(nowMs:number):Promise<IUser[]>{
+        
+        const res = await this.query(`SELECT * FROM users WHERE is_vip = true AND sub_expires_at > 0 AND sub_expires_at < $1`,[nowMs]);
+        return this.normalize(res);
+        
+    }
+    
+    public async getExpiringSubscriptions(startMs:number,endMs:number):Promise<IUser[]>{
+        
+        const res = await this.query(`SELECT * FROM users WHERE sub_type != 'free' AND is_vip = false AND sub_expires_at BETWEEN 1$ AND $2`,[startMs,endMs]);
+        return this.normalize(res);
+        
+    }
+    
+    public async getExpiredSubscriptions(nowMs:number):Promise<IUser[]>{
+        
+        const res = await this.query(`SELECT * FROM users WHERE sub_type != 'free' AND is_vip = false AND sub_expires_at > 0 AND sub_expires_at < $1`,[nowMs]);
+        return this.normalize(res);
+        
+    }
+    
+    public async downgradeToFree(userId:number){
+        
+        await this.update({id:userId} as any,{
+            
+            subType:'free',
+            isVip:false,
+            subExpiresAt:0,
+            monthlyTraffic:0
+            
+        }as any);
+        
+    }
+    
 }

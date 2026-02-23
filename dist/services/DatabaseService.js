@@ -60,9 +60,10 @@ export class DatabaseService {
         }
         return user;
     }
-    async getGlobalStats() {
+    async getGlobalStats(adminId) {
+        const traffic = await this.userRepo.getTotalTrafficExcludingAdmin(adminId);
         return {
-            traffic: 0,
+            traffic,
             actions: await this.logRepo.getStatsByAction()
         };
     }

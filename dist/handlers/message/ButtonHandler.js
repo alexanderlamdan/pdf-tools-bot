@@ -9,6 +9,7 @@ import { LoggerService } from "../../services/LoggerService.js";
 import { DatabaseService } from "../../services/DatabaseService.js";
 import fs from 'fs';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
+import { AdminLogService } from '../../services/AdminLogService.js';
 export class ButtonHandler {
     config;
     localApi;
@@ -18,6 +19,7 @@ export class ButtonHandler {
     keyboards;
     logger;
     db;
+    adminLogService;
     constructor(config, localApi, localization) {
         this.config = config;
         this.localApi = localApi;
@@ -27,6 +29,7 @@ export class ButtonHandler {
         this.db = new DatabaseService(this.logger);
         this.workerService = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
         this.fileService = new FileService(this.config, this.localApi);
+        this.adminLogService = new AdminLogService(this.config);
     }
     async handle(ctx) {
         const text = ctx.message?.text;
@@ -45,7 +48,7 @@ export class ButtonHandler {
                 await this.handleAdminStats(ctx, lang);
             }
             else if (fullActionKey.endsWith('adm_btn_logs')) {
-                await ctx.reply('Logs feature coming soon');
+                await this.handleAdminLogs(ctx);
             }
             else if (fullActionKey.endsWith('adm_btn_reload')) {
                 await ctx.reply('Reload button coming soon');
@@ -279,7 +282,7 @@ export class ButtonHandler {
         await ctx.reply(msg, { parse_mode: 'HTML' });
     }
     async handleAdminStats(ctx, lang) {
-        const global = await this.db.getGlobalStats();
+        const global = await this.db.getGlobalStats(this.config.adminId);
         const counts = await this.db.getUserCounts();
         const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
         let actionStats = '';
@@ -304,6 +307,34 @@ export class ButtonHandler {
             `\n💾 <b>${this.localization.t(lang, 'messages.status.admin.traffic')}:</b> ${totalGB} GB\n\n` +
             `💎 <b>${this.localization.t(lang, 'messages.status.admin.subs')}:</b> VIP:${counts.subscribers.vip} | Pro:${counts.subscribers.pro} | Premium:${counts.subscribers.premium} | Enterprise:${counts.subscribers.enterprise} | Sovereign Protocol: ${counts.subscribers.sovereign}`;
         await ctx.reply(msg, { parse_mode: 'HTML' });
+    }
+    async handleAdminLogs(ctx) {
+        const statusMsg = await ctx.reply('📦 <b>Collecting logs from server...</b>', { parse_mode: 'HTML' });
+        let archivePath = null;
+        try {
+            const { archivePath: ap, report } = await this.adminLogService.collectAndArchive();
+            archivePath = ap;
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            await ctx.reply(report, { parse_mode: 'HTML' });
+            const archiveName = `server_logs_${new Date().toISOString().slice(0, 10)}.zip`;
+            await ctx.replyWithDocument(new InputFile(archivePath, archiveName), {
+                caption: `🗂 <b>Server logs</b> | ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' })}`,
+                parse_mode: 'HTML'
+            });
+        }
+        catch (e) {
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            await ctx.reply(`❌ <b>Error collecting logs:</b>\n<code>${e.message}</code>`, { parse_mode: 'HTML' });
+            await this.logger.error('AdminLogs', e);
+        }
+        finally {
+            if (archivePath) {
+                try {
+                    fs.unlinkSync(archivePath);
+                }
+                catch { }
+            }
+        }
     }
     capitalize(s) {
         return s.charAt(0).toUpperCase() + s.slice(1);

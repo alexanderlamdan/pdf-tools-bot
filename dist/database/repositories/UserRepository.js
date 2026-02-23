@@ -24,4 +24,40 @@ export class UserRepository extends BaseRepository {
     async setVipStatus(userId, status) {
         await this.update({ id: userId }, { is_vip: status });
     }
+    async getTotalTrafficExcludingAdmin(adminId) {
+        const res = await this.query(`SELECT SUM(monthly_traffic) as total FROM users WHERE id != $1`, [adminId]);
+        return Number(res[0]?.total || 0);
+    }
+    async setVipStatusWithExpiry(userId, expiresAtMs) {
+        await this.update({ id: userId }, {
+            isVip: true,
+            subType: 'vip',
+            subPeriod: 'yearly',
+            subExpiresAt: expiresAtMs,
+            monthlyTraffic: 0
+        });
+    }
+    async getZeroTrafficVips() {
+        return this.findAll({ isVip: true, monthly_traffic: 0 });
+    }
+    async getExpiredVips(nowMs) {
+        const res = await this.query(`SELECT * FROM users WHERE is_vip = true AND sub_expires_at > 0 AND sub_expires_at < $1`, [nowMs]);
+        return this.normalize(res);
+    }
+    async getExpiringSubscriptions(startMs, endMs) {
+        const res = await this.query(`SELECT * FROM users WHERE sub_type != 'free' AND is_vip = false AND sub_expires_at BETWEEN 1$ AND $2`, [startMs, endMs]);
+        return this.normalize(res);
+    }
+    async getExpiredSubscriptions(nowMs) {
+        const res = await this.query(`SELECT * FROM users WHERE sub_type != 'free' AND is_vip = false AND sub_expires_at > 0 AND sub_expires_at < $1`, [nowMs]);
+        return this.normalize(res);
+    }
+    async downgradeToFree(userId) {
+        await this.update({ id: userId }, {
+            subType: 'free',
+            isVip: false,
+            subExpiresAt: 0,
+            monthlyTraffic: 0
+        });
+    }
 }

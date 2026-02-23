@@ -10,6 +10,7 @@ export class BotMenuService{
                 
                 {command:'start',description:'Start Bot'},
                 {command:'help',description:'Show help'},
+                {command:'about',description:'About bot'}
                 
             ],
             description:"🚀 PDF Tools Bot — Your professional PDF assistant.\n\n" +
@@ -36,6 +37,7 @@ export class BotMenuService{
                 
                 {command:'start',description:'Запуск бота'},
                 {command:'help',description:'Показать помощь'},
+                {command:'about',description:'О боте'}
                 
             ],
             description:"🚀 PDF Tools Bot — профессиональная работа с PDF.\n\n" +
@@ -60,6 +62,7 @@ export class BotMenuService{
                 
                 {command:'start',description:'להפעיל את הבוט'},
                 {command:'help',description:'עזרה עם הבוט'},
+                {command:'about',description:'על הבוט'}
                 
             ],
             description:"🚀 PDF Tools Bot — ניהול קבצי PDF מקצועי.\n\n" +

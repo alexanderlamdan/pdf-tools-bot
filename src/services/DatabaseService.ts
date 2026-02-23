@@ -93,11 +93,13 @@ export class DatabaseService{
         
     }
     
-    public async getGlobalStats(){
+    public async getGlobalStats(adminId:number){
+        
+        const traffic = await this.userRepo.getTotalTrafficExcludingAdmin(adminId)
         
         return {
             
-            traffic:0,
+            traffic,
             actions:await this.logRepo.getStatsByAction()
             
         };
