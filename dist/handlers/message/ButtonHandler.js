@@ -10,6 +10,7 @@ import { DatabaseService } from "../../services/DatabaseService.js";
 import fs from 'fs';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
 import { AdminLogService } from '../../services/AdminLogService.js';
+import locales from '../../locales/index.js';
 export class ButtonHandler {
     config;
     localApi;
@@ -20,6 +21,7 @@ export class ButtonHandler {
     logger;
     db;
     adminLogService;
+    locale;
     constructor(config, localApi, localization) {
         this.config = config;
         this.localApi = localApi;
@@ -30,6 +32,7 @@ export class ButtonHandler {
         this.workerService = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
         this.fileService = new FileService(this.config, this.localApi);
         this.adminLogService = new AdminLogService(this.config);
+        this.locale = locales;
     }
     async handle(ctx) {
         const text = ctx.message?.text;

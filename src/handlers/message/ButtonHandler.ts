@@ -13,6 +13,8 @@ import { DatabaseService } from "../../services/DatabaseService.js";
 import fs from 'fs';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
 import { AdminLogService } from '../../services/AdminLogService.js';
+import type { Locale } from '../../locales/index.js';
+import locales from '../../locales/index.js';
 
 export class ButtonHandler{
     
@@ -22,6 +24,7 @@ export class ButtonHandler{
     private logger:LoggerService;
     private db:DatabaseService;
     private adminLogService:AdminLogService;
+    private readonly locale:Locale;
     
     constructor(private readonly config:IBotConfig,private readonly localApi:LocalApi,private readonly localization:LocalizationService){
         
@@ -31,6 +34,7 @@ export class ButtonHandler{
         this.workerService = new PdfWorkerService(this.config,SmartQueueService.getInstance(this.localization,this.db));
         this.fileService = new FileService(this.config,this.localApi);
         this.adminLogService = new AdminLogService(this.config);
+        this.locale = locales;
         
     }
     

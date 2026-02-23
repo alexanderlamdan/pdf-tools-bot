@@ -53,19 +53,29 @@ export class LocalizationService{
         
     }
     
-    public getActionKeyByText(text:string):string | null{
-        
-        for(const lang of Object.keys(locales)){
-            
-            const localeButtons = (locales as any)[lang]?.buttons;
-            if(!localeButtons)continue;
-            
-            const key = this.findKeyByValue(localeButtons, text);
-            
+    public getActionKeyByText(text: string): string | null {
+        // Проходим по всем языкам (en, ru, he)
+        for (const lang of Object.keys(locales)) {
+            const buttons = (locales as any)[lang]?.buttons;
+            if (!buttons) continue;
+    
+            // Жесткий рекурсивный поиск значения по всем вложенным объектам
+            const searchDeep = (obj: any): string | null => {
+                for (const key in obj) {
+                    if (typeof obj[key] === 'object' && obj[key] !== null) {
+                        const found = searchDeep(obj[key]);
+                        if (found) return found; // Если нашли внутри, отдаем наверх
+                    } else if (obj[key] === text) {
+                        return key; // Нашли совпадение текста! Вернет 'btn_status', 'adm_btn_stats' и т.д.
+                    }
+                }
+                return null;
+            };
+    
+            const matchedKey = searchDeep(buttons);
+            if (matchedKey) return matchedKey;
         }
-        
         return null;
-        
     }
     
     private findKeyByValue(obj:any,value:string,currentPath:string = ''):string|null{

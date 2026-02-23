@@ -32,10 +32,25 @@ export class LocalizationService {
     }
     getActionKeyByText(text) {
         for (const lang of Object.keys(locales)) {
-            const localeButtons = locales[lang]?.buttons;
-            if (!localeButtons)
+            const buttons = locales[lang]?.buttons;
+            if (!buttons)
                 continue;
-            const key = this.findKeyByValue(localeButtons, text);
+            const searchDeep = (obj) => {
+                for (const key in obj) {
+                    if (typeof obj[key] === 'object' && obj[key] !== null) {
+                        const found = searchDeep(obj[key]);
+                        if (found)
+                            return found;
+                    }
+                    else if (obj[key] === text) {
+                        return key;
+                    }
+                }
+                return null;
+            };
+            const matchedKey = searchDeep(buttons);
+            if (matchedKey)
+                return matchedKey;
         }
         return null;
     }
