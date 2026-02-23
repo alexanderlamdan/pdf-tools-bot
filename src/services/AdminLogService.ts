@@ -199,7 +199,7 @@ export class AdminLogService{
             const age = this.formatAge(f.mtimeMs);
             const size = this.formatSize(f.sizeBytes);
             const cleanMark = f.shouldClean ? ' (will be removed)' : '';
-            lines.push(`• <code>${f.label}</code>\n  💾 ${size} | 📅 ${age}${cleanMark}`);
+            lines.push(`• <code>${this.esc(f.label)}</code>\n  💾 ${size} | 📅 ${age}${cleanMark}`);
             
             if(f.shouldClean){
                 
@@ -211,11 +211,11 @@ export class AdminLogService{
         }
         
         let report = `📋 <b>Server logs</b>\n`;
-        report += `📦 Files: <b>${files.length}</b> | Summary: <b>${this.formatSize(totalSize)}</b>\n`;
+        report += `📦 Files: <b>${files.length}</b> | Summary: <b>${this.esc(this.formatSize(totalSize))}</b>\n`;
         
         if(cleanedCount >0 ){
             
-            report += `🗑 Cleaned (>7days и >45MB): <b>${cleanedCount}</b> files (${this.formatSize(cleanedSize)})\n`;
+            report += `🗑 Cleaned (>7days и >45MB): <b>${cleanedCount}</b> files (${this.esc(this.formatSize(cleanedSize))})\n`;
             
         }else{
             
@@ -228,7 +228,14 @@ export class AdminLogService{
         return report;
         
     }
-    
+    private esc(s:string):string{
+        
+        return s
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;');
+        
+    }
     private formatSize(bytes:number):string{
         
         if(bytes < 1024) return `${bytes}B`;

@@ -324,7 +324,8 @@ export class ButtonHandler {
         }
         catch (e) {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
-            await ctx.reply(`❌ <b>Error collecting logs:</b>\n<code>${e.message}</code>`, { parse_mode: 'HTML' });
+            const safeMsg = String(e.message || e).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            await ctx.reply(`❌ <b>Error collecting logs:</b>\n<code>${safeMsg}</code>`, { parse_mode: 'HTML' });
             await this.logger.error('AdminLogs', e);
         }
         finally {
