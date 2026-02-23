@@ -309,23 +309,22 @@ export class ButtonHandler {
         await ctx.reply(msg, { parse_mode: 'HTML' });
     }
     async handleAdminLogs(ctx) {
-        const statusMsg = await ctx.reply('📦 Collecting logs from server...', { parse_mode: 'HTML' });
+        const statusMsg = await ctx.reply('📦 Collecting logs from server...');
         let archivePath = null;
         try {
             const { archivePath: ap, report } = await this.adminLogService.collectAndArchive();
             archivePath = ap;
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
-            await ctx.reply(report, { parse_mode: 'HTML' });
+            await ctx.reply(report);
             const archiveName = `server_logs_${new Date().toISOString().slice(0, 10)}.zip`;
             await ctx.replyWithDocument(new InputFile(archivePath, archiveName), {
-                caption: `🗂 Server logs | ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' })}`,
-                parse_mode: 'HTML'
+                caption: `🗂 Server logs | ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' })}`
             });
         }
         catch (e) {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
             const safeMsg = String(e.message || e).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            await ctx.reply(`❌ Error collecting logs:\n${safeMsg}`, { parse_mode: 'HTML' });
+            await ctx.reply(`❌ Error collecting logs:\n${safeMsg}`);
             await this.logger.error('AdminLogs', e);
         }
         finally {
