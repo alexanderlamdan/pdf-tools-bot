@@ -170,10 +170,10 @@ The bot does not see, know, or receive any of your data except what is necessary
         "❌ <b>We're very sorry, but this file cannot be restored.</b>\n\nWe've tried all available methods, but the document structure is completely destroyed or critical data is missing. It's impossible to save this file. 🙏",
       ask_split_pages: `✂️ <b>Split PDF</b>
 
-Send the page numbers you want to extract. I will send you a convenient ZIP archive with the results.
+Send the page numbers you want to extract as text in line with spaces. I will send you a convenient ZIP archive with the results.
 <i>Examples:</i>
-• <code>5-12</code> (range)
-• <code>1, 3, 5</code> (comma separated)`,
+• <code>5-12 *(if you need to split more pages enter like this:  13-24 25-28 30-45)</code> (range)
+• <code>1, 3, 5, 12</code> (comma separated)`,
       ask_merge_files:
         "📥 <b>Merge Mode</b>\nFirst file added! Send the next PDF files here one by one in the desired order.\nWhen you're finished, press the <b>✅ Merge Files</b> button.",
       merge_not_enough_files:
