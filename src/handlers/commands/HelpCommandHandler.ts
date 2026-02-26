@@ -24,7 +24,13 @@ export class HelpCommandHandler{
         const isAdmin = ctx.from?.id === this.config.adminId;
 		const i18n = this.localization.get(lang);
 		
-        await this.logger.logAction(ctx.from!, 'Command','/help');
+        await this.logger.logAction(
+			'HelpCommandHandler',
+			ctx.from!,
+			'Command',
+			'/help',
+			'Command received'
+		);
         
 		try{
 			

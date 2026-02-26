@@ -47,8 +47,6 @@ export class ButtonHandler{
         const i18n = this.localization.get(lang);
         await this.db.registerUser(ctx.from!.id, ctx.from!.username, ctx.from!.first_name,lang);
         
-        await this.logger.logAction(ctx.from!, 'Button click',`Text: ${text}`);
-        
         const isAdminAction = Object.values(i18n.buttons.admin || {}).includes(text as any);
         
         if(isAdminAction){
@@ -57,14 +55,18 @@ export class ButtonHandler{
             
             if(text === i18n.buttons.admin.adm_btn_stats){
                 
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Admin action', 'Stats requested');
                 await this.handleAdminStats(ctx,lang);
                 
             }else if(text === i18n.buttons.admin.adm_btn_logs){
                 
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Admin action', 'Logs requested');
                 await this.handleAdminLogs(ctx);
                 
             }else if(text === i18n.buttons.admin.adm_btn_reload){
                 
+                
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Admin action', 'Reload (not implemented)');
                 await ctx.reply('Reload button coming soon');
                 
             }
@@ -75,12 +77,15 @@ export class ButtonHandler{
         
         if(text === i18n.buttons.main.btn_status){
             
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Status check', 'User requested status');
             await this.handleStatus(ctx,lang);
             return;
             
         }
         
         if(text === i18n.buttons.common.btn_cancel || text === '/cancel'){
+            
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Cancel', 'Session cleared');
             
             if(ctx.session.filePaths){
                 
@@ -105,6 +110,7 @@ export class ButtonHandler{
         
         if(text === i18n.buttons.main.btn_help){
             
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Help', 'Help message shown');
             await ctx.reply(i18n.messages.help,{parse_mode:'HTML'});
             return;
             
@@ -125,6 +131,8 @@ export class ButtonHandler{
         
         if(text === i18n.buttons.files.btn_unlock){
             
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Unlock (auto-crack)', `File: ${originalName}`);
+
             const statusMsg = await ctx.reply(i18n.messages.actions.cracking,{parse_mode:'HTML'});
             const sizeBytes = fs.statSync(localPath!).size;
             
@@ -135,6 +143,9 @@ export class ButtonHandler{
                 await this.db.logAction(ctx.from!.id,'unlock',stats.size);
                 
                 const safeName = FileNameUtils.getSafeName(originalName,i18n.messages.actions.suffix_unlocked);
+                
+                
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Unlock result', `File: ${originalName}`, 'Success — password found');
                 
                 await ctx.reply(i18n.messages.actions.success_crack.replace('{{password}}',crackResult.password),{
                     parse_mode:'HTML'
@@ -150,6 +161,9 @@ export class ButtonHandler{
                 
             }catch(e){
                 
+                
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Unlock result', `File: ${originalName}`, 'Failed — asking manual password');
+
                 await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
                 
                 await ctx.reply(i18n.messages.actions.fail_manual,{
@@ -214,6 +228,8 @@ export class ButtonHandler{
         
         if(text === i18n.buttons.files.btn_protect){
             
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Protect', `File: ${originalName} — waiting for password`);
+            
             ctx.session.currentAction = 'protect';
             ctx.session.step = 'waiting_for_password';
             
@@ -234,7 +250,7 @@ export class ButtonHandler{
                 return;
                 
             }
-            
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Repair', `File: ${originalName}`);
             const warningText = i18n.messages.actions.repair_warning;
             const statusMsg = await ctx.reply(warningText,{parse_mode:'HTML'});
             const sizeBytes = fs.statSync(localPath!).size;
@@ -254,6 +270,7 @@ export class ButtonHandler{
                 const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName, i18n.messages.actions.suffix_repair);
                 
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Repair result', `File: ${originalName}`, 'Success');
                 const successText = i18n.messages.actions.repair_success;
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName));
@@ -290,6 +307,8 @@ export class ButtonHandler{
                 
             }
             
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Split', `File: ${originalName} — waiting for pages`);
+            
             ctx.session.currentAction = 'split';
             ctx.session.step = 'waiting_for_split_pages';
             
@@ -311,6 +330,7 @@ export class ButtonHandler{
                 
             }
             
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Merge', `File: ${originalName} — waiting for more files`);
             ctx.session.currentAction = 'merge';
             ctx.session.step = 'waiting_for_merge_files';
             
@@ -336,7 +356,7 @@ export class ButtonHandler{
                 return;
                 
             }
-            
+            await this.logger.logAction('ButtonHandler', ctx.from!, 'Merge execute', `Files: ${ctx.session.filePaths.length}`);
             const statusMsg = await ctx.reply(i18n.messages.common.wait,{parse_mode:'HTML'});
             
             try{
@@ -349,6 +369,8 @@ export class ButtonHandler{
                 
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName,'merged');
+                
+                await this.logger.logAction('ButtonHandler', ctx.from!, 'Merge result', `Files merged: ${ctx.session.filePaths.length}`, 'Success');
                 
                 await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
                     reply_markup:this.keyboards.getMainMenu(lang,ctx.from!.id === this.config.adminId)
@@ -374,8 +396,8 @@ export class ButtonHandler{
             
          }
         
-        await ctx.reply(i18n.messages.common.in_development,{parse_mode:'HTML'});
-        await this.logger.logAction(ctx.from!,'Feature request',`Clicked dev feature: ${text}`);
+         await this.logger.logAction('ButtonHandler', ctx.from!, 'Unhandled button', `Text: ${text}`, 'Feature in development');
+         await ctx.reply(i18n.messages.common.in_development,{parse_mode:'HTML'});
         
     }
     

@@ -1,6 +1,6 @@
 import { Postgresql } from '../Postgresql.js';
 import {QueryBuilder} from '../query/QueryBuilder.js';
-import { CaseConverter } from '../../utils/ CaseConverter.js';
+import { CaseConverter } from '../../utils/CaseConverter.js';
 export abstract class  BaseRepository<T>{
     
     protected db = Postgresql.getInstance();

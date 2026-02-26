@@ -43,7 +43,7 @@ export class TextHandler {
         const action = ctx.session.currentAction;
         const step = ctx.session.step;
         if (action === 'protect' && step === 'waiting_for_password') {
-            await this.logger.logAction(ctx.from, 'Input password', '***HIDDEN***');
+            await this.logger.logAction('TextHandler', ctx.from, 'Password input', 'protect — ***HIDDEN***');
             const password = text.trim();
             if (password.length < 1) {
                 await ctx.reply(i18n.errors.password_empty);
@@ -66,6 +66,7 @@ export class TextHandler {
                 const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
                 const safeName = FileNameUtils.getSafeName(originalName, suffix);
                 const safePassword = FileNameUtils.escapeHtml(password);
+                await this.logger.logAction('TextHandler', ctx.from, 'Protect result', `File: ${originalName}`, 'Success');
                 await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                     caption: i18n.messages.actions.success_protect,
                     parse_mode: 'HTML',
@@ -90,6 +91,7 @@ export class TextHandler {
             return;
         }
         else if (action === 'unlock' && step === 'waiting_for_password') {
+            await this.logger.logAction('TextHandler', ctx.from, 'Password input', 'unlock — ***HIDDEN***');
             const password = text.trim();
             const filePath = ctx.session.filePaths[0];
             if (!filePath) {
@@ -103,6 +105,7 @@ export class TextHandler {
                 const stats = await fs.promises.stat(resultPath);
                 this.db.logAction(ctx.from.id, 'unlock', stats.size);
                 const safeName = FileNameUtils.getSafeName(ctx.session.tempParams?.originalName || 'doc.pdf', '');
+                await this.logger.logAction('TextHandler', ctx.from, 'Unlock result', `File: ${ctx.session.tempParams?.originalName || 'doc.pdf'}`, 'Success — password accepted');
                 await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                     caption: i18n.messages.actions.success_crack.replace('{{password}}', password),
                     parse_mode: 'HTML',
@@ -114,8 +117,8 @@ export class TextHandler {
                 return;
             }
             catch (e) {
+                await this.logger.logAction('TextHandler', ctx.from, 'Unlock result', `File: ${ctx.session.tempParams?.originalName || 'doc.pdf'}`, 'Failed — wrong password');
                 await ctx.reply(i18n.messages.actions.fail_crack);
-                await this.logger.logAction(ctx.from, 'Unlock Failed', 'Wrong password');
             }
             finally {
                 await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
@@ -130,6 +133,7 @@ export class TextHandler {
                 ctx.session = initialSession();
                 return;
             }
+            await this.logger.logAction('TextHandler', ctx.from, 'Split pages input', `Pages: ${pages} | File: ${ctx.session.tempParams?.originalName || 'doc.pdf'}`);
             const statusMsg = await ctx.reply(i18n.messages.common.wait, { parse_mode: 'HTML' });
             try {
                 const sizeBytes = fs.statSync(filePath).size;
@@ -157,6 +161,7 @@ export class TextHandler {
                     await this.fileService.deleteFile(result.zipPath);
                 }
                 await this.db.logAction(ctx.from.id, 'split', totalLogSize);
+                await this.logger.logAction('TextHandler', ctx.from, 'Split result', `Pages: ${pages} | File: ${originalName}`, `Success — ${result.zipPath ? 'PDF + ZIP' : 'PDF only'}`);
                 await this.fileService.deleteFile(filePath);
                 await this.fileService.deleteFile(result.path);
                 ctx.session = initialSession();
@@ -173,7 +178,7 @@ export class TextHandler {
             }
             return;
         }
-        await this.logger.logAction(ctx.from, 'Spam text', text);
+        await this.logger.logAction('TextHandler', ctx.from, 'Rejected text', text.length > 50 ? text.substring(0, 50) + '...' : text);
         await ctx.reply(i18n.errors.text_rejected, {
             parse_mode: 'HTML',
             reply_markup: this.keyboards.getMainMenu(lang, isAdmin)

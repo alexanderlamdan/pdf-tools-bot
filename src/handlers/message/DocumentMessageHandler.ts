@@ -168,9 +168,10 @@ export class DocumentMessageHandler{
     private async handleInvalidFormat(ctx:BotContext,doc:Document,lang:string,isAdmin:boolean){
       const i18n = this.localization.get(lang);
       await this.logger.logAction(
+        'DocumentMessageHandler',
         ctx.from!,
         'Trash upload',
-        `Rejected: ${doc.file_name}(${doc.mime_type})`
+        `Rejected: ${doc.file_name} (${doc.mime_type})`
       );
       
       try{await ctx.deleteMessage();}catch{}
@@ -189,6 +190,7 @@ export class DocumentMessageHandler{
       
       const sizeFormatted = this.formatSize(doc.file_size ||0);
       await this.logger.logAction(
+        'DocumentMessageHandler',
         ctx.from!,
         'File upload',
         `📄 ${doc.file_name} | ${sizeFormatted}`

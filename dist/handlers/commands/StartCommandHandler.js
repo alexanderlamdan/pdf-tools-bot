@@ -23,7 +23,7 @@ export class StartCommandHandler {
         if (ctx.from) {
             await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         }
-        await this.logger.logAction(ctx.from, 'Command', '/start');
+        await this.logger.logAction('StartCommandHandler', ctx.from, 'Command', '/start', 'Command received');
         try {
             if (isFallback) {
                 await ctx.reply(i18n.errors.language_not_supported);

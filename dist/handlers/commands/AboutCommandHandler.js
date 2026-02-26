@@ -17,7 +17,7 @@ export class AboutCommandHandler {
         const { lang } = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
         const i18n = this.localization.get(lang);
-        await this.logger.logAction(ctx.from, 'Command', '/about');
+        await this.logger.logAction('AboutCommandHandler', ctx.from, 'Command', '/about', 'Command received');
         try {
             await ctx.reply(i18n.messages.about, {
                 parse_mode: 'HTML',

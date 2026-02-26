@@ -41,7 +41,13 @@ export class StartCommandHandler{
 			
 		}
 		
-		await this.logger.logAction(ctx.from!, 'Command','/start');
+		await this.logger.logAction(
+			'StartCommandHandler',
+			ctx.from!,
+			'Command',
+			'/start',
+			'Command received'
+		);
 		
 		try{
 			

@@ -24,7 +24,13 @@ export class AboutCommandHandler{
         const isAdmin = ctx.from?.id === this.config.adminId;
 		const i18n = this.localization.get(lang);
 		
-        await this.logger.logAction(ctx.from!, 'Command','/about');
+		await this.logger.logAction(
+			'AboutCommandHandler',
+			ctx.from!,
+			'Command',
+			'/about',
+			'Command received'
+		);
         
 		try{
 			

@@ -109,7 +109,7 @@ export class DocumentMessageHandler {
     }
     async handleInvalidFormat(ctx, doc, lang, isAdmin) {
         const i18n = this.localization.get(lang);
-        await this.logger.logAction(ctx.from, 'Trash upload', `Rejected: ${doc.file_name}(${doc.mime_type})`);
+        await this.logger.logAction('DocumentMessageHandler', ctx.from, 'Trash upload', `Rejected: ${doc.file_name} (${doc.mime_type})`);
         try {
             await ctx.deleteMessage();
         }
@@ -123,7 +123,7 @@ export class DocumentMessageHandler {
         await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
         await this.db.logAction(ctx.from.id, 'upload', doc.file_size || 0);
         const sizeFormatted = this.formatSize(doc.file_size || 0);
-        await this.logger.logAction(ctx.from, 'File upload', `📄 ${doc.file_name} | ${sizeFormatted}`);
+        await this.logger.logAction('DocumentMessageHandler', ctx.from, 'File upload', `📄 ${doc.file_name} | ${sizeFormatted}`);
     }
     async handleCorruptFile(ctx, lang) {
         const i18n = this.localization.get(lang);

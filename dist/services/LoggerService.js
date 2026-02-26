@@ -74,12 +74,19 @@ export class LoggerService {
             console.error('[Logger] Failed to write to file: ', e);
         }
     }
-    async logAction(user, action, details = '') {
-        const userLink = `<a href="tg://user?id=${user.id}">${user.first_name}</a>`;
-        const telegramText = `👤 <b>User:</b> ${userLink} (<code>${user.id}</code>)\n` +
-            `⚡️ <b>Action:</b> ${action}\n` +
-            (details ? `📝 <b>Details:</b> ${details}` : '');
-        const fileLog = `ACTION | User: ${user.id} (${user.username || ''}) | Action: ${action} | ${details}`;
+    async logAction(source, user, action, details = '', result) {
+        const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ');
+        const usernameStr = user.username ? `@${user.username}` : `@no-username`;
+        const header = `<b>${this.escHtml(source)} INFO</b>`;
+        const botLine = `🤖 <b>Bot:</b> ${this.escHtml(this.config.botName)}`;
+        const userLine = `👤 <b>User:</b> ${this.escHtml(fullName)} (${this.escHtml(usernameStr)}, ID: <code>${user.id}</code>)`;
+        const actionLine = `⚡️ <b>Action:</b> ${this.escHtml(action)}`;
+        const detailLine = details ? `📝 <b>Details:</b> ${this.escHtml(details)}` : '';
+        const resultLine = result ? `\n❗️ <b>Message from the logger:</b>\n<code>${this.escHtml(result)}</code>` : '';
+        const telegramText = [header, botLine, userLine, actionLine, detailLine]
+            .filter(Boolean)
+            .join('\n') + resultLine;
+        const fileLog = `ACTION | Source: ${source} | User: ${user.id} (${user.username || ''}) | Action: ${action} | ${details}`;
         this.logToFile('actions.log', fileLog);
         await this.sendToTelegram(telegramText);
     }
@@ -121,5 +128,13 @@ export class LoggerService {
             console.error('Logger fail: ', e);
             this.logToFile('system/logger-errors.log', `ERROR sending to telegram: ${e}`);
         }
+    }
+    escHtml(s) {
+        if (!s)
+            return '';
+        return s
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     }
 }

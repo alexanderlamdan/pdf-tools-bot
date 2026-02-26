@@ -462,7 +462,7 @@ func (s *PdfService) Split(req domain.Request) domain.Response {
 
 		}
 
-		zipOutputPath := getOutputPath(req.InputPath, "_splitted.pdf")
+		zipOutputPath := getOutputPath(req.InputPath, "_splitted.zip")
 		if err := zipDir(tempDir, zipOutputPath); err != nil {
 
 			s.log.Error("Zip creation failed: %v", err)
@@ -650,60 +650,67 @@ func parsePages(input string) ([]int, error) {
 
 }
 
-func zipDir(sourceDir, zipPath string) error {
+func addFileToZip(archive *zip.Writer, filePath string) error {
 
-	zipFile, err := os.Create(zipPath)
+	file, err := os.Open(filePath)
 	if err != nil {
 
 		return err
 
 	}
 
-	defer zipFile.Close()
+	defer file.Close()
 
+	w, err := archive.Create(filepath.Base(filePath))
+	if err != nil {
+
+		return err
+
+	}
+
+	_, err = io.Copy(w, file)
+	return err
+
+}
+
+func zipDir(sourceDir, zipPath string)error{
+	
+	zipFile,err := os.Create(zipPath)
+	if err != nil{
+		
+		return err
+		
+	}
+	
+	defer zipFile.Close()
+	
 	archive := zip.NewWriter(zipFile)
 	defer archive.Close()
-
-	entries, err := os.ReadDir(sourceDir)
-	if err != nil {
-
+	
+	entries.err := os.ReadDir(sourceDir)
+	if err != nil{
+		
 		return err
-
+		
 	}
-
-	for _, entry := range entries {
-
-		if entry.IsDir() {
-
+	
+	for _, entry := range entries{
+		
+		if entry.IsDir(){
+			
 			continue
-
+			
 		}
-
-		filePath := filepath.Join(sourceDir, entry.Name())
-		file, err := os.Open(filePath)
-		if err != nil {
-
+		
+		filePath := filepath.Join(sourceDir,entry.Name())
+		if err := addFileToZip(archive, filePath);err != nil{
+			
 			return err
-
+			
 		}
-
-		defer file.Close()
-
-		w, err := archive.Create(entry.Name())
-		if err != nil {
-
-			return err
-
-		}
-
-		if _, err := io.Copy(w, file); err != nil {
-
-			return err
-
-		}
-
+		
 	}
-
+	
 	return nil
-
+	
 }

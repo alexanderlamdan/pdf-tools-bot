@@ -1,6 +1,6 @@
 import { Postgresql } from '../Postgresql.js';
 import { QueryBuilder } from '../query/QueryBuilder.js';
-import { CaseConverter } from '../../utils/ CaseConverter.js';
+import { CaseConverter } from '../../utils/CaseConverter.js';
 export class BaseRepository {
     tableName;
     db = Postgresql.getInstance();

@@ -1,4 +1,4 @@
-import { CaseConverter } from '../../utils/ CaseConverter.js';
+import { CaseConverter } from '../../utils/CaseConverter.js';
 export class QueryBuilder{
     
     static buildWhere(criteria:Record<string,any>,startParamIndex = 1){

@@ -55,15 +55,32 @@ export class HandlerRegistry {
     this.bot.on("message:text",async (ctx,next)=>{
       
       const text = ctx.message?.text;
-      if(text && (text.startsWith('/publish_') || text.startsWith('/add_vip'))){
+      if(!text)return;
+      
+      if(text.startsWith('/publish_') || text.startsWith('/add_vip')){
         
         await adminHandler.handle(ctx);
         return;
         
       }
-      await next();
       
-      await buttonHandler.handle(ctx);
+      const awaitingInput = ctx.session.step === 'waiting_for_password' || ctx.session.step === 'waiting_for_split_pages';
+      
+      if(awaitingInput){
+        
+        await textHandler.handle(ctx);
+        return;
+        
+      }
+      
+      const isKnownButton = !!this.localization.getActionKeyByText(text);
+      
+      if(isKnownButton){
+        
+        await buttonHandler.handle(ctx);
+        return;
+        
+      }
       
       await textHandler.handle(ctx);
       
@@ -80,7 +97,12 @@ export class HandlerRegistry {
       const {lang} = this.localization.getUserLanguage(ctx.from?.language_code);
       const isAdmin = ctx.from?.id === this.config.adminId;
       const i18n = this.localization.get(lang);
-      await this.logger.logAction(ctx.from!, 'Trash media',`Type: ${Object.keys(ctx.message || {}).join(',')}`);
+      await this.logger.logAction(
+        'HandlerRegistry',
+        ctx.from!,
+        'Unsupported media',
+        `Type: ${Object.keys(ctx.message || {}).filter(k => !['message_id','from','chat','date'].includes(k)).join(', ')}`
+      );
       
       try { await ctx.deleteMessage(); } catch {}
       await ctx.reply(i18n.errors.not_pdf, {
