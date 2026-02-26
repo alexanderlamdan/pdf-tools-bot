@@ -687,7 +687,7 @@ func zipDir(sourceDir, zipPath string)error{
 	archive := zip.NewWriter(zipFile)
 	defer archive.Close()
 	
-	entries.err := os.ReadDir(sourceDir)
+	entries, err := os.ReadDir(sourceDir)
 	if err != nil{
 		
 		return err
