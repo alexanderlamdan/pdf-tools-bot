@@ -127,6 +127,7 @@ export default {
         enterprise_role:           'עסקי',
         sovereign_protocol_role:   'פרוטוקול ריבוני',
         vip_role:                  'אדם חשוב',
+        free_admin_role: 'מנהל חינמי',
       },
       empty: 'אין פעילות',
       error: 'שגיאה בטעינת הפרופיל',

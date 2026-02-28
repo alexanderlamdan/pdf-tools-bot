@@ -8,8 +8,8 @@ export const SUBSCRIPTION_LIMITS = {
 };
 const WARNING_THRESHOLD = 0.80;
 const WARNING_THRESHOLD2 = 0.85;
-export function getTrafficState(user) {
-    if (user.isVip === 1) {
+export function getTrafficState(user, adminId) {
+    if (user.isVip === 1 || (adminId && user.id === adminId)) {
         return {
             status: 'normal',
             usedBytes: user.totalTrafficBytes,
@@ -40,12 +40,12 @@ export function getTrafficState(user) {
     }
     return { status, usedBytes, limitBytes, remainBytes, usedPercent, remainMB };
 }
-export function getTrafficStateAfterFile(user, fileSizeBytes) {
+export function getTrafficStateAfterFile(user, fileSizeBytes, adminId) {
     const fake = {
         ...user,
         totalTrafficBytes: Number(user.totalTrafficBytes || 0) + fileSizeBytes
     };
-    return getTrafficState(fake);
+    return getTrafficState(fake, adminId);
 }
 export function getPaymentLink(langCode, plan) {
     const domain = langCode === 'ru' ? 'ru.lmdnbot.com' : langCode === 'he' ? 'he.lmdnbot.com' : 'lmdnbot.com';

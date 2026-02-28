@@ -55,7 +55,7 @@ export class DocumentMessageHandler {
         }
         const user = await this.db.getUser(ctx.from.id);
         if (user && user.isVip !== 1) {
-            const currentState = getTrafficState(user);
+            const currentState = getTrafficState(user, this.config.adminId);
             const fileSizeBytes = document.file_size || 0;
             if (currentState.status === 'blocked') {
                 await this.logger.logAction('DocumentMessageHandler', ctx.from, 'Upload blocked — traffic exhausted', `Used: ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB / limit`);
@@ -67,7 +67,7 @@ export class DocumentMessageHandler {
                 ctx.session.step = 'idle';
                 return;
             }
-            const stateAfter = getTrafficStateAfterFile(user, fileSizeBytes);
+            const stateAfter = getTrafficStateAfterFile(user, fileSizeBytes, this.config.adminId);
             if (stateAfter.status === 'blocked') {
                 ctx.session.tempParams = {
                     ...(ctx.session.tempParams || {}),

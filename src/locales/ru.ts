@@ -129,6 +129,7 @@ export default {
         enterprise_role: "Коммерческая роль",
         sovereign_protocol_role: "Роль защищенного протокола",
         vip_role: "Особо важное лицо",
+        free_admin_role: 'Бесплатный Администратор',
       },
       empty: "Нет активности",
       error: "Ошибка загрузки профиля",

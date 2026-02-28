@@ -82,9 +82,20 @@ export class HandlerRegistry {
         
       }
       
+      const isSubscriptionButton = !!this.localization.getSubscriptionPlanByButton(text) || text === this.localization.get(this.localization.getUserLanguage(ctx.from?.language_code).lang).buttons.common.btn_cancel;
+      
+      if(isSubscriptionButton){
+        
+        await buttonHandler.handle(ctx);
+        return;
+        
+      }
+      
       await textHandler.handle(ctx);
       
     });
+    
+    
     
     this.bot.on("message:document", async (ctx) => {
       if (docHandler.isSupportedDocument(ctx)) {

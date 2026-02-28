@@ -130,6 +130,7 @@ The bot does not see, know, or receive any of your data except what is necessary
         enterprise_role: "Enterprise",
         sovereign_protocol_role: "Sovereign Protocol",
         vip_role: "VIP",
+        free_admin_role: 'Free Admin',
       },
       empty: "No activity yet",
       error: "Error loading profile",

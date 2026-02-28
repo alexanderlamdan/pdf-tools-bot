@@ -83,7 +83,7 @@ export class DocumentMessageHandler{
       
       if(user && user.isVip !== 1){
         
-        const currentState = getTrafficState(user);
+        const currentState = getTrafficState(user,this.config.adminId);
         const fileSizeBytes = document.file_size || 0;
         
         if(currentState.status === 'blocked'){
@@ -108,7 +108,8 @@ export class DocumentMessageHandler{
           
         }
         
-        const stateAfter = getTrafficStateAfterFile(user,fileSizeBytes);
+        const stateAfter = getTrafficStateAfterFile(user,fileSizeBytes,this.config.adminId);
+        
         if(stateAfter.status === 'blocked'){
           
           ctx.session.tempParams = {

@@ -27,9 +27,9 @@ export interface TrafficState{
     
 }
 
-export function getTrafficState(user:IUser):TrafficState{
+export function getTrafficState(user:IUser,adminId?:number):TrafficState{
     
-     if(user.isVip === 1){
+     if(user.isVip === 1 || (adminId && user.id === adminId)){
         
         return {
             
@@ -76,7 +76,7 @@ export function getTrafficState(user:IUser):TrafficState{
     
 }
 
-export function getTrafficStateAfterFile(user:IUser,fileSizeBytes:number):TrafficState{
+export function getTrafficStateAfterFile(user:IUser,fileSizeBytes:number,adminId?:number):TrafficState{
     
     const fake:IUser = {
         
@@ -85,7 +85,7 @@ export function getTrafficStateAfterFile(user:IUser,fileSizeBytes:number):Traffi
         
     };
     
-    return getTrafficState(fake);
+    return getTrafficState(fake,adminId);
     
 }
 
