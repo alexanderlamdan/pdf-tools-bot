@@ -139,4 +139,25 @@ export class DatabaseService{
         
     }
     
+    public async activateSubscription(userId:number,plan:string,period:'monthly'|'yearly' = 'monthly'):Promise<void>{
+        
+        const now = Date.now();
+        
+        const expiresAt = period === 'yearly' ? now + 365 * 24 * 60 * 60 * 1000 : now + 30 * 24 * 60 * 60 * 1000;
+        
+        await this.userRepo.update({id:userId} as any,{
+            
+            subType:plan,
+            subPeriod:period,
+            subExpiresAt:expiresAt,
+            totalTrafficBytes:0,
+            lastActiveAt:now
+            
+        });
+        
+        await this.logRepo.log(userId,`subscription_activated:${plan}:${period}`,0);
+        console.log(`[DatabaseService] Subscription activated:userId=${userId} plan=${plan} period=${period} expiresAt=${new Date(expiresAt).toISOString()}`);
+        
+    }
+    
 }

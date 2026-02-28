@@ -8,7 +8,9 @@ export interface SessionData{
     
     tempParams:{
         password?:string,
-        originalName?:string
+        originalName?:string,
+        willExceedLimit?:string,
+        trafficWarning?:string
     };
     
     lastRequestTime:number;

@@ -12,6 +12,9 @@ import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
 import type{ Document } from 'grammy/types';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
+import { getTrafficState, getTrafficStateAfterFile } from '../../utils/SubscriptionUtils.js';
+
+
 export class DocumentMessageHandler{
   
     private readonly fileService: FileService;
@@ -46,6 +49,7 @@ export class DocumentMessageHandler{
      
       const isAdmin = ctx.from?.id === this.config.adminId;
       
+      
       if(ctx.session.step === 'waiting_for_merge_files'){
         
         if(!this.isSupportedDocument(ctx)){
@@ -74,6 +78,67 @@ export class DocumentMessageHandler{
         })();
         return;
       }
+      
+      const user = await this.db.getUser(ctx.from!.id);
+      
+      if(user && user.isVip !== 1){
+        
+        const currentState = getTrafficState(user);
+        const fileSizeBytes = document.file_size || 0;
+        
+        if(currentState.status === 'blocked'){
+          
+          await this.logger.logAction(
+            'DocumentMessageHandler',
+            ctx.from!,
+            'Upload blocked — traffic exhausted',
+            `Used: ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB / limit`
+          );
+          
+          await ctx.reply(i18n.messages.subscription.limit_exceeded,{
+            
+            parse_mode:'HTML',
+            reply_markup:this.keyboards.getSubscriptionMenu(lang)
+            
+          });
+          
+          ctx.session.currentAction = 'idle';
+          ctx.session.step = 'idle';
+          return;
+          
+        }
+        
+        const stateAfter = getTrafficStateAfterFile(user,fileSizeBytes);
+        if(stateAfter.status === 'blocked'){
+          
+          ctx.session.tempParams = {
+            
+            ...(ctx.session.tempParams || {}),
+            willExceedLimit:'true'
+            
+          } as any;
+          
+          await this.logger.logAction(
+            'DocumentMessageHandler',
+            ctx.from!,
+            'Last free file',
+            `File: ${document.file_name} | After upload traffic will be exhausted`
+          );
+          
+        }else if(currentState.status === 'warning' || currentState.status === 'warning_strong'){
+          
+          ctx.session.tempParams = {
+            
+            ...(ctx.session.tempParams || {}),
+            trafficWarning: currentState.remainMB
+            
+          } as any;
+          
+        }
+        
+      }
+      
+      await ctx.reply(i18n.messages.queue.file_upload);
       
       if(ctx.session.filePaths && ctx.session.filePaths.length > 0){
         
