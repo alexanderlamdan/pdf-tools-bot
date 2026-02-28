@@ -9,6 +9,7 @@ import { LoggerService } from '../../services/LoggerService.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
 import fs from 'fs';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
+import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
 export class TextHandler {
     config;
     localApi;
@@ -74,6 +75,7 @@ export class TextHandler {
                 });
                 await this.fileService.deleteFile(filePath);
                 await this.fileService.deleteFile(resultPath);
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
                 ctx.session = initialSession();
                 return;
             }
@@ -113,6 +115,7 @@ export class TextHandler {
                 });
                 await this.fileService.deleteFile(resultPath);
                 await this.fileService.deleteFile(filePath);
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
                 ctx.session = initialSession();
                 return;
             }
@@ -164,6 +167,7 @@ export class TextHandler {
                 await this.logger.logAction('TextHandler', ctx.from, 'Split result', `Pages: ${pages} | File: ${originalName}`, `Success — ${result.zipPath ? 'PDF + ZIP' : 'PDF only'}`);
                 await this.fileService.deleteFile(filePath);
                 await this.fileService.deleteFile(result.path);
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
                 ctx.session = initialSession();
             }
             catch (e) {

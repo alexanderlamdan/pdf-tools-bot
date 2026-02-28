@@ -28,4 +28,13 @@ export class Keyboards {
         const buttons = this.localization.getEncryptedMenuButtons(lang);
         return this.buildFromList(buttons, 1);
     }
+    getSubscriptionMenu(lang) {
+        const i18n = this.localization.get(lang);
+        const buttons = this.localization.getSubscriptionButtons(lang);
+        const kb = new Keyboard();
+        for (const btn of buttons) {
+            kb.text(btn).row();
+        }
+        return kb.resized();
+    }
 }

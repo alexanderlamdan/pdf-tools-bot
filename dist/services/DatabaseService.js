@@ -87,4 +87,17 @@ export class DatabaseService {
     async setVip(userId) {
         await this.userRepo.setVipStatus(userId, true);
     }
+    async activateSubscription(userId, plan, period = 'monthly') {
+        const now = Date.now();
+        const expiresAt = period === 'yearly' ? now + 365 * 24 * 60 * 60 * 1000 : now + 30 * 24 * 60 * 60 * 1000;
+        await this.userRepo.update({ id: userId }, {
+            subType: plan,
+            subPeriod: period,
+            subExpiresAt: expiresAt,
+            totalTrafficBytes: 0,
+            lastActiveAt: now
+        });
+        await this.logRepo.log(userId, `subscription_activated:${plan}:${period}`, 0);
+        console.log(`[DatabaseService] Subscription activated:userId=${userId} plan=${plan} period=${period} expiresAt=${new Date(expiresAt).toISOString()}`);
+    }
 }

@@ -11,6 +11,8 @@ import fs from 'fs';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
 import { AdminLogService } from '../../services/AdminLogService.js';
 import { locales } from '../../locales/index.js';
+import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
+import { getPaymentLink } from '../../utils/SubscriptionUtils.js';
 export class ButtonHandler {
     config;
     localApi;
@@ -41,6 +43,25 @@ export class ButtonHandler {
         const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
         const i18n = this.localization.get(lang);
         await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
+        const subscriptionPlan = this.localization.getSubscriptionPlanByButton(text);
+        if (subscriptionPlan) {
+            await this.handleSubscriptionInfo(ctx, lang, subscriptionPlan);
+            return;
+        }
+        if (text === i18n.buttons.common.btn_cancel || text === '/cancel') {
+            await this.logger.logAction('ButtonHandler', ctx.from, 'Cancel', 'Session cleared');
+            if (ctx.session.filePaths) {
+                for (const path of ctx.session.filePaths) {
+                    await this.fileService.deleteFile(path);
+                }
+            }
+            ctx.session = initialSession();
+            await ctx.reply("❌", { reply_markup: { remove_keyboard: true } });
+            await ctx.reply(i18n.messages.start, {
+                reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
+            });
+            return;
+        }
         const isAdminAction = Object.values(i18n.buttons.admin || {}).includes(text);
         if (isAdminAction) {
             if (ctx.from.id !== this.config.adminId)
@@ -62,20 +83,6 @@ export class ButtonHandler {
         if (text === i18n.buttons.main.btn_status) {
             await this.logger.logAction('ButtonHandler', ctx.from, 'Status check', 'User requested status');
             await this.handleStatus(ctx, lang);
-            return;
-        }
-        if (text === i18n.buttons.common.btn_cancel || text === '/cancel') {
-            await this.logger.logAction('ButtonHandler', ctx.from, 'Cancel', 'Session cleared');
-            if (ctx.session.filePaths) {
-                for (const path of ctx.session.filePaths) {
-                    await this.fileService.deleteFile(path);
-                }
-            }
-            ctx.session = initialSession();
-            await ctx.reply("❌", { reply_markup: { remove_keyboard: true } });
-            await ctx.reply(i18n.messages.start, {
-                reply_markup: this.keyboards.getMainMenu(lang, ctx.from.id === this.config.adminId)
-            });
             return;
         }
         if (text === i18n.buttons.main.btn_help) {
@@ -109,6 +116,7 @@ export class ButtonHandler {
                 });
                 await this.fileService.deleteFile(crackResult.path);
                 await this.fileService.deleteFile(localPath);
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
                 ctx.session = initialSession();
             }
             catch (e) {
@@ -159,6 +167,7 @@ export class ButtonHandler {
                     parse_mode: 'HTML',
                     reply_markup: this.keyboards.getFileActionsMenu(lang)
                 });
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
             }
             catch (e) {
                 await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
@@ -223,6 +232,7 @@ export class ButtonHandler {
                 for (const p of ctx.session.filePaths)
                     await this.fileService.deleteFile(p);
                 await this.fileService.deleteFile(resultPath);
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
                 ctx.session = initialSession();
             }
             catch (e) {
@@ -237,6 +247,24 @@ export class ButtonHandler {
         }
         await this.logger.logAction('ButtonHandler', ctx.from, 'Unhandled button', `Text: ${text}`, 'Feature in development');
         await ctx.reply(i18n.messages.common.in_development, { parse_mode: 'HTML' });
+    }
+    async handleSubscriptionInfo(ctx, lang, plan) {
+        const i18n = this.localization.get(lang);
+        const paymentLink = getPaymentLink(lang, plan);
+        const planText = i18n.messages.subscription.plans[plan];
+        const buyText = i18n.buttons.subscription.buy.replace('{{name}}', this.capitalize(plan));
+        await this.logger.logAction('ButtonHandler', ctx.from, 'Subscription info viewed', `Plan: ${plan} | Lang: ${lang}`);
+        await ctx.reply(planText, {
+            parse_mode: 'HTML',
+            reply_markup: {
+                inline_keyboard: [[
+                        {
+                            text: `💳 ${buyText}`,
+                            url: paymentLink
+                        }
+                    ]]
+            }
+        });
     }
     async handleStatus(ctx, lang) {
         const userId = ctx.from.id;

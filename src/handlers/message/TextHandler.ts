@@ -12,6 +12,7 @@ import { LoggerService } from '../../services/LoggerService.js';
 import { DatabaseService} from '../../services/DatabaseService.js';
 import fs from 'fs';
 import { SmartQueueService } from '../../services/SmartQueueService.js';
+import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
 export class TextHandler{
     
     private readonly workerService:PdfWorkerService;
@@ -111,8 +112,12 @@ export class TextHandler{
                 
                 await this.fileService.deleteFile(filePath);
                 await this.fileService.deleteFile(resultPath);
+                
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                
                 ctx.session = initialSession();
                 return;
+                
             }catch(e:any){
                 
                 const safeError = e as Error;
@@ -181,6 +186,9 @@ export class TextHandler{
                 
                 await this.fileService.deleteFile(resultPath);
                 await this.fileService.deleteFile(filePath);
+                
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                
                 ctx.session = initialSession();
                 return;
             }catch(e:any){
@@ -280,6 +288,9 @@ export class TextHandler{
                 
                 await this.fileService.deleteFile(filePath);
                 await this.fileService.deleteFile(result.path);
+                
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                
                 ctx.session = initialSession();
                 
             }catch(e:any){

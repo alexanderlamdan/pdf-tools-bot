@@ -258,6 +258,7 @@ To receive this file and continue, please choose a plan:`,
 
 <i>For those who demand the absolute maximum.</i>`,
             },
+            traffic_warning: `⚠️ <b>Heads up!</b> You have <b>{{remain}}</b> of free traffic left.\nConsider upgrading to keep working without interruptions.`
         },
     },
     errors: {

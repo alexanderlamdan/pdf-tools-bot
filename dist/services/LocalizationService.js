@@ -79,4 +79,27 @@ export class LocalizationService {
         const cancel = i18n.buttons.common.btn_cancel;
         return [unlock, cancel];
     }
+    getSubscriptionButtons(lang) {
+        const i18n = this.get(lang);
+        const sub = i18n.buttons.subscription;
+        return [
+            sub.buy.replace('{{name}}', 'Pro'),
+            sub.buy.replace('{{name}}', 'Premium'),
+            sub.buy.replace('{{name}}', 'Enterprise'),
+            i18n.buttons.common.btn_cancel
+        ];
+    }
+    getSubscriptionPlanByButton(text) {
+        for (const lang of Object.keys(locales)) {
+            const i18n = this.get(lang);
+            const sub = i18n.buttons.subscription;
+            if (text === sub.buy.replace('{{name}}', 'Pro'))
+                return 'pro';
+            if (text === sub.buy.replace('{{name}}', 'Premium'))
+                return 'premium';
+            if (text === sub.buy.replace('{{name}}', 'Enterprise'))
+                return 'enterprise';
+        }
+        return null;
+    }
 }
