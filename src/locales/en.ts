@@ -159,22 +159,20 @@ The bot does not see, know, or receive any of your data except what is necessary
       suffix_repair: "_REPAIRED",
       suffix_unlocked: "_UNLOCKED",
       repair_warning: `⚠️ <b>Attention! Starting repair...</b>
+      🛠 We will try to rebuild the file structure from scratch. During this process, <b>text may shift, fonts might change, or the layout could look a bit messy</b>.
 
-🛠 We will try to rebuild the file structure from scratch. During this process, <b>text may shift, fonts might change, or the layout could look a bit messy</b>.
+      🛑 <i>Note:</i> There is a chance that strict programs (like Adobe Acrobat) still won't be able to read this file because the original background data is missing, but most browsers and simple readers will open it.
 
-🛑 <i>Note:</i> There is a chance that strict programs (like Adobe Acrobat) still won't be able to read this file because the original background data is missing, but most browsers and simple readers will open it.
-
-⏳ <i>Please wait...</i>`,
+      ⏳ <i>Please wait...</i>`,
       repair_success:
         "✅ <b>File successfully saved and restored!</b>\n\nIt is now stored in the bot's memory. Choose what you would like to do with it next:",
       repair_fail:
         "❌ <b>We're very sorry, but this file cannot be restored.</b>\n\nWe've tried all available methods, but the document structure is completely destroyed or critical data is missing. It's impossible to save this file. 🙏",
       ask_split_pages: `✂️ <b>Split PDF</b>
-
-Send the page numbers you want to extract as text in line with spaces. I will send you a convenient ZIP archive with the results.
-<i>Examples:</i>
-• <code>5-12 *(if you need to split more pages enter like this:  13-24 25-28 30-45)</code> (range)
-• <code>1, 3, 5, 12</code> (comma separated)`,
+        Send the page numbers you want to extract as text in line with spaces. I will send you a convenient ZIP archive with the results.
+        <i>Examples:</i>
+        • <code>5-12 *(if you need to split more pages enter like this:  13-24 25-28 30-45)</code> (range)
+        • <code>1, 3, 5, 12</code> (comma separated)`,
       ask_merge_files:
         "📥 <b>Merge Mode</b>\nFirst file added! Send the next PDF files here one by one in the desired order.\nWhen you're finished, press the <b>✅ Merge Files</b> button.",
       merge_not_enough_files:
@@ -185,6 +183,13 @@ Send the page numbers you want to extract as text in line with spaces. I will se
         "✂️ <b>Extracted Pages (Single File):</b>\n⚠️ <i>Note: In very complex PDFs, display errors may occur in the merged file. Use the archive below to guarantee 100% integrity.</i>\n\nPages: ",
       split_caption_success_zip:
         "📦 <b>Page-by-page Archive (100% Reliable):</b>\nPages: ",
+        ask_merge_mode:      '🔗 <b>How do you want to merge?</b>\n\nChoose a method:',
+        ask_merge_archive:   '📦 <b>Archive mode</b>\nSend one archive (.zip, .rar, .7z, .tar.gz, .tar.xz) with PDF files inside.\nI will unpack and merge them sorted by filename.',
+        ask_merge_bulk:      '🗂 <b>Bulk mode</b>\nSend all PDF files — one by one or as a group.\nWhen done, type <b>yes</b> to confirm.',
+        merge_bulk_received: '✅ Received <b>{{count}}</b> files so far.\n\nAre you done? Reply <b>yes</b> to proceed, or keep sending files.',
+        merge_fallback:      `❌ <b>We tried everything.</b>\n\nWe ran the merge through all available tools — qpdf, ghostscript, pdftk and pdfunite (the engine behind Adobe's own PDF tools). It is not possible to merge these files into a single PDF.\n\n📦 <b>Here's what we can do:</b> we split the result into parts of 10 pages each and packed them into a ZIP archive. Each part is also sent as a separate file.`,
+        merged_from_archive:`✅ Merged files from archive: `,
+        merge_zip_success:'📦 All parts in one archive'
     },
 
     common: {
@@ -310,5 +315,8 @@ To receive this file and continue, please choose a plan:`,
     password_empty: "Password cannot be empty.",
     password_weak: "Minimum 8 chars required.",
     language_not_supported: "Your language is not supported for now",
+    pdf_archive:`❌ No PDF files found inside the archive.`,
+    single_pdf_archive:`⚠️ Only 1 PDF found in archive. Need at least 2 to merge.`,
+    error_proccesing_archive:`❌ Error processing archive:`
   },
 } as const;

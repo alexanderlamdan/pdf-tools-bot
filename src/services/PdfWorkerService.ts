@@ -4,6 +4,13 @@ import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
 import { SmartQueueService } from './SmartQueueService.js';
 import type { BotContext } from '../types/BotContext.js';
 
+export interface MergeResult{
+    path?:      string;
+    paths?:     string[];
+    zipPath?:   string;
+    isFallback: boolean;
+}
+
 export interface IPdfInfo {
     pages: number;
     version: string;
@@ -29,6 +36,8 @@ interface WorkerResponse{
     error?:string;
     path?:string;
     zipPath?:string;
+    isFallback:boolean;
+    paths?:string[];
     
 }
 
@@ -209,22 +218,20 @@ export class PdfWorkerService{
         
     }
     
-    public async merge(ctx:BotContext,filePaths:string[],sizeBytes:number):Promise<string>{
-        
+    public async merge(ctx:BotContext, filePaths:string[], sizeBytes:number):Promise<MergeResult>{
         return this.queueService.enqueue(ctx, 'merge', sizeBytes, async()=>{
-            
             const data = await this.sendRequest({
-                
-                action:'merge',
-                inputPaths:filePaths
-                
+                action:     'merge',
+                inputPaths: filePaths
             });
-            
             if(data.status === 'error') throw new Error(data.error);
-            return data.path!;
-            
-        })
-        
+            return {
+                path:       data.path,
+                paths:      data.paths,
+                zipPath:    data.zipPath,
+                isFallback: data.isFallback ?? false,
+            } as MergeResult;
+        });
     }
     
 }

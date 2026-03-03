@@ -489,23 +489,312 @@ func (s *PdfService) Merge(req domain.Request) domain.Response {
 
 		outputPath := getOutputPath(req.InputPaths[0], "_merged.pdf")
 
-		args := []string{"--empty", "--pages"}
-		args = append(args, req.InputPaths...)
-		args = append(args, "--", outputPath)
+		if err := mergeWithQpdf(req.InputPaths, outputPath); err == nil {
 
-		cmd := exec.Command("qpdf", args...)
+			s.log.Info("Merge OK with qpdf: %d files -> %s", len(req.InputPaths), filepath.Base(outputPath))
+			return domain.Response{Status: "ok", Path: outputPath}
 
-		if output, err := cmd.CombinedOutput(); err != nil {
+		} else {
 
-			s.log.Error("Merge failed: %s", cleanError(string(output)))
-			return domain.Response{Status: "error", Error: cleanError(string(output))}
+			s.log.Error("qpdf merge failed: %v", err)
 
 		}
 
-		s.log.Info("Successfully merged %d files into %s", len(req.InputPaths), filepath.Base(outputPath))
-		return domain.Response{Status: "ok", Path: outputPath}
+		if err := mergeWithGhostscript(req.InputPaths, outputPath); err == nil {
+
+			s.log.Info("Merge OK with ghostscript: %d files -> %s", len(req.InputPaths), filepath.Base(outputPath))
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		} else {
+
+			s.log.Error("ghostscript merge failed: %v", err)
+
+		}
+
+		if err := mergeWithPdftk(req.InputPaths, outputPath); err == nil {
+
+			s.log.Info("Merge OK with pdftk: %d files -> %s", len(req.InputPaths), filepath.Base(outputPath))
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		} else {
+
+			s.log.Error("pdftk merge failed: %v", err)
+
+		}
+
+		if err := mergeWithPdfunite(req.InputPaths, outputPath); err == nil {
+
+			s.log.Info("Merge OK with pdfunite: %d files -> %s", len(req.InputPaths), filepath.Base(outputPath))
+			return domain.Response{Status: "ok", Path: outputPath}
+
+		} else {
+
+			s.log.Error("pdfunite merge failed: %v", err)
+
+		}
+
+		s.log.Error("All merge tools failed for %d files, switching to chunk fallback", len(req.InputPaths))
+		return s.mergeChunkFallback(req.InputPaths)
 
 	})
+
+}
+
+func mergeWithQpdf(inputPaths []string, outputPath string) error {
+
+	args := []string{"--empty", "--pages"}
+	args = append(args, inputPaths...)
+	args = append(args, "--", outputPath)
+	cmd := exec.Command("qpdf", args...)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+
+		return fmt.Errorf("qpdf: %s", cleanError(string(output)))
+
+	}
+
+	if _, statErr := os.Stat(outputPath); statErr != nil {
+
+		return fmt.Errorf("qpdf: output file not created")
+
+	}
+
+	return nil
+
+}
+
+func mergeWithGhostscript(inputPaths []string, outputPath string) error {
+
+	args := []string{
+		"-dBATCH", "-dNOPAUSE", "-q",
+		"-sDEVICE=pdfwrite",
+		"-dCompatibilityLevel=1.4",
+		fmt.Sprintf("-sOutputFile=%s", outputPath),
+	}
+	args = append(args, inputPaths...)
+	cmd := exec.Command("gs", args...)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+
+		return fmt.Errorf("gs: %s", cleanError(string(output)))
+
+	}
+
+	if _, statErr := os.Stat(outputPath); statErr != nil {
+
+		return fmt.Errorf("gs: output file not created")
+
+	}
+
+	return nil
+
+}
+
+func mergeWithPdftk(inputPaths []string, outputPath string) error {
+
+	if _, err := exec.LookPath("pdftk"); err != nil {
+
+		return fmt.Errorf("pdftk not installed")
+
+	}
+
+	args := append(inputPaths, "cat", "output", outputPath)
+	cmd := exec.Command("pdftk", args...)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+
+		return fmt.Errorf("pdftk: %s", cleanError(string(output)))
+
+	}
+
+	if _, statErr := os.Stat(outputPath); statErr != nil {
+
+		return fmt.Errorf("pdftk: output file not created")
+
+	}
+
+	return nil
+
+}
+
+func mergeWithPdfunite(inputPaths []string, outputPath string) error {
+
+	if _, err := exec.LookPath("pdfunite"); err != nil {
+
+		return fmt.Errorf("pdfunite not installed")
+
+	}
+
+	args := append(inputPaths, outputPath)
+	cmd := exec.Command("pdfunite", args...)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+
+		return fmt.Errorf("pdfunite: %s", cleanError(string(output)))
+
+	}
+
+	if _, statErr := os.Stat(outputPath); statErr != nil {
+
+		return fmt.Errorf("pdfunite: output file not created")
+
+	}
+
+	return nil
+
+}
+
+func (s *PdfService) mergeChunkFallback(inputPaths []string) domain.Response {
+
+	tempDir, err := os.MkdirTemp("", "merge_fallback_*")
+
+	if err != nil {
+
+		return domain.Response{Status: "error", Error: "Failed to create temp dir for fallback"}
+
+	}
+
+	defer os.RemoveAll(tempDir)
+
+	type pageRef struct {
+		file string
+		page int
+	}
+
+	var allPages []pageRef
+
+	for _, f := range inputPaths {
+
+		count := getPdfPageCount(f)
+		if count <= 0 {
+
+			s.log.Error("mergeChunkFallback: cannot get page count for %s, skipping", filepath.Base(f))
+			continue
+
+		}
+
+		for p := 1; p <= count; p++ {
+
+			allPages = append(allPages, pageRef{file: f, page: p})
+
+		}
+
+	}
+
+	if len(allPages) == 0 {
+
+		return domain.Response{Status: "error", Error: "Could not read any pages from input files"}
+
+	}
+
+	const chunkSize = 10
+	var chunkPaths []string
+
+	totalChunks := (len(allPages) + chunkSize - 1) / chunkSize
+
+	for chunkIdx := 0; chunkIdx < totalChunks; chunkIdx++ {
+
+		start := chunkIdx * chunkSize
+		end := start + chunkSize
+
+		if end > len(allPages) {
+
+			end = len(allPages)
+
+		}
+
+		chunk := allPages[start:end]
+
+		var chunkFilePaths []string
+		chunkTempDir, _ := os.MkdirTemp(tempDir, fmt.Sprintf("chunk_%d_*", chunkIdx))
+
+		for pageIdx, ref := range chunk {
+
+			singlePath := filepath.Join(chunkTempDir, fmt.Sprintf("p%04d.pdf", pageIdx))
+			args := []string{ref.file, "--pages", ".", strconv.Itoa(ref.page), "--", singlePath}
+			cmd := exec.Command("qpdf", args...)
+			if _, err := cmd.CombinedOutput(); err == nil {
+
+				chunkFilePaths = append(chunkFilePaths, singlePath)
+
+			}
+
+		}
+
+		if len(chunkFilePaths) == 0 {
+
+			continue
+
+		}
+
+		firstGlobal := start + 1
+		lastGlobal := end
+		chunkName := fmt.Sprintf("part_%02d_pages_%d_%d.pdf", chunkIdx+1, firstGlobal, lastGlobal)
+
+		chunkOutput := filepath.Join(tempDir, chunkName)
+
+		merged := false
+		for _, mergeFn := range []func([]string, string) error{
+
+			mergeWithQpdf,
+			mergeWithGhostscript,
+			mergeWithPdftk,
+			mergeWithPdfunite,
+		} {
+
+			if err := mergeFn(chunkFilePaths, chunkOutput); err == nil {
+
+				merged = true
+				break
+
+			}
+
+		}
+
+		if merged {
+
+			chunkPaths = append(chunkPaths, chunkOutput)
+			s.log.Info("mergeChunkFallback: chunk %d/%d OK (%d pages)", chunkIdx+1, totalChunks, len(chunk))
+
+		} else {
+
+			s.log.Error("mergeChunkFallback: chunk %d/%d FAILED", chunkIdx+1, totalChunks)
+
+		}
+
+	}
+
+	if len(chunkPaths) == 0 {
+
+		return domain.Response{Status: "error", Error: "Fallback also failed: cannot merge any chunk"}
+
+	}
+
+	zipOutputPath := getOutputPath(inputPaths[0], "_merged_parts.zip")
+	if err := zipFiles(chunkPaths, zipOutputPath); err != nil {
+
+		s.log.Error("mergeChunkFallback: zip failed: %v", err)
+		return domain.Response{
+
+			Status:     "ok",
+			Paths:      chunkPaths,
+			IsFallback: true,
+		}
+
+	}
+
+	s.log.Info("mergeChunkFallback: produced %d chunks, zip: %s", len(chunkPaths), filepath.Base(zipOutputPath))
+	return domain.Response{
+
+		Status:     "ok",
+		Paths:      chunkPaths,
+		ZipPath:    zipOutputPath,
+		IsFallback: true,
+	}
 
 }
 
@@ -673,44 +962,104 @@ func addFileToZip(archive *zip.Writer, filePath string) error {
 
 }
 
-func zipDir(sourceDir, zipPath string)error{
-	
-	zipFile,err := os.Create(zipPath)
-	if err != nil{
-		
+func zipDir(sourceDir, zipPath string) error {
+
+	zipFile, err := os.Create(zipPath)
+	if err != nil {
+
 		return err
-		
+
 	}
-	
+
 	defer zipFile.Close()
-	
+
 	archive := zip.NewWriter(zipFile)
 	defer archive.Close()
-	
+
 	entries, err := os.ReadDir(sourceDir)
-	if err != nil{
-		
+	if err != nil {
+
 		return err
-		
+
 	}
-	
-	for _, entry := range entries{
-		
-		if entry.IsDir(){
-			
+
+	for _, entry := range entries {
+
+		if entry.IsDir() {
+
 			continue
-			
+
 		}
-		
-		filePath := filepath.Join(sourceDir,entry.Name())
-		if err := addFileToZip(archive, filePath);err != nil{
-			
+
+		filePath := filepath.Join(sourceDir, entry.Name())
+		if err := addFileToZip(archive, filePath); err != nil {
+
 			return err
-			
+
 		}
-		
+
 	}
-	
+
 	return nil
-	
+
+}
+
+func zipFiles(filePaths []string, zipPath string) error {
+
+	zipFile, err := os.Create(zipPath)
+	if err != nil {
+
+		return err
+
+	}
+
+	defer zipFile.Close()
+
+	archive := zip.NewWriter(zipFile)
+	defer archive.Close()
+
+	for _, fp := range filePaths {
+
+		if err := addFileToZip(archive, fp); err != nil {
+
+			return err
+
+		}
+
+	}
+
+	return nil
+
+}
+
+func getPdfPageCount(path string) int {
+
+	cmd := exec.Command("pdfinfo", path)
+	output, err := cmd.Output()
+
+	if err != nil {
+
+		return 0
+
+	}
+
+	for _, line := range strings.Split(string(output), "\n") {
+
+		if strings.HasPrefix(line, "Pages:") {
+
+			parts := strings.Fields(line)
+
+			if len(parts) >= 2 {
+
+				n, _ := strconv.Atoi(parts[1])
+				return n
+
+			}
+
+		}
+
+	}
+
+	return 0
+
 }

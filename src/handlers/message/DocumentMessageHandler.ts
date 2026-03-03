@@ -365,5 +365,47 @@ export class DocumentMessageHandler{
 
     return text;
   }
+  
+  public async handleBulkMergeFile(ctx: BotContext): Promise<void> {
+
+    const lang = this.getLang(ctx);
+    const i18n = this.localization.get(lang);
+    const doc  = ctx.message?.document!;
+
+    try {
+      const localPath = await this.fileService.downloadFile(ctx, doc.file_id);
+      ctx.session.filePaths.push(localPath);
+
+      const count = ctx.session.filePaths.length;
+
+      // Сохраняем имя первого файла как originalName
+      if (count === 1) {
+        ctx.session.tempParams = {
+          ...ctx.session.tempParams,
+          originalName: doc.file_name || 'document.pdf'
+        };
+      }
+
+      // Переключаем в режим ожидания подтверждения
+      ctx.session.step = 'waiting_for_merge_confirm';
+
+      await ctx.reply(
+        i18n.messages.actions.merge_bulk_received.replace('{{count}}', String(count)),
+        { parse_mode: 'HTML' }
+      );
+
+      await this.logger.logAction(
+        'DocumentMessageHandler',
+        ctx.from!,
+        'Bulk merge file added',
+        `File: ${doc.file_name} | Total: ${count}`
+      );
+
+    } catch (e: any) {
+      await this.logger.error('DocumentMessageHandler:bulkMerge', e, { user: ctx.from!, message: ctx.message! });
+      await ctx.reply(i18n.messages.actions.file_lost);
+    }
+
+  }
     
 }

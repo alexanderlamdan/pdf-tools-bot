@@ -7,6 +7,7 @@ import { AboutCommandHandler } from './commands/AboutCommandHandler.js';
 import { ButtonHandler } from "./message/ButtonHandler.js";
 import { TextHandler } from "./message/TextHandler.js";
 import { AdminCommandHandler } from './commands/AdminCommandHandler.js';
+import { MergeArchiveHandler } from './message/MergeArchiveHandler.js';
 
 import { UserService } from "../services/UserService.js";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
@@ -51,6 +52,7 @@ export class HandlerRegistry {
     
     const buttonHandler = new ButtonHandler(this.config,this.localApi,this.localization);
     const textHandler = new TextHandler(this.config, this.localApi, this.localization);
+    const archiveHandler = new MergeArchiveHandler(this.config, this.localApi, this.localization);
 
     this.bot.on("message:text",async (ctx,next)=>{
       
@@ -62,6 +64,11 @@ export class HandlerRegistry {
         await adminHandler.handle(ctx);
         return;
         
+      }
+      
+      if (ctx.session.step === 'waiting_for_merge_confirm') {
+        await textHandler.handle(ctx);
+        return;
       }
       
       const awaitingInput = ctx.session.step === 'waiting_for_password' || ctx.session.step === 'waiting_for_split_pages';
@@ -98,9 +105,36 @@ export class HandlerRegistry {
     
     
     this.bot.on("message:document", async (ctx) => {
+      const step = ctx.session.step;
+
+      // Режим ожидания архива — отдаём в MergeArchiveHandler
+      if (step === 'waiting_for_merge_archive') {
+        if (archiveHandler.isArchive(ctx)) {
+          await archiveHandler.handle(ctx);
+        } else {
+          const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
+          const i18n = this.localization.get(lang);
+          await ctx.reply('⚠️ Please send an archive file (.zip, .rar, .7z, .tar.gz, .tar.xz)', { parse_mode: 'HTML' });
+        }
+        return;
+      }
+
+      // Режим bulk — накапливаем PDF файлы
+      if (step === 'waiting_for_merge_bulk') {
+        if (docHandler.isSupportedDocument(ctx)) {
+          await docHandler.handleBulkMergeFile(ctx);
+        } else {
+          const { lang } = this.localization.getUserLanguage(ctx.from?.language_code);
+          await ctx.reply('⚠️ Please send only PDF files in bulk mode.');
+        }
+        return;
+      }
+
+      // Обычный режим — PDF документы
       if (docHandler.isSupportedDocument(ctx)) {
         await docHandler.handle(ctx);
       }
+
     });
     
     this.bot.on(["message:photo","message:voice","message:video","message:sticker","message:audio","message:animation","message:video_note"],async (ctx)=>{

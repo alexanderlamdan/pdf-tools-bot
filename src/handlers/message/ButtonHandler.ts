@@ -467,6 +467,7 @@ export class ButtonHandler{
         
         let maxStorage = i18n.messages.status.subscriptions.free_storage;
         let role = i18n.messages.status.subscriptions.no_sub;
+        const isAdmin  = userId === this.config.adminId;
         if(user.isVip){
             
             maxStorage = i18n.messages.status.subscriptions.unlimited; 
@@ -489,6 +490,12 @@ export class ButtonHandler{
             
             maxStorage = i18n.messages.status.subscriptions.sovereign_protocol_storage;
             role = i18n.messages.status.subscriptions.sovereign_protocol_role;
+            
+        }
+        
+        if(isAdmin){
+            
+            role = i18n.messages.status.subscriptions.free_admin_role;
             
         }
         
