@@ -23,6 +23,9 @@ export default {
       btn_to_long_image:  '📜 לתמונה ארוכה',
       btn_metadata_wiper: '🧹 ניקוי מידע רקע',
       btn_execute_merge:  '✅ לחבר את הקבצים',
+      btn_merge_one_by_one: '📄 אחד-אחד (עד 10)',
+      btn_merge_archive:    '📦 העלאת ארכיון',
+      btn_merge_bulk:       '🗂 כל הקבצים בבת אחת',
     },
     common: {
       btn_cancel: '❌ ביטול',
@@ -300,7 +303,8 @@ export default {
     password_weak:  'לפחות 8 תווים.',
     pdf_archive:`❌ אין קבצים של PDF בתוך הארכיון. נסו שנית בבקשה`,
     single_pdf_archive:`⚠️ רק קובץ אחד של PDF קיים בארכיון. צריך מינימום שני קבצים של PDF כדי לעשות איחוד של קבצים`,
-    error_proccesing_archive:`❌ שגיאת עיבוד ארכיון:`
+    error_proccesing_archive:`❌ שגיאת עיבוד ארכיון:`,
+    not_archive: '⚠️ אנא שלח קובץ ארכיון (.zip, .rar, .7z, .tar.gz, .tar.xz)'
   },
 
 } as const;

@@ -4,14 +4,14 @@ import type { LocalApi } from "../types/LocalApi.js";
 import { StartCommandHandler } from "./commands/StartCommandHandler.js";
 import { HelpCommandHandler } from "./commands/HelpCommandHandler.js";
 import { AboutCommandHandler } from './commands/AboutCommandHandler.js';
-import { ButtonHandler } from "./message/ButtonHandler.js";
-import { TextHandler } from "./message/TextHandler.js";
+import { ButtonHandler } from "./buttons/ButtonHandler.js";
+import { TextHandler } from "./text/TextHandler.js";
 import { AdminCommandHandler } from './commands/AdminCommandHandler.js';
-import { MergeArchiveHandler } from './message/MergeArchiveHandler.js';
+import { MergeArchiveHandler } from './document/MergeArchiveHandler.js';
 
 import { UserService } from "../services/UserService.js";
 import type {IBotConfig} from '../config/interfaces/IBotConfig.js';
-import { DocumentMessageHandler } from "./message/DocumentMessageHandler.js";
+import { DocumentMessageHandler } from './document/DocumentMessageHandler.js'
 import { LocalizationService } from "../services/LocalizationService.js";
 import type { BotContext } from "../types/BotContext.js";
 import { LoggerService } from '../services/LoggerService.js';
@@ -66,12 +66,14 @@ export class HandlerRegistry {
         
       }
       
-      if (ctx.session.step === 'waiting_for_merge_confirm') {
-        await textHandler.handle(ctx);
-        return;
-      }
+      const step = ctx.session.step;
       
-      const awaitingInput = ctx.session.step === 'waiting_for_password' || ctx.session.step === 'waiting_for_split_pages';
+      const awaitingInput =
+      step === 'waiting_for_password'     ||
+      step === 'waiting_for_split_pages'  ||
+      step === 'waiting_for_merge_confirm';
+      
+      
       
       if(awaitingInput){
         

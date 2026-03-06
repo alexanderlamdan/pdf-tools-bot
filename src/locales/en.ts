@@ -22,6 +22,9 @@ export default {
       btn_to_long_image: "📜 To Long Image",
       btn_metadata_wiper: "🧹 Wipe Metadata",
       btn_execute_merge: "✅ Merge files",
+      btn_merge_one_by_one: '📄 One by one (up to 10)',
+      btn_merge_archive:    '📦 Upload archive',
+      btn_merge_bulk:       '🗂 All files at once',
     },
     common: {
       btn_cancel: "❌ Cancel",
@@ -189,7 +192,8 @@ The bot does not see, know, or receive any of your data except what is necessary
         merge_bulk_received: '✅ Received <b>{{count}}</b> files so far.\n\nAre you done? Reply <b>yes</b> to proceed, or keep sending files.',
         merge_fallback:      `❌ <b>We tried everything.</b>\n\nWe ran the merge through all available tools — qpdf, ghostscript, pdftk and pdfunite (the engine behind Adobe's own PDF tools). It is not possible to merge these files into a single PDF.\n\n📦 <b>Here's what we can do:</b> we split the result into parts of 10 pages each and packed them into a ZIP archive. Each part is also sent as a separate file.`,
         merged_from_archive:`✅ Merged files from archive: `,
-        merge_zip_success:'📦 All parts in one archive'
+        merge_zip_success:'📦 All parts in one archive',
+        merge_confirm_words:' files ready. Press the button to merge.'
     },
 
     common: {
@@ -317,6 +321,7 @@ To receive this file and continue, please choose a plan:`,
     language_not_supported: "Your language is not supported for now",
     pdf_archive:`❌ No PDF files found inside the archive.`,
     single_pdf_archive:`⚠️ Only 1 PDF found in archive. Need at least 2 to merge.`,
-    error_proccesing_archive:`❌ Error processing archive:`
+    error_proccesing_archive:`❌ Error processing archive:`,
+    not_archive: '⚠️ Please send an archive file (.zip, .rar, .7z, .tar.gz, .tar.xz)'
   },
 } as const;

@@ -22,6 +22,9 @@ export default {
       btn_to_long_image: "📜 В длинную картинку",
       btn_metadata_wiper: "🧹 Очистка метаданных",
       btn_execute_merge: "✅ Склеить файлы",
+      btn_merge_one_by_one: '📄 По одному (до 10)',
+      btn_merge_archive:    '📦 Загрузить архив',
+      btn_merge_bulk:       '🗂 Все файлы разом',
     },
     common: {
       btn_cancel: "❌ Отмена",
@@ -277,6 +280,7 @@ export default {
     pdf_archive:`❌ В вашем архиве нет файлов PDF, вы точно уверены что это архив с PDF файлами? Повторите заново пожалуйста.`,
     single_pdf_archive:`⚠️ Только один файл PDF находится в вашем архиве. Надо минимум 2 PDF файла, чтобы полноценно склеить и объединить файлы PDF в один`,
     error_proccesing_archive:`❌ Ошибка обработки архива: `,
-    merge_zip_success:'📦 Все файлы теперь внутри архива'
+    merge_zip_success:'📦 Все файлы теперь внутри архива',
+    not_archive: '⚠️ Пожалуйста, отправьте файл архива (.zip, .rar, .7z, .tar.gz, .tar.xz)'
   },
 } as const;

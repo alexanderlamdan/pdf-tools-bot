@@ -56,7 +56,7 @@ export class PdfWorkerService{
                 {
                     socketPath: socketPath,
                     headers:{'Content-Type':'application/json'},
-                    timeout: 60000
+                    timeout: 300_000
                 }
             );
             
