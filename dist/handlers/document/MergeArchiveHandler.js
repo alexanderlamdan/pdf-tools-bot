@@ -39,7 +39,7 @@ export class MergeArchiveHandler extends BaseHandler {
         let tempDir = null;
         try {
             archivePath = await this.fileService.downloadFile(ctx, doc.file_id);
-            tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'merge_archive'));
+            tempDir = await fs.promises.mkdtemp('/srv/runtime/merge_archive');
             await this.extract(archivePath, tempDir, doc.file_name || '');
             const pdfFiles = await this.collectPdfs(tempDir);
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
