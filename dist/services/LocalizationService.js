@@ -65,9 +65,15 @@ export class LocalizationService {
         const i18n = this.get(lang);
         const files = i18n.buttons.files || {};
         const common = Object.values(i18n.buttons.common || {});
+        const alwaysExclude = [
+            'btn_merge_one_by_one',
+            'btn_merge_archive',
+            'btn_merge_bulk',
+            'btn_execute_merge',
+        ];
         const result = [];
         for (const [key, val] of Object.entries(files)) {
-            if (!excludeKeys.includes(key)) {
+            if (!excludeKeys.includes(key) && !alwaysExclude.includes(key)) {
                 result.push(val);
             }
         }
