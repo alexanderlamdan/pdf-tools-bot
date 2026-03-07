@@ -32,7 +32,7 @@ export class TextHandler extends BaseHandler {
                 await this.handleSplitPages(ctx, lang, i18n, isAdmin, text);
                 break;
             default:
-                if (step === 'waiting_for_merge_confirm') {
+                if (step === 'waiting_for_merge_confirm' || step === 'waiting_for_merge_bulk') {
                     await new MergeAction(ctx, this).handleBulkConfirm(text);
                 }
                 else {

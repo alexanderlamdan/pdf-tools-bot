@@ -47,14 +47,10 @@ export class TextHandler extends BaseHandler{
                 break;
             
             default:
-                if(step === 'waiting_for_merge_confirm'){
-                    
-                    await new MergeAction(ctx,this).handleBulkConfirm(text);
-                    
-                }else{
-                    
-                    await this.handleRejected(ctx,lang,i18n,isAdmin,text);
-                    
+                if(step === 'waiting_for_merge_confirm' || step === 'waiting_for_merge_bulk'){
+                    await new MergeAction(ctx, this).handleBulkConfirm(text);
+                } else {
+                    await this.handleRejected(ctx, lang, i18n, isAdmin, text);
                 }
         }
         
