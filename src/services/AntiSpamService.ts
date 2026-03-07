@@ -18,20 +18,9 @@ export class AntiSpamService{
             
         }
         
-        const waitingSteps = [
-            'waiting_for_password',
-            'waiting_for_split_pages',
-            'waiting_for_merge_confirm',
-            'waiting_for_merge_files',
-            'waiting_for_merge_bulk',
-            'waiting_for_merge_archive',
-        ];
-        
-        if(waitingSteps.includes(ctx.session.step)){
-            
+        if(ctx.message?.text){
             ctx.session.lastRequestTime = now;
             return true;
-            
         }
         
         if(timeDiff < 1500){
