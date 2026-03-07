@@ -100,49 +100,44 @@ export class HandlerRegistry{
       
     });
     
-    this.bot.on('message:document',async (ctx)=>{
+    this.bot.on('message:document', async (ctx) => {
       
       const step = ctx.session.step;
-      
-      if(step === 'waiting_for_merge_archive'){
+  
+      if(step === 'waiting_for_merge_archive') {
         
-        if(archiveHandler.isArchive(ctx)){
+          if(archiveHandler.isArchive(ctx)) {
+            
+              await archiveHandler.handle(ctx);
+              
+          } else {
+            
+              const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
+              await ctx.reply(this.localization.get(lang).errors.not_archive, {parse_mode:'HTML'});
+              
+          }
           
-          await archiveHandler.handle(ctx);
-          
-        }else{
-          
-          const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-          await ctx.reply(this.localization.get(lang).errors.not_archive,{parse_mode:'HTML'});
-          
-        }
-        
-        return;
-        
+          return;
       }
-      
-      if(step === 'waiting_for_merge_bulk'){
+  
+      if(step === 'waiting_for_merge_bulk' || step === 'waiting_for_merge_files') {
         
-        if(docHandler.isSupportedDocument(ctx)){
+          if(docHandler.isSupportedDocument(ctx)) {
+            
+              await docHandler.handleBulkMergeFile(ctx);
+              
+          } else {
+            
+              const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
+              await ctx.reply(this.localization.get(lang).errors.not_pdf, {parse_mode:'HTML'});
+              
+          }
           
-          await docHandler.handleBulkMergeFile(ctx);
-          
-        }else{
-          
-          const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-          await ctx.reply(this.localization.get(lang).errors.not_pdf,{parse_mode:'HTML'});
-          
-        }
-        
-        return;
-        
+          return;
       }
-      
-      if(docHandler.isSupportedDocument(ctx)){
-        
-        await docHandler.handle(ctx);
-        return;
-        
+  
+      if(docHandler.isSupportedDocument(ctx)) {
+          await docHandler.handle(ctx);
       }
       
     });

@@ -75,7 +75,7 @@ export class HandlerRegistry {
                 }
                 return;
             }
-            if (step === 'waiting_for_merge_bulk') {
+            if (step === 'waiting_for_merge_bulk' || step === 'waiting_for_merge_files') {
                 if (docHandler.isSupportedDocument(ctx)) {
                     await docHandler.handleBulkMergeFile(ctx);
                 }
@@ -87,7 +87,6 @@ export class HandlerRegistry {
             }
             if (docHandler.isSupportedDocument(ctx)) {
                 await docHandler.handle(ctx);
-                return;
             }
         });
         this.bot.on(['message:photo', 'message:voice', 'message:video', 'message:sticker',

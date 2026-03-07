@@ -130,7 +130,12 @@ export class DocumentMessageHandler extends BaseHandler {
         const reportText = this.generateAnalysisReport(doc, info, lang);
         await ctx.reply(reportText, {
             parse_mode: 'HTML',
-            reply_markup: this.keyboards.getFileActionsMenu(lang)
+            reply_markup: this.keyboards.getFileActionsMenu(lang, [
+                'btn_merge_one_by_one',
+                'btn_merge_archive',
+                'btn_merge_bulk',
+                'btn_execute_merge'
+            ])
         });
     }
     async handleInvalidFormat(ctx, doc, lang, isAdmin) {

@@ -216,7 +216,12 @@ export class DocumentMessageHandler extends BaseHandler{
     await ctx.reply(reportText,{
       
       parse_mode:'HTML',
-      reply_markup:this.keyboards.getFileActionsMenu(lang)
+      reply_markup:this.keyboards.getFileActionsMenu(lang,[
+        'btn_merge_one_by_one',
+        'btn_merge_archive', 
+        'btn_merge_bulk',
+        'btn_execute_merge'
+      ])
       
     });
     
@@ -232,7 +237,7 @@ export class DocumentMessageHandler extends BaseHandler{
     await ctx.reply(i18n.errors.not_pdf,{
       
       parse_mode:'HTML',
-      reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
+      reply_markup:this.keyboards.getMainMenu(lang,isAdmin,)
       
     });
     
