@@ -1,22 +1,25 @@
-import type { Context } from 'grammy';
 import type { IBotConfig } from '../../config/interfaces/IBotConfig.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
 import { LoggerService } from '../../services/LoggerService.js';
 import { LocalizationService } from '../../services/LocalizationService.js';
+import type { BotContext } from '../../types/BotContext.js';
+import { Keyboards } from '../../services/Keyboards.js';
 
 export class AdminCommandHandler{
     
     private readonly logger:LoggerService;
     private readonly db:DatabaseService;
+    private readonly keyboards:Keyboards;
     
     constructor(private readonly config:IBotConfig,private readonly localization:LocalizationService){
         
         this.logger = new LoggerService(config);
         this.db = new DatabaseService(this.logger);
+        this.keyboards = new Keyboards(localization);
         
     }
     
-    async handle(ctx:Context){
+    async handle(ctx:BotContext){
         
         if(ctx.from?.id !== this.config.adminId) return;
         
@@ -40,12 +43,52 @@ export class AdminCommandHandler{
             case '/add_vip':
                 await this.addVip(ctx,args);
                 break;
+            case '/admin_mode_on':
+                await this.setAdminMode(ctx,true);
+                break;
+            case '/admin_mode_off':
+                await this.setAdminMode(ctx,false);
+                break;
+            
             
         }
         
     }
     
-    private async broadcast(ctx:Context,lang:string,message:string){
+    private async setAdminMode(ctx:BotContext,enable:boolean):Promise<void>{
+        
+        const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
+        
+        if(enable){
+            
+            ctx.session.adminMode = true;
+            ctx.session.simulateUser = false;
+            await ctx.reply(
+                '🛡 <b>Admin Mode ON</b>\n\nЛимиты трафика отключены. Заливай файлы и тестируй всё что угодно.\n\nВыключить (simulate user): /admin_mode_off',
+                { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, true) }
+            );
+            
+        }else{
+            
+            ctx.session.adminMode    = false;
+            ctx.session.simulateUser = true;
+            await ctx.reply(
+                '👤 <b>Simulate User Mode ON</b>\n\nТы видишь бот глазами обычного юзера.\nЛимиты трафика активны, кнопки админа скрыты.\n\nВернуться в admin mode: /admin_mode_on',
+                { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, false) }
+            );
+            
+        }
+        
+        await this.logger.logAction(
+            'AdminCommandHandler:setAdminMode',
+            ctx.from!,
+            enable ? 'Admin Mode ON' : 'Simulate User Mode ON',
+            `adminMode=${enable} simulateUser=${!enable}`
+        );
+        
+    }
+    
+    private async broadcast(ctx:BotContext,lang:string,message:string){
         
         if(!message){
             
@@ -81,7 +124,7 @@ export class AdminCommandHandler{
         
     }
     
-    private async addVip(ctx:Context,args:string){
+    private async addVip(ctx:BotContext,args:string){
         
         const targetId = Number(args.trim());
         

@@ -41,7 +41,7 @@ export class HandlerRegistry {
             const text = ctx.message?.text;
             if (!text)
                 return;
-            if (text.startsWith('/publish') || text.startsWith('/add_vip')) {
+            if (text.startsWith('/publish') || text.startsWith('/add_vip') || text.startsWith('/admin_mode_on') || text.startsWith('/admin_mode_off')) {
                 await adminHandler.handle(ctx);
                 return;
             }

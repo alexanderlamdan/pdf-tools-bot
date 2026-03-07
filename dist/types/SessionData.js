@@ -4,6 +4,8 @@ export function initialSession() {
         step: 'idle',
         filePaths: [],
         tempParams: {},
-        lastRequestTime: 0
+        lastRequestTime: 0,
+        adminMode: false,
+        simulateUser: false
     };
 }

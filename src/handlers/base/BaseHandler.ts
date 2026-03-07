@@ -47,7 +47,14 @@ export abstract class BaseHandler{
     
     protected isAdmin(ctx:any):boolean{
         
-        return ctx.from?.id === this.config.adminId;
+        const realAdmin = ctx.from?.id === this.config.adminId;
+
+        if(!realAdmin) return false;
+
+        if(ctx.session?.simulateUser) return false;
+        
+        return true;
+        
         
     }
     

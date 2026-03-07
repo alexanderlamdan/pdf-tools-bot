@@ -23,6 +23,9 @@ export interface SessionData{
     };
     
     lastRequestTime:number;
+    adminMode:boolean;
+    simulateUser:boolean;
+    
 }
 
 export function initialSession():SessionData{
@@ -33,7 +36,9 @@ export function initialSession():SessionData{
         step:'idle',
         filePaths:[],
         tempParams:{},
-        lastRequestTime:0
+        lastRequestTime:0,
+        adminMode:false,
+        simulateUser:false
         
     };
     

@@ -119,6 +119,8 @@ export class DocumentMessageHandler extends BaseHandler{
   
   private async checkTrafficLimits(ctx:BotContext,document:Document):Promise<boolean>{
     
+    if(ctx.session.adminMode) return false;
+    
     const user = await this.db.getUser(ctx.from!.id);
     if(!user || user.isVip === 1) return false;
     

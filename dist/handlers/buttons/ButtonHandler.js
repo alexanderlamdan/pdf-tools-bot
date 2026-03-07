@@ -7,6 +7,7 @@ import { UnlockAction } from './actions/UnlockAction.js';
 import { AdminLogService } from '../../services/AdminLogService.js';
 import { getPaymentLink } from '../../utils/SubscriptionUtils.js';
 import fs from 'fs';
+import { execSync } from 'child_process';
 export class ButtonHandler extends BaseHandler {
     adminLogService;
     constructor(...args) {
@@ -121,8 +122,35 @@ export class ButtonHandler extends BaseHandler {
             await this.logger.logAction('ButtonHandler', ctx.from, 'Admin', 'Logs');
             await this.handleAdminLogs(ctx);
         }
+        else if (text === btn.adm_btn_reload) {
+            await this.logger.logAction('ButtonHandler', ctx.from, 'Admin', 'Reload');
+            await this.handleAdminReload(ctx, lang);
+        }
         else {
-            await ctx.reply('Reload button coming soon');
+            await ctx.reply('Unknown admin command');
+        }
+    }
+    async handleAdminReload(ctx, lang) {
+        const statusMsg = await ctx.reply('🔄 Restarting services...', { parse_mode: 'HTML' });
+        const results = [];
+        const services = [
+            { name: 'bot@pdf-tools-bot.service', label: '🤖 Bot' },
+            { name: 'pdf-worker.service', label: '⚙️ Worker' }
+        ];
+        for (const svc of services) {
+            try {
+                execSync(`sudo systemctl restart ${svc.name}`, { timeout: 15000 });
+                results.push(`${svc.label}: ✅ restarted`);
+            }
+            catch (e) {
+                const errMsg = (e.stderr?.toString() || e.message || 'unknown error').slice(0, 200);
+                results.push(`${svc.label}: ❌ ${errMsg}`);
+            }
+        }
+        try {
+            await ctx.api.editMessageText(ctx.chat.id, statusMsg.message_id, `🔄 <b>Reload result:</b>\n\n${results.join('\n')}`, { parse_mode: 'HTML' });
+        }
+        catch {
         }
     }
     async handleSubscriptionInfo(ctx, lang, plan) {

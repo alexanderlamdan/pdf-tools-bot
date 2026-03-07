@@ -35,6 +35,11 @@ export class BaseHandler {
         await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
     }
     isAdmin(ctx) {
-        return ctx.from?.id === this.config.adminId;
+        const realAdmin = ctx.from?.id === this.config.adminId;
+        if (!realAdmin)
+            return false;
+        if (ctx.session?.simulateUser)
+            return false;
+        return true;
     }
 }

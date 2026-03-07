@@ -71,6 +71,8 @@ export class DocumentMessageHandler extends BaseHandler {
         }
     }
     async checkTrafficLimits(ctx, document) {
+        if (ctx.session.adminMode)
+            return false;
         const user = await this.db.getUser(ctx.from.id);
         if (!user || user.isVip === 1)
             return false;
