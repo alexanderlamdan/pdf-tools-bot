@@ -7,7 +7,6 @@ export default {
         admin: {
             adm_btn_stats: '📈 אדמין: סטטיסטיקה',
             adm_btn_logs: '📜 אדמין: יומן פעולות',
-            adm_btn_reload: '🔄 אדמין: רענון',
         },
         files: {
             btn_compress: '🗜 הקטנת קובץ',

@@ -5,9 +5,8 @@ export default {
       btn_help: "❓ Помощь",
     },
     admin: {
-      adm_btn_stats: "📈 Админ: Стата",
+      adm_btn_stats: "📈 Админ: Статистика",
       adm_btn_logs: "📜 Админ: Логи",
-      adm_btn_reload: "🔄 Админ: Релоад",
     },
     files: {
       btn_compress: "🗜 Сжать",

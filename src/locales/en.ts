@@ -7,7 +7,6 @@ export default {
     admin: {
       adm_btn_stats: "📈 Admin: Stats",
       adm_btn_logs: "📜 Admin: Logs",
-      adm_btn_reload: "🔄 Admin: Reload",
     },
     files: {
       btn_compress: "🗜 Compress",
