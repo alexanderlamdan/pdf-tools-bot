@@ -31,7 +31,7 @@ export class ButtonHandler extends BaseHandler {
             return;
         }
         if (Object.values(i18n.buttons.admin || {}).includes(text)) {
-            if (isAdmin)
+            if (!isAdmin)
                 return;
             await this.handleAdminButton(ctx, lang, i18n, text);
             return;
