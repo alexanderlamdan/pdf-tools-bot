@@ -23,6 +23,16 @@ export class AntiSpamService{
             return true;
         }
         
+        const bulkSteps = [
+            'waiting_for_merge_bulk',
+            'waiting_for_merge_files',
+        ];
+        if(ctx.message?.document && bulkSteps.includes(ctx.session.step)){
+            ctx.session.lastRequestTime = now;
+            return true;
+        }
+    
+        
         if(timeDiff < 1500){
             
             return false;
