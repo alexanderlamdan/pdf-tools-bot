@@ -224,7 +224,7 @@ export class MergeAction{
         
     }
     
-    private async deliverFallback(result:MergeResult,lang:string,isAdmin:boolean,i18n:any):Promise<void>{
+    public async deliverFallback(result:MergeResult,lang:string,isAdmin:boolean,i18n:any):Promise<void>{
         
         const { ctx, handler } = this;
 

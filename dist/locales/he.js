@@ -22,6 +22,9 @@ export default {
             btn_to_long_image: '📜 לתמונה ארוכה',
             btn_metadata_wiper: '🧹 ניקוי מידע רקע',
             btn_execute_merge: '✅ לחבר את הקבצים',
+            btn_merge_one_by_one: '📄 אחד-אחד (עד 10)',
+            btn_merge_archive: '📦 העלאת ארכיון',
+            btn_merge_bulk: '🗂 כל הקבצים בבת אחת',
         },
         common: {
             btn_cancel: '❌ ביטול',
@@ -163,6 +166,13 @@ export default {
             merge_file_queue: '✅ הקובץ התווסף!\nשלחו את הקובץ הבא או לחצו על הכפתור \'לחבר קבצים\'.\nסה"כ קבצים לחיבור: ',
             split_caption_success_file: '✂️ <b>עמודים שהוצאו (קובץ אחד):</b>\n⚠️ <i>לתשומת לבכם: בשימוש בקבצי PDF מורכבים מאוד ייתכנו שיבושים קלים בקובץ המאוחד. לביטחון של 100% בתקינות העמודים, השתמשו בקובץ ה-ZIP שלמטה.</i>\n\nעמודים: ',
             split_caption_success_zip: '📦 <b>ארכיון עמודים נפרדים (100% בטוח):</b>\nמספר עמודים: ',
+            ask_merge_mode: '🔗 <b>איך תרצה לאחד?</b>\n\nבחר שיטה:',
+            ask_merge_archive: '📦 <b>מצב ארכיון</b>\nשלח ארכיון אחד (.zip, .rar, .7z, .tar.gz, .tar.xz) עם קבצי PDF בפנים.\nאפרק ואחבר לפי שמות הקבצים.',
+            ask_merge_bulk: '🗂 <b>מצב אצווה</b>\nשלח את קבצי ה-PDF — אחד-אחד או כקבוצה.\nכשסיימת, כתוב <b>כן</b> לאישור.',
+            merge_bulk_received: '✅ התקבלו <b>{{count}}</b> קבצים.\n\nסיימת? כתוב <b>כן</b> כדי להמשיך, או המשך לשלוח.',
+            merge_fallback: `❌ <b>ניסינו הכל.</b>\n\nהרצנו את החיבור דרך כל הכלים הזמינים — qpdf, ghostscript, pdftk ו-pdfunite (המנוע של Adobe עצמם). לא ניתן לאחד את הקבצים לקובץ PDF אחד.\n\n📦 <b>מה שאנחנו יכולים לעשות:</b> מחלקים את התוצאה לחלקים של 10 עמודים כל אחד, וארוזים ב-ZIP. כל חלק גם נשלח בנפרד.`,
+            merged_from_archive: `✅ איחדנו קבצים מארכיון: `,
+            merge_zip_success: '📦 כל הקבצים בתוך ארכיון'
         },
         common: {
             yes: 'כן',
@@ -269,5 +279,9 @@ export default {
         worker_fail: '❌ שגיאה בבדיקה.',
         password_empty: 'הסיסמה לא יכולה להיות ריקה.',
         password_weak: 'לפחות 8 תווים.',
+        pdf_archive: `❌ אין קבצים של PDF בתוך הארכיון. נסו שנית בבקשה`,
+        single_pdf_archive: `⚠️ רק קובץ אחד של PDF קיים בארכיון. צריך מינימום שני קבצים של PDF כדי לעשות איחוד של קבצים`,
+        error_proccesing_archive: `❌ שגיאת עיבוד ארכיון:`,
+        not_archive: '⚠️ אנא שלח קובץ ארכיון (.zip, .rar, .7z, .tar.gz, .tar.xz)'
     },
 };

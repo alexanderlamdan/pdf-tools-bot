@@ -14,7 +14,7 @@ export class PdfWorkerService {
             const response = await axios.post('http://localhost/process', payload, {
                 socketPath: socketPath,
                 headers: { 'Content-Type': 'application/json' },
-                timeout: 60000
+                timeout: 300_000
             });
             const data = response.data;
             if (data.status === 'error') {
@@ -130,7 +130,12 @@ export class PdfWorkerService {
             });
             if (data.status === 'error')
                 throw new Error(data.error);
-            return data.path;
+            return {
+                path: data.path,
+                paths: data.paths,
+                zipPath: data.zipPath,
+                isFallback: data.isFallback ?? false,
+            };
         });
     }
 }
