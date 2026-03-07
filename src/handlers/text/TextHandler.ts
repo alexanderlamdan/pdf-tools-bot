@@ -20,9 +20,11 @@ export class TextHandler extends BaseHandler{
         
         await this.registerUser(ctx);
         
-        if(text.startsWith('/') || this.localization.getActionKeyByText(text)) return;
+        if(text.startsWith('/')) return;
         
         const {currentAction:action,step} = ctx.session;
+        
+        if(step !== 'waiting_for_merge_confirm' && this.localization.getActionKeyByText(text)) return;
         
         const route = `${action}:${step}`;
         

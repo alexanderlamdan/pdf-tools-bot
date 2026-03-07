@@ -14,9 +14,11 @@ export class TextHandler extends BaseHandler {
         const i18n = this.getI18n(ctx);
         const isAdmin = this.isAdmin(ctx);
         await this.registerUser(ctx);
-        if (text.startsWith('/') || this.localization.getActionKeyByText(text))
+        if (text.startsWith('/'))
             return;
         const { currentAction: action, step } = ctx.session;
+        if (step !== 'waiting_for_merge_confirm' && this.localization.getActionKeyByText(text))
+            return;
         const route = `${action}:${step}`;
         switch (route) {
             case 'protect:waiting_for_password':

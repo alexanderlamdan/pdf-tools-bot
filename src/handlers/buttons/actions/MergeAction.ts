@@ -7,7 +7,11 @@ import type { MergeResult } from '../../../services/PdfWorkerService.js';
 import path from 'path';
 import fs from 'fs';
 
-export const MERGE_CONFIRM_WORDS = new Set(['да', 'yes', 'כן', 'да.', 'yes.', 'כן.']);
+export const MERGE_CONFIRM_WORDS = new Set([
+    'yes', 'yeah', 'yeap', 'yep', 'yup', 'sure', 'ok', 'okay',
+    'да', 'ага', 'конечно', 'ок',
+    'כן',
+]);
 
 export class MergeAction{
     

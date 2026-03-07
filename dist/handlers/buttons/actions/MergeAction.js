@@ -4,7 +4,11 @@ import { FileNameUtils } from '../../../utils/FileNameUtils.js';
 import { notifyTrafficAfterResult } from '../../../utils/TrafficNotifier.js';
 import path from 'path';
 import fs from 'fs';
-export const MERGE_CONFIRM_WORDS = new Set(['да', 'yes', 'כן', 'да.', 'yes.', 'כן.']);
+export const MERGE_CONFIRM_WORDS = new Set([
+    'yes', 'yeah', 'yeap', 'yep', 'yup', 'sure', 'ok', 'okay',
+    'да', 'ага', 'конечно', 'ок',
+    'כן',
+]);
 export class MergeAction {
     ctx;
     handler;
