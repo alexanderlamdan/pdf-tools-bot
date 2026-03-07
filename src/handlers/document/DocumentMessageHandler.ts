@@ -103,7 +103,7 @@ export class DocumentMessageHandler extends BaseHandler{
           
         }
         
-        ctx.session.step = 'waiting_for_merge_confirm';
+        ctx.session.step = 'waiting_for_merge_bulk';
         
         await ctx.reply(i18n.messages.actions.merge_bulk_received.replace('{{count}}',String(count)),{parse_mode:'HTML'});
         

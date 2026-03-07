@@ -61,7 +61,7 @@ export class DocumentMessageHandler extends BaseHandler {
                     originalName: doc.file_name || 'document.pdf'
                 };
             }
-            ctx.session.step = 'waiting_for_merge_confirm';
+            ctx.session.step = 'waiting_for_merge_bulk';
             await ctx.reply(i18n.messages.actions.merge_bulk_received.replace('{{count}}', String(count)), { parse_mode: 'HTML' });
             await this.logger.logAction('DocumentHandler:handleBulkMergeFile', ctx.from, 'Bulk merge file added', `File: ${doc.file_name} | Total: ${count}`);
         }
