@@ -129,6 +129,12 @@ export class MergeArchiveHandler extends BaseHandler {
         };
         await walk(dir);
         result.sort((a, b) => path.basename(a).toLowerCase().localeCompare(path.basename(b).toLowerCase(), undefined, { numeric: true, sensitivity: 'base' }));
-        return result;
+        const safePaths = [];
+        for (let i = 0; i < result.length; i++) {
+            const safePath = path.join(path.dirname(result[i]), `__safe_${i + 1}.pdf`);
+            await fs.promises.rename(result[i], safePath);
+            safePaths.push(safePath);
+        }
+        return safePaths;
     }
 }

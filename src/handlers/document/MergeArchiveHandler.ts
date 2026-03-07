@@ -166,32 +166,33 @@ export class MergeArchiveHandler extends BaseHandler{
         
     }
     
-    private async collectPdfs(dir:string):Promise<string[]>{
-        
-        const result:string[] = [];
-        
-        const walk = async(current:string):Promise<void>=>{
-            
-            const entries = await fs.promises.readdir(current,{withFileTypes:true});
+    private async collectPdfs(dir: string): Promise<string[]> {
+        const result: string[] = [];
+    
+        const walk = async (current: string): Promise<void> => {
+            const entries = await fs.promises.readdir(current, {withFileTypes: true});
             for(const entry of entries){
-                
-                const fullPath = path.join(current,entry.name);
-                if(entry.isDirectory())await walk(fullPath);
+                const fullPath = path.join(current, entry.name);
+                if(entry.isDirectory()) await walk(fullPath);
                 else if(entry.isFile() && entry.name.toLowerCase().endsWith('.pdf')) result.push(fullPath);
-                
             }
-            
         };
-        
+    
         await walk(dir);
-        result.sort((a,b)=>path.basename(a).toLowerCase().localeCompare(
+        result.sort((a, b) => path.basename(a).toLowerCase().localeCompare(
             path.basename(b).toLowerCase(),
             undefined,
-            {numeric:true,sensitivity:'base'}
+            {numeric: true, sensitivity: 'base'}
         ));
-        
-        return result;
-        
+    
+        const safePaths: string[] = [];
+        for(let i = 0; i < result.length; i++){
+            const safePath = path.join(path.dirname(result[i]), `__safe_${i + 1}.pdf`);
+            await fs.promises.rename(result[i], safePath);
+            safePaths.push(safePath);
+        }
+    
+        return safePaths;
     }
     
 }
