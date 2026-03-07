@@ -188,7 +188,7 @@ export class TextHandler extends BaseHandler{
         }
         
         await this.logger.logAction('TextHandler:handleSplitPages',ctx.from!,'Split pages',`Pages: ${pages}`);
-        const statusMsg = await ctx.reply(i18n.message.common.wait,{parse_mode:'HTML'});
+        const statusMsg = await ctx.reply(i18n.messages.common.wait,{parse_mode:'HTML'});
         
         try{
             

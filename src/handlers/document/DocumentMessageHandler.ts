@@ -39,8 +39,6 @@ export class DocumentMessageHandler extends BaseHandler{
       reply_markup: { remove_keyboard: true },
     });
     
-    (async ()=>{
-      
       let localPath:string|null = null;
       
       try{
@@ -74,8 +72,6 @@ export class DocumentMessageHandler extends BaseHandler{
         await this.handleError(ctx,error as Error,statusMsg.message_id,localPath,lang);
         
       }
-      
-    })();
     
   }
   

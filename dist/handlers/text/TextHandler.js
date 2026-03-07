@@ -121,7 +121,7 @@ export class TextHandler extends BaseHandler {
             return;
         }
         await this.logger.logAction('TextHandler:handleSplitPages', ctx.from, 'Split pages', `Pages: ${pages}`);
-        const statusMsg = await ctx.reply(i18n.message.common.wait, { parse_mode: 'HTML' });
+        const statusMsg = await ctx.reply(i18n.messages.common.wait, { parse_mode: 'HTML' });
         try {
             const sizeBytes = fs.statSync(filePath).size;
             const result = await this.worker.split(ctx, filePath, pages, sizeBytes);

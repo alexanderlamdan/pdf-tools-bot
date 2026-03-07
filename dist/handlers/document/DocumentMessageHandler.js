@@ -23,29 +23,27 @@ export class DocumentMessageHandler extends BaseHandler {
             parse_mode: 'HTML',
             reply_markup: { remove_keyboard: true },
         });
-        (async () => {
-            let localPath = null;
-            try {
-                localPath = await this.fileService.downloadFile(ctx, document.file_id);
-                const info = await this.worker.getPdfInfo(ctx, localPath, lang, document.file_size || 0);
-                ctx.session.filePaths = [localPath];
-                ctx.session.tempParams = { originalName: document.file_name || 'doc.pdf' };
-                await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id);
-                if (info.is_corrupt && !info.encrypted) {
-                    await this.handleCorruptFile(ctx, lang);
-                }
-                else if (info.encrypted) {
-                    await this.handleEncryptedFile(ctx, lang);
-                }
-                else {
-                    await this.handleValidFile(ctx, document, info, lang);
-                }
-                localPath = null;
+        let localPath = null;
+        try {
+            localPath = await this.fileService.downloadFile(ctx, document.file_id);
+            const info = await this.worker.getPdfInfo(ctx, localPath, lang, document.file_size || 0);
+            ctx.session.filePaths = [localPath];
+            ctx.session.tempParams = { originalName: document.file_name || 'doc.pdf' };
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id);
+            if (info.is_corrupt && !info.encrypted) {
+                await this.handleCorruptFile(ctx, lang);
             }
-            catch (error) {
-                await this.handleError(ctx, error, statusMsg.message_id, localPath, lang);
+            else if (info.encrypted) {
+                await this.handleEncryptedFile(ctx, lang);
             }
-        })();
+            else {
+                await this.handleValidFile(ctx, document, info, lang);
+            }
+            localPath = null;
+        }
+        catch (error) {
+            await this.handleError(ctx, error, statusMsg.message_id, localPath, lang);
+        }
     }
     async handleBulkMergeFile(ctx) {
         const lang = this.getLang(ctx);
