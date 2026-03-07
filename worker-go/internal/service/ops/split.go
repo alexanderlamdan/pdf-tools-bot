@@ -2,6 +2,7 @@ package ops
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,6 +27,10 @@ func Split(req domain.Request, log *logger.Logger) domain.Response {
 		return domain.Response{Status: "error", Error: "Invalid page range format"}
 	}
 
+	if len(pagesArray) == 1 {
+		return domain.Response{Status: "error", Error: "Cannot split: only 1 page selected. Please specify at least 2 pages."}
+	}
+
 	tempDir, err := os.MkdirTemp("", "pdf_split_*")
 	if err != nil {
 		log.Error("Failed to create temp dir: %v", err)
@@ -40,12 +45,11 @@ func Split(req domain.Request, log *logger.Logger) domain.Response {
 		baseName = strings.TrimSuffix(baseName, filepath.Ext(baseName))
 	}
 
-	// Извлекаем каждую страницу отдельно
-	var safePaths     []string
+	var safePaths      []string
 	var beautifulNames []string
 
 	for _, p := range pagesArray {
-		safePath     := filepath.Join(tempDir, fmt.Sprintf("%d.pdf", p))
+		safePath      := filepath.Join(tempDir, fmt.Sprintf("%d.pdf", p))
 		beautifulName := fmt.Sprintf("%s-page_%d.pdf", baseName, p)
 
 		args := []string{req.InputPath, "--pages", ".", strconv.Itoa(p), "--", safePath}
@@ -63,12 +67,6 @@ func Split(req domain.Request, log *logger.Logger) domain.Response {
 		return domain.Response{Status: "error", Error: "Failed to extract any pages. Check range"}
 	}
 
-	// 1 страница — отказываем, смысла нет
-	if len(safePaths) == 1 {
-		return domain.Response{Status: "error", Error: "Cannot split: only 1 page selected. Please specify at least 2 pages."}
-	}
-
-	// Переименовываем в красивые имена для ZIP
 	for i, safePath := range safePaths {
 		os.Rename(safePath, filepath.Join(tempDir, beautifulNames[i]))
 	}
@@ -79,23 +77,49 @@ func Split(req domain.Request, log *logger.Logger) domain.Response {
 		return domain.Response{Status: "error", Error: "Failed to create ZIP archive"}
 	}
 
-	// 2-10 страниц — отдельные файлы + ZIP
 	if len(safePaths) <= 10 {
-		// Собираем пути после переименования
-		var renamedPaths []string
+		outputDir := filepath.Dir(req.InputPath)
+		var finalPaths []string
+
 		for _, name := range beautifulNames {
-			renamedPaths = append(renamedPaths, filepath.Join(tempDir, name))
+			src := filepath.Join(tempDir, name)
+			dst := filepath.Join(outputDir, name)
+			if err := copyFile(src, dst); err != nil {
+				log.Error("Failed to copy page file %s: %v", name, err)
+				continue
+			}
+			finalPaths = append(finalPaths, dst)
 		}
+
+		if len(finalPaths) == 0 {
+			return domain.Response{Status: "error", Error: "Failed to copy split pages"}
+		}
+
 		log.Info("Split %d pages: individual files + ZIP", len(safePaths))
-		return domain.Response{Status: "ok", Paths: renamedPaths, ZipPath: zipOutputPath}
+		return domain.Response{Status: "ok", Paths: finalPaths, ZipPath: zipOutputPath}
 	}
 
-	// 10+ страниц — только ZIP
 	log.Info("Split %d pages: ZIP only", len(safePaths))
 	return domain.Response{Status: "ok", ZipPath: zipOutputPath}
 }
 
-// NormalizePages — чистит пользовательский ввод диапазонов страниц
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	return err
+}
+
 func NormalizePages(input string) string {
 	for _, c := range []string{"(", ")", "[", "]"} {
 		input = strings.ReplaceAll(input, c, "")
