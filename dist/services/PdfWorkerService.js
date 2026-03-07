@@ -118,6 +118,7 @@ export class PdfWorkerService {
                 throw new Error(data.error);
             return {
                 path: data.path,
+                paths: data.paths,
                 zipPath: data.zipPath
             };
         });

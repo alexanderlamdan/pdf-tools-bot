@@ -5,6 +5,7 @@ import { MergeAction, MERGE_CONFIRM_WORDS } from '../buttons/actions/MergeAction
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
 import fs from 'fs';
+import path from 'path';
 export class TextHandler extends BaseHandler {
     async handle(ctx) {
         const text = ctx.message?.text;
@@ -128,39 +129,38 @@ export class TextHandler extends BaseHandler {
             const sizeBytes = fs.statSync(filePath).size;
             const result = await this.worker.split(ctx, filePath, pages, sizeBytes);
             const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
-            const safeNamePdf = FileNameUtils.getSafeName(originalName, 'splitted');
-            await ctx.replyWithDocument(new InputFile(result.path, safeNamePdf), {
-                caption: i18n.messages.actions.split_caption_success_file + `<b>${pages}</b>`,
-                parse_mode: 'HTML',
-                reply_markup: result.zipPath ? undefined : this.keyboards.getMainMenu(lang, isAdmin)
-            });
-            const statsPdf = await fs.promises.stat(result.path);
-            let totalLogSize = statsPdf.size;
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            if (result.paths && result.paths.length > 0) {
+                for (const pagePath of result.paths) {
+                    const safeName = FileNameUtils.getSafeName(path.basename(pagePath), '');
+                    await ctx.replyWithDocument(new InputFile(pagePath, safeName), {
+                        parse_mode: 'HTML'
+                    });
+                    await new Promise(r => setTimeout(r, 1200));
+                    await this.fileService.deleteFile(pagePath);
+                }
+            }
             if (result.zipPath) {
-                const safeNameZip = safeNamePdf.replace('.pdf', '.zip');
-                await ctx.replyWithDocument(new InputFile(result.zipPath, safeNamePdf), {
+                const safeNameZip = FileNameUtils.getSafeName(originalName, 'splitted').replace('.pdf', '.zip');
+                await ctx.replyWithDocument(new InputFile(result.zipPath, safeNameZip), {
                     caption: i18n.messages.actions.split_caption_success_zip + `<b>${pages}</b>`,
                     parse_mode: 'HTML',
                     reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
                 });
-                const statsZip = await fs.promises.stat(result.path);
-                totalLogSize += statsZip.size;
                 await this.fileService.deleteFile(result.zipPath);
             }
-            await this.db.logAction(ctx.from.id, 'split', totalLogSize);
-            await this.logger.logAction('TextHandler:handleSplitPages', ctx.from, 'Split result', `Pages: ${pages}`, result.zipPath ? 'PDF + ZIP' : 'PDF only');
+            const totalSize = fs.statSync(filePath).size;
+            await this.db.logAction(ctx.from.id, 'split', totalSize);
+            await this.logger.logAction('TextHandler:handleSplitPages', ctx.from, 'Split result', `Pages: ${pages}`, result.paths ? `${result.paths.length} files + ZIP` : 'ZIP only');
             await this.fileService.deleteFile(filePath);
-            await this.fileService.deleteFile(result.path);
             await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
             ctx.session = initialSession();
         }
         catch (e) {
-            await this.logger.error('TextHandler:handleSplitPages', e, { user: ctx.from, message: ctx.message });
-            await ctx.reply(`Error:${e.message}`, { reply_markup: this.keyboards.getMainMenu(lang, isAdmin) });
-            ctx.session = initialSession();
-        }
-        finally {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            await this.logger.error('TextHandler:handleSplitPages', e, { user: ctx.from, message: ctx.message });
+            await ctx.reply(`Error: ${e.message}`, { reply_markup: this.keyboards.getMainMenu(lang, isAdmin) });
+            ctx.session = initialSession();
         }
     }
     async handleRejected(ctx, lang, i18n, isAdmin, text) {
