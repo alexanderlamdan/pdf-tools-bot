@@ -55,7 +55,6 @@ export class MergeArchiveHandler extends BaseHandler {
             let totalSize = 0;
             for (const f of pdfFiles)
                 totalSize += (await fs.promises.stat(f)).size;
-            await this.logger.logAction('MergeArchiveHandler:handle', ctx.from, 'Sending to merge', `Paths: ${pdfFiles.join(', ')}`);
             const result = await this.worker.merge(ctx, pdfFiles, totalSize);
             const archiveName = FileNameUtils.getSafeName(doc.file_name || 'archived', '_merged');
             if (result.isFallback) {
