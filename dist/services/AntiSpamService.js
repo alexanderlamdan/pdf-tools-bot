@@ -5,7 +5,19 @@ export class AntiSpamService {
         const now = Date.now();
         const lastTime = ctx.session.lastRequestTime || 0;
         const timeDiff = now - lastTime;
-        if (ctx.callbackQuery || ctx.session.step === 'waiting_for_password') {
+        if (ctx.callbackQuery) {
+            ctx.session.lastRequestTime = now;
+            return true;
+        }
+        const waitingSteps = [
+            'waiting_for_password',
+            'waiting_for_split_pages',
+            'waiting_for_merge_confirm',
+            'waiting_for_merge_files',
+            'waiting_for_merge_bulk',
+            'waiting_for_merge_archive',
+        ];
+        if (waitingSteps.includes(ctx.session.step)) {
             ctx.session.lastRequestTime = now;
             return true;
         }
