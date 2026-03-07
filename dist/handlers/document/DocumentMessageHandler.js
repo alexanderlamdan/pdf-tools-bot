@@ -17,7 +17,9 @@ export class DocumentMessageHandler extends BaseHandler {
             await this.handleInvalidFormat(ctx, document, lang, isAdmin);
             return;
         }
-        await this.checkTrafficLimits(ctx, document);
+        const isBlocked = await this.checkTrafficLimits(ctx, document);
+        if (isBlocked)
+            return;
         await this.trackActivity(ctx, document, lang);
         const statusMsg = await ctx.reply(i18n.messages.analysis.processing, {
             parse_mode: 'HTML',
@@ -71,19 +73,21 @@ export class DocumentMessageHandler extends BaseHandler {
     async checkTrafficLimits(ctx, document) {
         const user = await this.db.getUser(ctx.from.id);
         if (!user || user.isVip === 1)
-            return;
+            return false;
         const i18n = this.getI18n(ctx);
+        const isAdmin = this.isAdmin(ctx);
+        const lang = this.getLang(ctx);
         const currentState = getTrafficState(user, this.config.adminId);
         const fileSizeBytes = document.file_size || 0;
         if (currentState.status === 'blocked') {
-            await this.logger.logAction('DocumentMessageHandler:checkTrafficLimits', ctx.from, 'Upload blocked', `Used ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB`);
+            await this.logger.logAction('DocumentMessageHandler:checkTrafficLimits', ctx.from, 'Upload blocked — traffic limit exceeded', `${isAdmin ? '[ADMIN] ' : ''}Used ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB`);
             await ctx.reply(i18n.messages.subscription.limit_exceeded, {
                 parse_mode: 'HTML',
-                reply_markup: this.keyboards.getSubscriptionMenu(this.getLang(ctx))
+                reply_markup: this.keyboards.getSubscriptionMenu(lang)
             });
             ctx.session.currentAction = 'idle';
             ctx.session.step = 'idle';
-            return;
+            return true;
         }
         const stateAfter = getTrafficStateAfterFile(user, fileSizeBytes, this.config.adminId);
         if (stateAfter.status === 'blocked') {
@@ -93,6 +97,7 @@ export class DocumentMessageHandler extends BaseHandler {
         else if (currentState.status === 'warning' || currentState.status === 'warning_strong') {
             ctx.session.tempParams = { ...ctx.session.tempParams, trafficWarning: currentState.remainMB };
         }
+        return false;
     }
     async trackActivity(ctx, doc, lang) {
         await this.registerUser(ctx);

@@ -31,7 +31,9 @@ export class DocumentMessageHandler extends BaseHandler{
       
     }
     
-    await this.checkTrafficLimits(ctx,document);
+    const isBlocked = await this.checkTrafficLimits(ctx, document);
+    if(isBlocked) return;
+    
     await this.trackActivity(ctx,document,lang);
     
     const statusMsg = await ctx.reply(i18n.messages.analysis.processing, {
@@ -115,30 +117,35 @@ export class DocumentMessageHandler extends BaseHandler{
       
   }
   
-  private async checkTrafficLimits(ctx:BotContext,document:Document):Promise<void>{
+  private async checkTrafficLimits(ctx:BotContext,document:Document):Promise<boolean>{
     
     const user = await this.db.getUser(ctx.from!.id);
-    if(!user || user.isVip === 1) return;
+    if(!user || user.isVip === 1) return false;
     
     const i18n = this.getI18n(ctx);
+    const isAdmin= this.isAdmin(ctx);
+    const lang= this.getLang(ctx);
     const currentState = getTrafficState(user,this.config.adminId);
     
     const fileSizeBytes = document.file_size || 0;
     
     if(currentState.status === 'blocked'){
       
-      await this.logger.logAction('DocumentMessageHandler:checkTrafficLimits',ctx.from!,'Upload blocked',`Used ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB`);
+      await this.logger.logAction(
+        'DocumentMessageHandler:checkTrafficLimits',
+        ctx.from!,
+        'Upload blocked — traffic limit exceeded',
+        `${isAdmin ? '[ADMIN] ' : ''}Used ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB`
+      );
       
-      await ctx.reply(i18n.messages.subscription.limit_exceeded,{
-        
-        parse_mode:'HTML',
-        reply_markup:this.keyboards.getSubscriptionMenu(this.getLang(ctx))
-        
+      await ctx.reply(i18n.messages.subscription.limit_exceeded, {
+        parse_mode:   'HTML',
+        reply_markup: this.keyboards.getSubscriptionMenu(lang)
       });
       
       ctx.session.currentAction = 'idle';
       ctx.session.step = 'idle';
-      return;
+      return true;
       
     }
     
@@ -154,6 +161,8 @@ export class DocumentMessageHandler extends BaseHandler{
       ctx.session.tempParams = {...ctx.session.tempParams,trafficWarning:currentState.remainMB} as any;
       
     }
+    
+    return false;
     
   }
   
