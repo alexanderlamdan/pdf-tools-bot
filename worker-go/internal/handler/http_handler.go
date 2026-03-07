@@ -16,23 +16,17 @@ type Handler struct {
 }
 
 func NewHandler(s *service.PdfService, l *logger.Logger) *Handler {
-
 	return &Handler{service: s, log: l}
-
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	start := time.Now()
 
 	var req domain.Request
-
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-
 		h.log.Error("Invalid JSON received: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
-
 	}
 
 	if req.Lang == "" {
@@ -44,7 +38,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var resp domain.Response
 
 	switch req.Action {
-
 	case "info":
 		resp = h.service.GetInfo(req)
 	case "encrypt":
@@ -69,5 +62,4 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 	h.log.Debug("Request completed in %s | Action: %s | Status: %s", time.Since(start), req.Action, resp.Status)
-
 }

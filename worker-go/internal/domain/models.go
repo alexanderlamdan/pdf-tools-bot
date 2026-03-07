@@ -17,5 +17,5 @@ type Response struct {
 	Path       string      `json:"path,omitempty"`
 	ZipPath    string      `json:"zipPath,omitempty"`
 	Paths      []string    `json:"paths,omitempty"`
-	IsFallback bool        `json:isFallback,omitempty`
+	IsFallback bool        `json:"isFallback,omitempty"`
 }

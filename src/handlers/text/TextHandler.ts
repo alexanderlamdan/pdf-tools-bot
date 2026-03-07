@@ -27,10 +27,6 @@ export class TextHandler extends BaseHandler{
         if(step !== 'waiting_for_merge_confirm' && this.localization.getActionKeyByText(text)) return;
         
         const route = `${action}:${step}`;
-        await this.logger.logAction('TextHandler:DEBUG', ctx.from!, 
-            `step=${ctx.session.step} action=${ctx.session.currentAction}`, 
-            `text="${text}"`
-        );
         
         switch(route){
             

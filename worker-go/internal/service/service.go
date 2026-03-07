@@ -1,0 +1,80 @@
+package service
+
+import (
+	"path/filepath"
+	"time"
+
+	"pdf-worker/internal/domain"
+	"pdf-worker/internal/logger"
+	"pdf-worker/internal/service/ops"
+)
+
+type PdfService struct {
+	log          *logger.Logger
+	heavyTaskSem chan struct{}
+}
+
+func NewPdfService(l *logger.Logger) *PdfService {
+	return &PdfService{
+		log:          l,
+		heavyTaskSem: make(chan struct{}, 2),
+	}
+}
+
+func (s *PdfService) executeHeavyTask(name string, inputPath string, task func() domain.Response) domain.Response {
+	s.log.Info("Queueing heavy task: %s | File: %s", name, filepath.Base(inputPath))
+	s.heavyTaskSem <- struct{}{}
+
+	start := time.Now()
+	s.log.Info("Started heavy task: %s | File: %s", name, filepath.Base(inputPath))
+	defer func() {
+		<-s.heavyTaskSem
+		s.log.TrackTime(start, name, inputPath)
+	}()
+
+	return task()
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+func (s *PdfService) GetInfo(req domain.Request) domain.Response {
+	return ops.GetInfo(req, s.log)
+}
+
+func (s *PdfService) Compress(req domain.Request) domain.Response {
+	return s.executeHeavyTask("Compress", req.InputPath, func() domain.Response {
+		return ops.Compress(req, s.log)
+	})
+}
+
+func (s *PdfService) Encrypt(req domain.Request) domain.Response {
+	return ops.Encrypt(req, s.log)
+}
+
+func (s *PdfService) Decrypt(req domain.Request) domain.Response {
+	return ops.Decrypt(req, s.log)
+}
+
+func (s *PdfService) Crack(req domain.Request) domain.Response {
+	return s.executeHeavyTask("Crack", req.InputPath, func() domain.Response {
+		return ops.Crack(req, s.log)
+	})
+}
+
+func (s *PdfService) Repair(req domain.Request) domain.Response {
+	return s.executeHeavyTask("Repair", req.InputPath, func() domain.Response {
+		return ops.Repair(req, s.log)
+	})
+}
+
+func (s *PdfService) Split(req domain.Request) domain.Response {
+	return s.executeHeavyTask("Split", req.InputPath, func() domain.Response {
+		return ops.Split(req, s.log)
+	})
+}
+
+func (s *PdfService) Merge(req domain.Request) domain.Response {
+	return s.executeHeavyTask("Merge", req.InputPaths[0], func() domain.Response {
+		return ops.Merge(req, s.log)
+	})
+}
