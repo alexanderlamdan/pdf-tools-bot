@@ -70,7 +70,10 @@ export class HandlerRegistry{
       }
       
       const step = ctx.session.step;
-      const awaitingInput = step === 'waiting_for_password' || step === 'waiting_for_split_pages' || step === 'waiting_for_merge_confirm';
+      const awaitingInput = step === 'waiting_for_password' || 
+                      step === 'waiting_for_split_pages' || 
+                      step === 'waiting_for_merge_confirm' ||
+                      step === 'waiting_for_merge_bulk';
       
       if(awaitingInput){
         
