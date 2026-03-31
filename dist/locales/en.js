@@ -170,7 +170,15 @@ The bot does not see, know, or receive any of your data except what is necessary
             merge_fallback: `❌ <b>We tried everything.</b>\n\nWe ran the merge through all available tools — qpdf, ghostscript, pdftk and pdfunite (the engine behind Adobe's own PDF tools). It is not possible to merge these files into a single PDF.\n\n📦 <b>Here's what we can do:</b> we split the result into parts of 10 pages each and packed them into a ZIP archive. Each part is also sent as a separate file.`,
             merged_from_archive: `✅ Merged files from archive: `,
             merge_zip_success: '📦 All parts in one archive',
-            merge_confirm_words: ' files ready. Press the button to merge.'
+            merge_confirm_words: ' files ready. Press the button to merge.',
+            metadata_reading: '🔍 <b>Reading metadata...</b>',
+            metadata_wiping: '🧹 <b>Wiping metadata...</b>\nThis may take a moment.',
+            metadata_found_title: '🔎 <b>Metadata found in your file:</b>\n━━━━━━━━━━━━━━━━━━',
+            metadata_empty: '✅ No metadata found — file is already clean.',
+            metadata_watermark_found: '<b>Watermark detected</b> — will be removed too.',
+            metadata_confirm_ask: '⚠️ <b>This action is irreversible.</b>\n\nAll metadata will be permanently deleted and cannot be restored.\n\nType <b>yes</b> to confirm and wipe:',
+            metadata_wipe_success: '✅ <b>Done! Metadata wiped.</b>\n\nThe file is now clean. Choose your next action:',
+            suffix_metadata_clean: '_CLEAN',
         },
         common: {
             yes: "Yes",

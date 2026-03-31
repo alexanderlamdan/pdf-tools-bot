@@ -78,3 +78,19 @@ func (s *PdfService) Merge(req domain.Request) domain.Response {
 		return ops.Merge(req, s.log)
 	})
 }
+
+func (s *PdfService) ReadMetadata(req domain.Request) domain.Response {
+
+	return ops.ReadMetadata(req, s.log)
+
+}
+
+func (s *PdfService) WipeMetadata(req domain.Request) domain.Response {
+
+	return s.executeHeavyTask("WipeMetadata", req.InputPath, func() domain.Response {
+
+		return ops.WipeMetadata(req, s.log)
+
+	})
+
+}

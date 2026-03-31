@@ -179,7 +179,15 @@ export default {
       merge_bulk_received: '✅ התקבלו <b>{{count}}</b> קבצים.\n\nסיימת? כתוב <b>כן</b> כדי להמשיך, או המשך לשלוח.',
       merge_fallback:      `❌ <b>ניסינו הכל.</b>\n\nהרצנו את החיבור דרך כל הכלים הזמינים — qpdf, ghostscript, pdftk ו-pdfunite (המנוע של Adobe עצמם). לא ניתן לאחד את הקבצים לקובץ PDF אחד.\n\n📦 <b>מה שאנחנו יכולים לעשות:</b> מחלקים את התוצאה לחלקים של 10 עמודים כל אחד, וארוזים ב-ZIP. כל חלק גם נשלח בנפרד.`,
       merged_from_archive:`✅ איחדנו קבצים מארכיון: `,
-      merge_zip_success:'📦 כל הקבצים בתוך ארכיון'
+      merge_zip_success:'📦 כל הקבצים בתוך ארכיון',
+      metadata_reading:         '🔍 <b>בודק את הקובץ...</b>',
+      metadata_wiping:          '🧹 <b>מנקה את הקובץ...</b>\nאנא המתן.',
+      metadata_found_title:     '🔎 <b>מידע נסתר שנמצא בקובץ:</b>\n━━━━━━━━━━━━━━━━━━',
+      metadata_empty:           '✅ לא נמצא מידע נסתר — הקובץ כבר נקי.',
+      metadata_watermark_found: '<b>זוהה סימן מים בקובץ</b> — יוסר גם כן.',
+      metadata_confirm_ask:     '⚠️ <b>פעולה זו אינה הפיכה.</b>\n\nכל המידע הנסתר יימחק לצמיתות ולא ניתן לשחזרו.\n\nכתוב <b>כן</b> לאישור:',
+      metadata_wipe_success:    '✅ <b>הקובץ נוקה בהצלחה!</b>\n\nכל המידע הנסתר הוסר. בחר את הפעולה הבאה:',
+      suffix_metadata_clean:    '_CLEAN',
     },
 
     common: {

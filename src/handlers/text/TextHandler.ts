@@ -3,6 +3,7 @@ import { InputFile } from 'grammy';
 import { initialSession } from '../../types/SessionData.js';
 import { BaseHandler } from '../base/BaseHandler.js';
 import { MergeAction, MERGE_CONFIRM_WORDS } from '../buttons/actions/MergeAction.js';
+import {MetadataAction} from '../buttons/actions/MetadataAction.js';
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
 import fs from 'fs';
@@ -42,7 +43,9 @@ export class TextHandler extends BaseHandler{
             case 'split:waiting_for_split_pages':
                 await this.handleSplitPages(ctx,lang,i18n,isAdmin,text);
                 break;
-            
+            case 'analyze:waiting_for_metadata_confirm':
+                await this.handleMetadataConfirm(ctx,lang,i18n,text);
+                break;
             default:
                 if(step === 'waiting_for_merge_confirm' || step === 'waiting_for_merge_bulk'){
                     await new MergeAction(ctx, this).handleBulkConfirm(text);
@@ -244,6 +247,27 @@ export class TextHandler extends BaseHandler{
             parse_mode:   'HTML',
             reply_markup: this.keyboards.getMainMenu(lang, isAdmin),
         });
+        
+    }
+    
+    private async handleMetadataConfirm(ctx:BotContext,lang:string,i18n:any,text:string):Promise<void>{
+        
+        const confirmWords = ['yes','да','כן','yeah','yep','sure','ok','ок','ага'];
+        
+        if(!confirmWords.includes(text.trim().toLowerCase())){
+            
+            await ctx.reply(i18n.messages.actions.metadata_confirm_ask,{
+                
+                parse_mode:'HTML',
+                reply_markup:{force_reply:true}
+                
+            });
+            
+            return;
+            
+        }
+        
+        await new MetadataAction(ctx,this).execute();
         
     }
     

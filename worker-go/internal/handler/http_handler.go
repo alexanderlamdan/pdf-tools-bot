@@ -54,6 +54,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp = h.service.Merge(req)
 	case "split":
 		resp = h.service.Split(req)
+	case "read_metadata":
+		resp = h.service.ReadMetadata(req)
+	case "wipe_metadata":
+		resp = h.service.WipeMetadata(req)
 	default:
 		h.log.Error("Unknown action requested: %s", req.Action)
 		resp = domain.Response{Status: "error", Error: "Unknown action"}

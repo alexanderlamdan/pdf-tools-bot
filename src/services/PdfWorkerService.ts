@@ -29,6 +29,13 @@ export interface IPdfInfo {
     cant_compress_reason: string;
 }
 
+export interface IMetadataInfo{
+    
+    fields:Record<string,string>;
+    hasWatermark:boolean;
+    
+}
+
 interface WorkerResponse{
     
     status: 'ok' | 'error';
@@ -229,6 +236,42 @@ export class PdfWorkerService{
                 isFallback: data.isFallback ?? false,
             } as MergeResult;
         });
+    }
+    
+    public async readMetadata(ctx:BotContext,filePath:string,sizeBytes:number):Promise<IMetadataInfo>{
+        
+        return this.queueService.enqueue(ctx,'read_metadata',sizeBytes,async()=>{
+            
+            const data = await this.sendRequest({
+                
+                action:'read_metadata',
+                inputPath: filePath
+                
+            });
+            
+            if(data.status === 'error') throw new Error(data.error);
+            return data.info as IMetadataInfo;
+            
+        });
+        
+    }
+    
+    public async wipeMetadata(ctx:BotContext,filePath:string,sizeBytes:number):Promise<string>{
+        
+        return this.queueService.enqueue(ctx,'wipe_metadata',sizeBytes,async ()=>{
+            
+            const data = await this.sendRequest({
+                
+                actions:'wipe_metadata',
+                inputPath:filePath
+                
+            });
+            
+            if(data.status === 'error') throw new Error(data.error);
+            return data.path!;
+            
+        })
+        
     }
     
 }

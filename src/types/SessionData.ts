@@ -11,7 +11,8 @@ export interface SessionData{
         'waiting_for_merge_files' |
         'waiting_for_merge_archive' |
         'waiting_for_merge_bulk' |
-        'waiting_for_merge_confirm';
+        'waiting_for_merge_confirm' |
+        'waiting_for_metadata_confirm';
     
     filePaths: string[];
     

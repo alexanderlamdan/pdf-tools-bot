@@ -5,9 +5,11 @@ import {BaseHandler} from '../base/BaseHandler.js';
 import {RepairAction} from './actions/RepairAction.js';
 import {MergeAction} from './actions/MergeAction.js';
 import {UnlockAction} from './actions/UnlockAction.js';
+import {MetadataAction} from './actions/MetadataAction.js';
 import { AdminLogService } from '../../services/AdminLogService.js';
 import {getPaymentLink} from '../../utils/SubscriptionUtils.js';
 import fs from 'fs';
+import {OutgoingMessage} from 'http';
 
 export class ButtonHandler extends BaseHandler{
     
@@ -139,7 +141,9 @@ export class ButtonHandler extends BaseHandler{
             case text === btn.btn_execute_merge:
                 await merge.execute();
                 break;
-            
+            case text === btn.btn.metadata_wiper:
+                await new MetadataAction(ctx,this).showAndAskConfirm();
+                break;
             default:
                 await this.logger.logAction('ButtonHandler', ctx.from!, 'Unhandled button', text, 'In development');
                 await ctx.reply(i18n.messages.common.in_development, { parse_mode: 'HTML' });

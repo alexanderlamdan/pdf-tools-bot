@@ -139,4 +139,26 @@ export class PdfWorkerService {
             };
         });
     }
+    async readMetadata(ctx, filePath, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'read_metadata', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                action: 'read_metadata',
+                inputPath: filePath
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.info;
+        });
+    }
+    async wipeMetadata(ctx, filePath, sizeBytes) {
+        return this.queueService.enqueue(ctx, 'wipe_metadata', sizeBytes, async () => {
+            const data = await this.sendRequest({
+                actions: 'wipe_metadata',
+                inputPath: filePath
+            });
+            if (data.status === 'error')
+                throw new Error(data.error);
+            return data.path;
+        });
+    }
 }
