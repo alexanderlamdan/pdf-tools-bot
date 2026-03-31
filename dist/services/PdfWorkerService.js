@@ -153,7 +153,7 @@ export class PdfWorkerService {
     async wipeMetadata(ctx, filePath, sizeBytes) {
         return this.queueService.enqueue(ctx, 'wipe_metadata', sizeBytes, async () => {
             const data = await this.sendRequest({
-                actions: 'wipe_metadata',
+                action: 'wipe_metadata',
                 inputPath: filePath
             });
             if (data.status === 'error')

@@ -262,7 +262,7 @@ export class PdfWorkerService{
             
             const data = await this.sendRequest({
                 
-                actions:'wipe_metadata',
+                action:'wipe_metadata',
                 inputPath:filePath
                 
             });
