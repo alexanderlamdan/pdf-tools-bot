@@ -23,6 +23,8 @@ export class ButtonHandler extends BaseHandler {
         const i18n = this.getI18n(ctx);
         const isAdmin = this.isAdmin(ctx);
         await this.registerUser(ctx);
+        console.log('[ButtonHandler] text received:', JSON.stringify(text));
+        console.log('[ButtonHandler] btn_metadata_wiper:', JSON.stringify(i18n.buttons.files.btn_metadata_wiper));
         const plan = this.localization.getSubscriptionPlanByButton(text);
         if (plan) {
             await this.handleSubscriptionInfo(ctx, lang, plan);
