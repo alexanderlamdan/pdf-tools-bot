@@ -23,8 +23,6 @@ export class ButtonHandler extends BaseHandler {
         const i18n = this.getI18n(ctx);
         const isAdmin = this.isAdmin(ctx);
         await this.registerUser(ctx);
-        console.log('[ButtonHandler] text received:', JSON.stringify(text));
-        console.log('[ButtonHandler] btn_metadata_wiper:', JSON.stringify(i18n.buttons.files.btn_metadata_wiper));
         const plan = this.localization.getSubscriptionPlanByButton(text);
         if (plan) {
             await this.handleSubscriptionInfo(ctx, lang, plan);
@@ -100,7 +98,7 @@ export class ButtonHandler extends BaseHandler {
             case text === btn.btn_execute_merge:
                 await merge.execute();
                 break;
-            case text === btn.btn.metadata_wiper:
+            case text === btn.btn_metadata_wiper:
                 await new MetadataAction(ctx, this).showAndAskConfirm();
                 break;
             default:
