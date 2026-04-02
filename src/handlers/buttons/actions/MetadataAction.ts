@@ -27,8 +27,9 @@ export class MetadataAction{
             
             const sizeBytes = fs.statSync(localPath).size;
             const info = await handler.worker.readMetadata(ctx,localPath,sizeBytes);
-            
+            console.log('[MetadataAction] readMetadata result:', JSON.stringify(info));
             await ctx.api.deleteMessage(ctx.chat!.id,statusMsg.message_id).catch(()=>{});
+            
             const hasSignature:boolean = info?.hasDigitalSignature || false;
             
             ctx.session.tempParams = {
