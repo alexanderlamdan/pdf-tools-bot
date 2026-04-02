@@ -15,6 +15,8 @@ export class MetadataAction {
         const lang = handler.getLang(ctx);
         const i18n = handler.getI18n(ctx);
         const localPath = ctx.session.filePaths[0];
+        console.log('[MetadataAction] localPath:', localPath);
+        console.log('[MetadataAction] filePaths:', ctx.session.filePaths);
         await handler.logger.logAction("MetadataAction:showAndAskConfirm", ctx.from, 'Read metadata', localPath);
         const statusMsg = await ctx.reply(i18n.messages.actions.metadata_reading, { parse_mode: 'HTML' });
         try {
