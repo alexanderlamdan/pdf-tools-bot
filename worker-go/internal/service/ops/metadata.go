@@ -54,55 +54,54 @@ func WipeMetadata(req domain.Request, log *logger.Logger) domain.Response {
 
 	step1 := utils.GetOutputPath(inputPath, "_step1.pdf")
 
-	var qpdfArgs []string
-
-	if mode == "full_wipe" {
-
-		qpdfArgs = []string{"--linearize", "--remove-page-labels", inputPath, step1}
-
-	} else {
-
-		qpdfArgs = []string{"--linearize", "--remove-page-labels", inputPath, step1}
-
-	}
-
-	cmd := exec.Command("qpdf", qpdfArgs...)
-
+	cmd := exec.Command("qpdf", "--linearize", "--remove-page-labels", inputPath, step1)
 	if out, err := cmd.CombinedOutput(); err != nil {
-
 		if fi, statErr := os.Stat(step1); statErr != nil || fi.Size() == 0 {
-
 			log.Error("WipeMetadata qpdf step failed: %s", utils.CleanError(string(out)))
 			return domain.Response{Status: "error", Error: utils.CleanError(string(out))}
-
 		}
-
 	}
-
 	defer os.Remove(step1)
 
-	var exifArgs []string
+	if mode == "full_wipe" {
+		step1gs := utils.GetOutputPath(inputPath, "_step1gs.pdf")
+		cmdGs := exec.Command("gs",
+			"-sDEVICE=pdfwrite",
+			"-dCompatibilityLevel=1.4",
+			"-dNOPAUSE", "-dQUIET", "-dBATCH",
+			"-dFastWebView=false",
+			fmt.Sprintf("-sOutputFile=%s", step1gs),
+			step1,
+		)
+		if out, err := cmdGs.CombinedOutput(); err != nil || func() bool { fi, e := os.Stat(step1gs); return e != nil || fi.Size() == 0 }() {
+			log.Error("WipeMetadata gs flatten failed: %s", utils.CleanError(string(out)))
 
+		} else {
+			os.Remove(step1)
+			if err := os.Rename(step1gs, step1); err != nil {
+				log.Error("WipeMetadata rename failed: %v", err)
+			}
+		}
+	}
+
+	var exifArgs []string
 	if mode == "full_wipe" {
 
-		exifArgs = []string{"-all=", "--overwrite_original", step1}
-
+		exifArgs = []string{"-all=", "-overwrite_original", step1}
 	} else {
 
 		exifArgs = []string{
-
 			"-Author=", "-Creator=", "-Producer=",
 			"-Title=", "-Subject=", "-Keywords=",
 			"-Description=", "-Copyright=", "-Company=",
 			"-XMP:all=",
-			"-overwrite_original", step1,
+			"-overwrite_original",
+			step1,
 		}
-
 	}
 
 	cmdExif := exec.Command("exiftool", exifArgs...)
 	if out, err := cmdExif.CombinedOutput(); err != nil {
-
 		log.Error("WipeMetadata exiftool step failed: %s", string(out))
 
 	}
@@ -110,40 +109,34 @@ func WipeMetadata(req domain.Request, log *logger.Logger) domain.Response {
 	hasWatermark := detectWatermark(step1, log)
 
 	if hasWatermark && mode == "full_wipe" {
-
-		log.Info("Watermark detected in %s - running gs flatten", filepath.Base(inputPath))
-		cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", "-dPDFSETTINGS=/prepress", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dFastWebView=false", fmt.Sprintf("-sOutputFile=%s", outputPath), step1)
-
+		log.Info("Watermark detected in %s — running gs flatten", filepath.Base(inputPath))
+		cmd := exec.Command("gs",
+			"-sDEVICE=pdfwrite",
+			"-dCompatibilityLevel=1.4",
+			"-dPDFSETTINGS=/prepress",
+			"-dNOPAUSE", "-dQUIET", "-dBATCH",
+			"-dFastWebView=false",
+			fmt.Sprintf("-sOutputFile=%s", outputPath),
+			step1,
+		)
 		if out, err := cmd.CombinedOutput(); err != nil {
-
 			log.Error("WipeMetadata gs step failed: %s", utils.CleanError(string(out)))
 			if copyErr := copyFile(step1, outputPath); copyErr != nil {
-
 				return domain.Response{Status: "error", Error: "Failed to produce output"}
-
 			}
-
 		}
-
 	} else {
-
 		if err := copyFile(step1, outputPath); err != nil {
-
 			return domain.Response{Status: "error", Error: "Failed to produce output"}
-
 		}
-
 	}
 
 	if fi, err := os.Stat(outputPath); err != nil || fi.Size() == 0 {
-
-		return domain.Response{Status: "error", Error: "Output file empty or missing"}
-
+		return domain.Response{Status: "error", Error: "Output file is empty or missing"}
 	}
 
-	log.Info("WipeMetadata completed for %s (watermark %v)", filepath.Base(inputPath), hasWatermark)
+	log.Info("WipeMetadata completed for %s (mode: %s, watermark: %v)", filepath.Base(inputPath), mode, hasWatermark)
 	return domain.Response{Status: "ok", Path: outputPath}
-
 }
 
 func detectDigitalSignature(path string, log *logger.Logger) bool {
