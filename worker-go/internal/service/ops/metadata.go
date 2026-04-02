@@ -181,30 +181,29 @@ func detectDigitalSignature(path string, log *logger.Logger) bool {
 
 	}
 
-	cmd2 := exec.Command("strings", path)
-	output2, _ := cmd2.CombinedOutput()
-
-	lower2 := strings.ToLower(string(output2))
-
-	strMarkers := []string{
-
-		"/type /sig",
-		"/ft /sig",
-		"etsi.cades",
-		"etsi.rfc3161",
-		"adbe.pkcs7",
-		"adobe.ppklite",
-		"comsign",
-		"comsigntrust",
-		"/sigflags",
-		"/byterange",
-	}
-
-	for _, marker := range strMarkers {
-		if strings.Contains(lower2, marker) {
-			log.Info("Digital signature marker found via strings in %s: %s", filepath.Base(path), marker)
-			return true
+	raw, err2 := os.ReadFile(path)
+	if err2 == nil {
+		lower2 := strings.ToLower(string(raw))
+		strMarkers := []string{
+			"/type /sig",
+			"/ft /sig",
+			"etsi.cades",
+			"etsi.rfc3161",
+			"adbe.pkcs7",
+			"adobe.ppklite",
+			"comsign",
+			"comsigntrust",
+			"/sigflags",
+			"/byterange",
 		}
+
+		for _, marker := range strMarkers {
+			if strings.Contains(lower2, marker) {
+				log.Info("Digital signature marker found via strings in %s: %s", filepath.Base(path), marker)
+				return true
+			}
+		}
+
 	}
 
 	return false
