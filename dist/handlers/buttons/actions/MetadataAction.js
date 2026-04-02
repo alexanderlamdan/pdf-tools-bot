@@ -21,18 +21,59 @@ export class MetadataAction {
             const sizeBytes = fs.statSync(localPath).size;
             const info = await handler.worker.readMetadata(ctx, localPath, sizeBytes);
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
-            const report = this.formMetadataReport(info, i18n);
-            ctx.session.step = 'waiting_for_metadata_confirm';
-            ctx.session.currentAction = 'analyze';
-            await ctx.reply(report, {
-                parse_mode: 'HTML',
-                reply_markup: { force_reply: true }
-            });
+            const hasSignature = info?.hasDigitalSignature || false;
+            ctx.session.tempParams = {
+                ...ctx.session.tempParams,
+                metadataHasSignature: hasSignature
+            };
+            if (hasSignature) {
+                ctx.session.step = 'waiting_for_metadata_mode';
+                ctx.session.currentAction = 'analyze';
+                await ctx.reply(this.formMetadataReport(info, i18n, true), {
+                    parse_mode: 'HTML',
+                    reply_markup: { force_reply: true }
+                });
+            }
+            else {
+                ctx.session.step = 'waiting_for_metadata_confirm';
+                ctx.session.currentAction = 'analyze';
+                await ctx.reply(this.formMetadataReport(info, i18n, false), {
+                    parse_mode: 'HTML',
+                    reply_markup: { force_reply: true }
+                });
+            }
         }
         catch (e) {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
             await handler.logger.error('MetadataAction:showAndAskConfirm', e, { user: ctx.from, message: ctx.message });
             await ctx.reply(`❌ ${e.message}`);
+        }
+    }
+    async handleModeChoise(text) {
+        const { ctx, handler } = this;
+        const i18n = handler.getI18n(ctx);
+        const choise = text.trim();
+        if (choise === '1') {
+            ctx.session.step = 'waiting_for_metadata_confirm';
+            ctx.session.tempParams = { ...ctx.session.tempParams, password: 'keep_signature' };
+            await ctx.reply(i18n.messages.actions.metadata_confirm_keep_sig, {
+                parse_mode: 'HTML',
+                reply_markup: { force_reply: true }
+            });
+        }
+        else if (choise === '2') {
+            ctx.session.step = 'waiting_for_metadata_confirm';
+            ctx.session.tempParams = { ...ctx.session.tempParams, password: 'full_wipe' };
+            await ctx.reply(i18n.messages.actions.metadata_confirm_full_wipe, {
+                parse_mode: 'HTML',
+                reply_markup: { force_reply: true }
+            });
+        }
+        else {
+            await ctx.reply(i18n.messages.actions.metadata_mode_invalid, {
+                parse_mode: 'HTML',
+                reply_markup: { force_reply: true }
+            });
         }
     }
     async execute() {
@@ -41,6 +82,8 @@ export class MetadataAction {
         const i18n = handler.getI18n(ctx);
         const localPath = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
+        const hasSignature = ctx.session.tempParams?.metadataHasSignature;
+        const mode = hasSignature ? (ctx.session.tempParams?.password || 'full_wipe') : 'full_wipe';
         await handler.logger.logAction('MetadataAction:execute', ctx.from, 'Wipe metadata', `File: ${originalName}`);
         const statusMsg = await ctx.reply(i18n.messages.actions.metadata_wiping, { parse_mode: 'HTML' });
         try {
@@ -70,7 +113,7 @@ export class MetadataAction {
             ctx.session = initialSession();
         }
     }
-    formMetadataReport(info, i18n) {
+    formMetadataReport(info, i18n, hasSignature) {
         const fields = info?.fields || {};
         const hasWatermark = info?.hasWatermark || false;
         const entries = Object.entries(fields);
@@ -86,7 +129,13 @@ export class MetadataAction {
         if (hasWatermark) {
             report += `\n⚠️ ${i18n.messages.actions.metadata_watermark_found}\n`;
         }
-        report += `\n${i18n.messages.actions.metadata_confirm_ask}`;
+        if (hasSignature) {
+            report += `\n${i18n.messages.actions.metadata_signature_found}\n`;
+            report += `\n${i18n.messages.actions.metadata_mode_ask}`;
+        }
+        else {
+            report += `\n${i18n.messages.actions.metadata_confirm_ask}`;
+        }
         return report;
     }
 }

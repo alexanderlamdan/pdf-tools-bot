@@ -12,7 +12,8 @@ export interface SessionData{
         'waiting_for_merge_archive' |
         'waiting_for_merge_bulk' |
         'waiting_for_merge_confirm' |
-        'waiting_for_metadata_confirm';
+        'waiting_for_metadata_confirm' |
+        'waiting_for_metadata_mode';
     
     filePaths: string[];
     
@@ -20,7 +21,8 @@ export interface SessionData{
         password?:string,
         originalName?:string,
         willExceedLimit?:string,
-        trafficWarning?:string
+        trafficWarning?:string,
+        metadataHasSignature?:boolean
     };
     
     lastRequestTime:number;

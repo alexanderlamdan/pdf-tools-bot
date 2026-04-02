@@ -73,7 +73,7 @@ export class HandlerRegistry{
       const awaitingInput = step === 'waiting_for_password' || 
                       step === 'waiting_for_split_pages' || 
                       step === 'waiting_for_merge_confirm' ||
-                      step === 'waiting_for_merge_bulk' || step === 'waiting_for_metadata_confirm';
+                      step === 'waiting_for_merge_bulk' || step === 'waiting_for_metadata_confirm' || step === 'waiting_for_metadata_mode';
       
       if(awaitingInput){
         

@@ -256,14 +256,15 @@ export class PdfWorkerService{
         
     }
     
-    public async wipeMetadata(ctx:BotContext,filePath:string,sizeBytes:number):Promise<string>{
+    public async wipeMetadata(ctx:BotContext,filePath:string,sizeBytes:number,mode:'keep_signature'|'full_wipe' = 'full_wipe'):Promise<string>{
         
         return this.queueService.enqueue(ctx,'wipe_metadata',sizeBytes,async ()=>{
             
             const data = await this.sendRequest({
                 
                 action:'wipe_metadata',
-                inputPath:filePath
+                inputPath:filePath,
+                password:mode
                 
             });
             

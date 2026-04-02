@@ -19,7 +19,7 @@ export class TextHandler extends BaseHandler {
         if (text.startsWith('/'))
             return;
         const { currentAction: action, step } = ctx.session;
-        if (step !== 'waiting_for_merge_confirm' && this.localization.getActionKeyByText(text))
+        if (step !== 'waiting_for_merge_confirm' && step !== 'waiting_for_metadata_mode' && step !== 'waiting_for_metadata_confirm' && this.localization.getActionKeyByText(text))
             return;
         const route = `${action}:${step}`;
         switch (route) {
@@ -31,6 +31,9 @@ export class TextHandler extends BaseHandler {
                 break;
             case 'split:waiting_for_split_pages':
                 await this.handleSplitPages(ctx, lang, i18n, isAdmin, text);
+                break;
+            case 'analyze:waiting_for_metadata_mode':
+                await this.handleMetadataMode(ctx, lang, i18n, text);
                 break;
             case 'analyze:waiting_for_metadata_confirm':
                 await this.handleMetadataConfirm(ctx, lang, i18n, text);
@@ -177,12 +180,22 @@ export class TextHandler extends BaseHandler {
     async handleMetadataConfirm(ctx, lang, i18n, text) {
         const confirmWords = ['yes', 'да', 'כן', 'yeah', 'yep', 'sure', 'ok', 'ок', 'ага'];
         if (!confirmWords.includes(text.trim().toLowerCase())) {
-            await ctx.reply(i18n.messages.actions.metadata_confirm_ask, {
+            const hasSignature = ctx.session.tempParams?.metadataHasSignature;
+            const mode = ctx.session.tempParams?.password;
+            let confirmMsg = i18n.messages.actions.metadata_confirm_ask;
+            if (hasSignature && mode === 'keep_signature')
+                confirmMsg = i18n.messages.actions.metadata_confirm_keep_sig;
+            if (hasSignature && mode === 'full_wipe')
+                confirmMsg = i18n.messages.actions.metadata_confirm_full_wipe;
+            await ctx.reply(confirmMsg, {
                 parse_mode: 'HTML',
                 reply_markup: { force_reply: true }
             });
             return;
         }
         await new MetadataAction(ctx, this).execute();
+    }
+    async handleMetadataMode(ctx, lang, i18n, text) {
+        await new MetadataAction(ctx, this).handleModeChoise(text);
     }
 }

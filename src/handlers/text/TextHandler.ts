@@ -26,7 +26,7 @@ export class TextHandler extends BaseHandler{
         
         const {currentAction:action,step} = ctx.session;
         
-        if(step !== 'waiting_for_merge_confirm' && this.localization.getActionKeyByText(text)) return;
+       if(step !== 'waiting_for_merge_confirm' && step !== 'waiting_for_metadata_mode' && step !== 'waiting_for_metadata_confirm' && this.localization.getActionKeyByText(text)) return;
         
         const route = `${action}:${step}`;
         
@@ -42,6 +42,9 @@ export class TextHandler extends BaseHandler{
                 
             case 'split:waiting_for_split_pages':
                 await this.handleSplitPages(ctx,lang,i18n,isAdmin,text);
+                break;
+            case 'analyze:waiting_for_metadata_mode':
+                await this.handleMetadataMode(ctx,lang,i18n,text);
                 break;
             case 'analyze:waiting_for_metadata_confirm':
                 await this.handleMetadataConfirm(ctx,lang,i18n,text);
@@ -256,7 +259,15 @@ export class TextHandler extends BaseHandler{
         
         if(!confirmWords.includes(text.trim().toLowerCase())){
             
-            await ctx.reply(i18n.messages.actions.metadata_confirm_ask,{
+            const hasSignature = ctx.session.tempParams?.metadataHasSignature;
+            const mode = (ctx.session.tempParams as any)?.password;
+            
+            let confirmMsg = i18n.messages.actions.metadata_confirm_ask;
+            
+            if(hasSignature && mode === 'keep_signature') confirmMsg = i18n.messages.actions.metadata_confirm_keep_sig;
+            if(hasSignature && mode === 'full_wipe') confirmMsg = i18n.messages.actions.metadata_confirm_full_wipe;
+            
+            await ctx.reply(confirmMsg,{
                 
                 parse_mode:'HTML',
                 reply_markup:{force_reply:true}
@@ -268,6 +279,12 @@ export class TextHandler extends BaseHandler{
         }
         
         await new MetadataAction(ctx,this).execute();
+        
+    }
+    
+    private async handleMetadataMode(ctx:BotContext,lang:string,i18n:any,text:string):Promise<void>{
+        
+        await new MetadataAction(ctx,this).handleModeChoise(text);
         
     }
     

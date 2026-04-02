@@ -150,11 +150,12 @@ export class PdfWorkerService {
             return data.info;
         });
     }
-    async wipeMetadata(ctx, filePath, sizeBytes) {
+    async wipeMetadata(ctx, filePath, sizeBytes, mode = 'full_wipe') {
         return this.queueService.enqueue(ctx, 'wipe_metadata', sizeBytes, async () => {
             const data = await this.sendRequest({
                 action: 'wipe_metadata',
-                inputPath: filePath
+                inputPath: filePath,
+                password: mode
             });
             if (data.status === 'error')
                 throw new Error(data.error);

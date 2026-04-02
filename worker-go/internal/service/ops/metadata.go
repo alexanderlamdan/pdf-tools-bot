@@ -13,8 +13,9 @@ import (
 )
 
 type MetadataInfo struct {
-	Fields       map[string]string `json:"fields"`
-	HasWatermark bool              `json:hasWatermark`
+	Fields              map[string]string `json:"fields"`
+	HasWatermark        bool              `json:hasWatermark`
+	HasDigitalSignature bool              `json:hasDigitalSignature`
 }
 
 func ReadMetadata(req domain.Request, log *logger.Logger) domain.Response {
@@ -32,11 +33,13 @@ func ReadMetadata(req domain.Request, log *logger.Logger) domain.Response {
 	fields := parseExiftoolJSON(string(output))
 
 	hasWatermark := detectWatermark(req.InputPath, log)
+	hasDigitalSignature := detectDigitalSignature(req.InputPath, log)
 
 	info := MetadataInfo{
 
-		Fields:       fields,
-		HasWatermark: hasWatermark,
+		Fields:              fields,
+		HasWatermark:        hasWatermark,
+		HasDigitalSignature: hasDigitalSignature,
 	}
 
 	return domain.Response{Status: "ok", Info: info}
@@ -45,11 +48,25 @@ func ReadMetadata(req domain.Request, log *logger.Logger) domain.Response {
 
 func WipeMetadata(req domain.Request, log *logger.Logger) domain.Response {
 
+	mode := req.Password
 	inputPath := req.InputPath
 	outputPath := utils.GetOutputPath(inputPath, "_clean.pdf")
 
 	step1 := utils.GetOutputPath(inputPath, "_step1.pdf")
-	cmd := exec.Command("qpdf", "--linearize", "--remove-page-labels", inputPath, step1)
+
+	var qpdfArgs []string
+
+	if mode == "full_wipe" {
+
+		qpdfArgs = []string{"--linearize", "--remove-page-labels", inputPath, step1}
+
+	} else {
+
+		qpdfArgs = []string{"--linearize", "--remove-page-labels", inputPath, step1}
+
+	}
+
+	cmd := exec.Command("qpdf", qpdfArgs...)
 
 	if out, err := cmd.CombinedOutput(); err != nil {
 
@@ -64,7 +81,26 @@ func WipeMetadata(req domain.Request, log *logger.Logger) domain.Response {
 
 	defer os.Remove(step1)
 
-	cmdExif := exec.Command("exiftool", "-all=", "-overwrite_original", step1)
+	var exifArgs []string
+
+	if mode == "full_wipe" {
+
+		exifArgs = []string{"-all=", "--overwrite_original", step1}
+
+	} else {
+
+		exifArgs = []string{
+
+			"-Author=", "-Creator=", "-Producer=",
+			"-Title=", "-Subject=", "-Keywords=",
+			"-Description=", "-Copyright=", "-Company=",
+			"-XMP:all=",
+			"-overwrite_original", step1,
+		}
+
+	}
+
+	cmdExif := exec.Command("exiftool", exifArgs...)
 	if out, err := cmdExif.CombinedOutput(); err != nil {
 
 		log.Error("WipeMetadata exiftool step failed: %s", string(out))
@@ -73,7 +109,7 @@ func WipeMetadata(req domain.Request, log *logger.Logger) domain.Response {
 
 	hasWatermark := detectWatermark(step1, log)
 
-	if hasWatermark {
+	if hasWatermark && mode == "full_wipe" {
 
 		log.Info("Watermark detected in %s - running gs flatten", filepath.Base(inputPath))
 		cmd := exec.Command("gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", "-dPDFSETTINGS=/prepress", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dFastWebView=false", fmt.Sprintf("-sOutputFile=%s", outputPath), step1)
@@ -107,6 +143,43 @@ func WipeMetadata(req domain.Request, log *logger.Logger) domain.Response {
 
 	log.Info("WipeMetadata completed for %s (watermark %v)", filepath.Base(inputPath), hasWatermark)
 	return domain.Response{Status: "ok", Path: outputPath}
+
+}
+
+func detectDigitalSignature(path string, log *logger.Logger) bool {
+
+	cmd := exec.Command("qpdf", "--json", "--json-key=objects", path)
+	output, err := cmd.CombinedOutput()
+	if err != nil && len(output) == 0 {
+
+		return false
+
+	}
+
+	lower := strings.ToLower(string(output))
+
+	markers := []string{
+
+		"/sig",
+		"/sigref",
+		"/docmdp",
+		"/byterange",
+		"/acroform",
+		"/sigflags",
+	}
+
+	for _, marker := range markers {
+
+		if strings.Contains(lower, marker) {
+
+			log.Info("Digital signature marker found in %s: %s", filepath.Base(path), marker)
+			return true
+
+		}
+
+	}
+
+	return false
 
 }
 
