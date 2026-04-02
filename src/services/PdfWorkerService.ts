@@ -32,7 +32,8 @@ export interface IPdfInfo {
 export interface IMetadataInfo{
     
     fields:Record<string,string>;
-    hasWatermark:boolean;
+    HasWatermark:boolean;
+    HasDigitalSignature:boolean;
     
 }
 

@@ -15,16 +15,13 @@ export class MetadataAction {
         const lang = handler.getLang(ctx);
         const i18n = handler.getI18n(ctx);
         const localPath = ctx.session.filePaths[0];
-        console.log('[MetadataAction] localPath:', localPath);
-        console.log('[MetadataAction] filePaths:', ctx.session.filePaths);
         await handler.logger.logAction("MetadataAction:showAndAskConfirm", ctx.from, 'Read metadata', localPath);
         const statusMsg = await ctx.reply(i18n.messages.actions.metadata_reading, { parse_mode: 'HTML' });
         try {
             const sizeBytes = fs.statSync(localPath).size;
             const info = await handler.worker.readMetadata(ctx, localPath, sizeBytes);
-            console.log('[MetadataAction] readMetadata result:', JSON.stringify(info));
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
-            const hasSignature = info?.hasDigitalSignature || false;
+            const hasSignature = info?.HasDigitalSignature || info?.hasDigitalSignature || false;
             ctx.session.tempParams = {
                 ...ctx.session.tempParams,
                 metadataHasSignature: hasSignature
@@ -118,7 +115,7 @@ export class MetadataAction {
     }
     formMetadataReport(info, i18n, hasSignature) {
         const fields = info?.fields || {};
-        const hasWatermark = info?.hasWatermark || false;
+        const hasWatermark = info?.HasWatermark || info?.hasWatermark || false;
         const entries = Object.entries(fields);
         let report = i18n.messages.actions.metadata_found_title + '\n';
         if (entries.length === 0) {
