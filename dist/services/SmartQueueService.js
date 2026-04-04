@@ -7,6 +7,7 @@ export class SmartQueueService {
     activeHeavyTasks = 0;
     MAX_CONCURRENT_HEAVY = 2;
     static instance;
+    compressActive = false;
     vipActivity = new Map();
     constructor(localization, db) {
         this.localization = localization;
@@ -41,6 +42,15 @@ export class SmartQueueService {
             default: return 10;
         }
     }
+    async notifyQueueAboutCompress(lang) {
+        const i18n = this.localization.get(lang);
+        const waitingTasks = this.queue.filter(t => t.weight === 'heavy' || t.weight === 'medium');
+        for (const task of waitingTasks) {
+            try {
+            }
+            catch { }
+        }
+    }
     async enqueue(ctx, action, sizeBytes, taskFn) {
         const userId = ctx.from.id;
         const user = await this.db.getUser(userId);
@@ -62,11 +72,17 @@ export class SmartQueueService {
         if (weight === 'light') {
             return taskFn();
         }
-        if (weight === 'medium' && (role === 'enterprise' || role === 'sovereign_protocol' || role === 'vip')) {
+        if (weight === 'medium' && (role === 'enterprise' || role === 'sovereign_protocol' || role === 'vip') && !this.compressActive) {
             return taskFn();
+        }
+        if (this.compressActive && weight !== 'exclusive') {
+            await ctx.reply(i18n.messages.queue.compress_active_warning, { parse_mode: 'HTML' });
         }
         if (weight === 'heavy') {
             await ctx.reply(i18n.messages.queue.heavy_task_warning, { parse_mode: 'HTML' });
+        }
+        if (weight === 'exclusive') {
+            await ctx.reply(i18n.messages.queue.compress_exclusive_start, { parse_mode: 'HTML' });
         }
         return new Promise((resolve, reject) => {
             const task = {
@@ -78,24 +94,47 @@ export class SmartQueueService {
                 resolve,
                 reject,
                 addedAt: Date.now(),
-                priorityScore: this.getBasePriority(role)
+                priorityScore: weight === 'exclusive' ? 999 : this.getBasePriority(role)
             };
             this.queue.push(task);
             this.queue.sort((a, b) => b.priorityScore - a.priorityScore);
             const position = this.queue.findIndex(t => t.id === task.id) + 1;
-            const positionText = i18n.messages.queue.position.replace('{{position}}', position.toString());
-            ctx.reply(positionText, { parse_mode: 'HTML' }).catch(() => { });
+            if (weight !== 'exclusive') {
+                const positionText = i18n.messages.queue.position.replace('{{position}}', position.toString());
+                ctx.reply(positionText, { parse_mode: 'HTML' }).catch(() => { });
+            }
             this.processQueue();
         });
     }
     processQueue() {
-        if (this.queue.length === 0 || this.activeHeavyTasks >= this.MAX_CONCURRENT_HEAVY)
+        if (this.queue.length === 0)
+            return;
+        const nextTask = this.queue[0];
+        if (nextTask.weight === 'exclusive') {
+            if (this.activeHeavyTasks > 0)
+                return;
+            this.queue.shift();
+            this.compressActive = true;
+            this.activeHeavyTasks += 2;
+            nextTask.execute().then(res => nextTask.resolve(res)).catch(err => nextTask.reject(err)).finally(() => {
+                this.activeHeavyTasks -= 2;
+                this.compressActive = false;
+                this.processQueue();
+            });
+            return;
+        }
+        if (this.compressActive)
+            return;
+        if (this.activeHeavyTasks >= this.MAX_CONCURRENT_HEAVY)
             return;
         const task = this.queue.shift();
         if (!task)
             return;
         this.activeHeavyTasks++;
-        task.execute().then(res => task.resolve(res)).catch(err => task.reject(err)).finally(() => {
+        task.execute()
+            .then(res => task.resolve(res))
+            .catch(err => task.reject(err))
+            .finally(() => {
             this.activeHeavyTasks--;
             this.processQueue();
         });

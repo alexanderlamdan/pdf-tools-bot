@@ -7,6 +7,8 @@ import { UnlockAction } from './actions/UnlockAction.js';
 import { MetadataAction } from './actions/MetadataAction.js';
 import { AdminLogService } from '../../services/AdminLogService.js';
 import { getPaymentLink } from '../../utils/SubscriptionUtils.js';
+import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
+import { FileNameUtils } from '../../utils/FileNameUtils.js';
 import fs from 'fs';
 import { OutgoingMessage } from 'http';
 export class ButtonHandler extends BaseHandler {
@@ -59,6 +61,9 @@ export class ButtonHandler extends BaseHandler {
         const btn = i18n.buttons.files;
         const merge = new MergeAction(ctx, this);
         switch (true) {
+            case text === btn.btn_compress:
+                await this.handleCompress(ctx, lang, i18n);
+                break;
             case text === btn.btn_unlock:
                 await new UnlockAction(ctx, this).execute();
                 break;
@@ -228,5 +233,52 @@ export class ButtonHandler extends BaseHandler {
     }
     capitalize(s) {
         return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+    async handleCompress(ctx, lang, i18n) {
+        const localPath = ctx.session.filePaths[0];
+        const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
+        await this.logger.logAction('ButtonHandler:handleCompress', ctx.from, 'Compress', `File: ${originalName}`);
+        const statusMsg = await ctx.reply(i18n.messages.actions.compressing, { parse_mode: 'HTML' });
+        try {
+            const sizeBytes = fs.statSync(localPath).size;
+            const result = await this.worker.compress(ctx, localPath, sizeBytes);
+            await this.db.logAction(ctx.from.id, 'compress', result.compressedSize || sizeBytes);
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            if (result.alreadyOptimal) {
+                await ctx.reply(i18n.messages.queue.compress_already_optimal, { parse_mode: 'HTML' });
+                await ctx.reply(i18n.messages.actions.repair_success, {
+                    parse_mode: 'HTML',
+                    reply_markup: this.keyboards.getFileActionsMenu(lang)
+                });
+                return;
+            }
+            const safeName = FileNameUtils.getSafeName(originalName, i18n.messages.actions.suffix_compressed);
+            const beforeMB = (result.originalSize / 1024 / 1024).toFixed(2);
+            const afterMB = (result.compressedSize / 1024 / 1024).toFixed(2);
+            const savedMB = (result.savedBytes / 1024 / 1024).toFixed(2);
+            await this.fileService.deleteFile(localPath);
+            ctx.session.filePaths = [result.path];
+            ctx.session.currentAction = 'ready';
+            await ctx.replyWithDocument(new InputFile(result.path, safeName));
+            await ctx.reply(i18n.messages.actions.success_compress
+                .replace('{{before}}', `${beforeMB} MB`)
+                .replace('{{after}}', `${afterMB} MB`)
+                .replace('{{saved}}', `${savedMB} MB`), {
+                parse_mode: 'HTML',
+                reply_markup: this.keyboards.getFileActionsMenu(lang)
+            });
+            await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+        }
+        catch (e) {
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            if (e.message === 'COMPRESS_TIMEOUT') {
+                await ctx.reply(i18n.messages.queue.compress_timeout, { parse_mode: 'HTML' });
+                ctx.session = initialSession();
+                return;
+            }
+            await this.logger.error('ButtonHandler:handleCompress', e, { user: ctx.from, message: ctx.message });
+            await ctx.reply(`❌ ${i18n.messages.common.technical_problem} ${e.message}`, { parse_mode: 'HTML' });
+            ctx.session = initialSession();
+        }
     }
 }

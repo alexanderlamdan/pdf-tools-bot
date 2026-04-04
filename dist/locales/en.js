@@ -200,6 +200,10 @@ The bot does not see, know, or receive any of your data except what is necessary
             vip_message_notice: "🚫 <b>Access temporarily restricted.</b>\nThe server is cooling down from your tasks. Please wait another ",
             vip_unblock_notice: "✅ <b>Access restored!</b>\nPlease send large files one by one to avoid overloading the server",
             file_upload: "⏳ File has big size. Starting processing and analysis in background... You will get the message after it complete",
+            compress_exclusive_start: '🗜 <b>Compression started.</b>\n\nAll server resources are focused on your file. This may take up to 5 minutes. You can close the bot — you will receive the file when compression is complete.',
+            compress_active_warning: '⏳ <b>Server is busy compressing a file.</b>\n\nYour task is queued. Processing time increased to up to 60 minutes. You can close the bot and come back later.',
+            compress_timeout: '❌ <b>Compression cancelled.</b>\n\nThe file is too complex and the server reached its limit. Unfortunately, no tool can compress this file better than we tried. We sincerely apologize for the inconvenience.',
+            compress_already_optimal: '✅ <b>File is already optimized!</b>\n\nCompression would not reduce the size — the file is already at its minimum. Returning original.',
         },
         subscription: {
             limit_exceeded: `🚫 <b>Your free traffic limit is exhausted.</b>

@@ -2,6 +2,7 @@ package service
 
 import (
 	"path/filepath"
+	"sync"
 	"time"
 
 	"pdf-worker/internal/domain"
@@ -10,8 +11,11 @@ import (
 )
 
 type PdfService struct {
-	log          *logger.Logger
-	heavyTaskSem chan struct{}
+	log             *logger.Logger
+	heavyTaskSem    chan struct{}
+	compressMu      sync.Mutex
+	compressActive  bool
+	compressWaiters []chan struct{}
 }
 
 func NewPdfService(l *logger.Logger) *PdfService {
@@ -34,6 +38,70 @@ func (s *PdfService) executeHeavyTask(name string, inputPath string, task func()
 
 	return task()
 }
+func (s *PdfService) executeCompressExclusive(inputPath string, task func() domain.Response) domain.Response {
+
+	s.log.Info("Compress: waiting for exclusive slot | File: %s", filepath.Base(inputPath))
+
+	s.heavyTaskSem <- struct{}{}
+	s.heavyTaskSem <- struct{}{}
+
+	s.compressMu.Lock()
+	s.compressActive = true
+	s.compressMu.Unlock()
+
+	start := time.Now()
+	s.log.Info("Compress: exclusive mode ON | File: %s", filepath.Base(inputPath))
+
+	defer func() {
+
+		<-s.heavyTaskSem
+		<-s.heavyTaskSem
+
+		s.compressMu.Lock()
+		s.compressActive = false
+
+		for _, ch := range s.compressWaiters {
+
+			close(ch)
+
+		}
+
+		s.compressWaiters = nil
+		s.compressMu.Unlock()
+
+		s.log.Info("Compress: exclusive mode OFF | took %s", time.Since(start))
+
+	}()
+
+	return task()
+
+}
+
+func (s *PdfService) IsCompressActive() bool {
+
+	s.compressMu.Lock()
+	defer s.compressMu.Unlock()
+	return s.compressActive
+
+}
+
+func (s *PdfService) WaitForCompressFinish() <-chan struct{} {
+
+	s.compressMu.Lock()
+	defer s.compressMu.Unlock()
+
+	ch := make(chan struct{})
+	if !s.compressActive {
+
+		close(ch)
+		return ch
+
+	}
+
+	s.compressWaiters = append(s.compressWaiters, ch)
+	return ch
+
+}
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
@@ -42,7 +110,7 @@ func (s *PdfService) GetInfo(req domain.Request) domain.Response {
 }
 
 func (s *PdfService) Compress(req domain.Request) domain.Response {
-	return s.executeHeavyTask("Compress", req.InputPath, func() domain.Response {
+	return s.executeCompressExclusive(req.InputPath, func() domain.Response {
 		return ops.Compress(req, s.log)
 	})
 }

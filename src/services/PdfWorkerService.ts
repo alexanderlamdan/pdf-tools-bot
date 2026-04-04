@@ -39,7 +39,7 @@ export interface IMetadataInfo{
 
 interface WorkerResponse{
     
-    status: 'ok' | 'error';
+    status: 'ok' | 'error' | 'timeout' | 'already_optimal';
     info?:unknown;
     error?:string;
     path?:string;
@@ -168,22 +168,37 @@ export class PdfWorkerService{
        
     }
     
-    public async compress(ctx:BotContext,filePath:string,sizeBytes:number):Promise<string>{
-        
+        public async compress(ctx:BotContext, filePath:string, sizeBytes:number):Promise<{
+        path:string,
+        alreadyOptimal:boolean,
+        originalSize:number,
+        compressedSize:number,
+        savedBytes:number
+    }>{
         return this.queueService.enqueue(ctx, 'compress', sizeBytes, async()=>{
             
             const data = await this.sendRequest({
-            
-                action:'compress',
-                inputPath:filePath
-                
+                action:    'compress',
+                inputPath: filePath
             });
-            
+ 
+            if(data.status === 'timeout'){
+                throw new Error('COMPRESS_TIMEOUT');
+            }
+ 
             if(data.status === 'error') throw new Error(data.error);
-            return data.path!;
+ 
+            const info = data.info as any || {};
+ 
+            return{
+                path:           data.path!,
+                alreadyOptimal: data.status === 'already_optimal',
+                originalSize:   Number(info.originalSize   || 0),
+                compressedSize: Number(info.compressedSize || 0),
+                savedBytes:     Number(info.savedBytes     || 0),
+            };
             
         });
-        
     }
     
     public async repair(ctx:BotContext,filePath:string,sizeBytes:number):Promise<string>{

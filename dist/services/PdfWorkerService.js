@@ -90,9 +90,19 @@ export class PdfWorkerService {
                 action: 'compress',
                 inputPath: filePath
             });
+            if (data.status === 'timeout') {
+                throw new Error('COMPRESS_TIMEOUT');
+            }
             if (data.status === 'error')
                 throw new Error(data.error);
-            return data.path;
+            const info = data.info || {};
+            return {
+                path: data.path,
+                alreadyOptimal: data.status === 'already_optimal',
+                originalSize: Number(info.originalSize || 0),
+                compressedSize: Number(info.compressedSize || 0),
+                savedBytes: Number(info.savedBytes || 0),
+            };
         });
     }
     async repair(ctx, filePath, sizeBytes) {

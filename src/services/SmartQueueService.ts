@@ -2,7 +2,7 @@ import type {BotContext} from '../types/BotContext.js';
 import {LocalizationService} from './LocalizationService.js';
 import {DatabaseService} from './DatabaseService.js';
 
-export type TaskWeight = 'light' | 'medium' | 'heavy';
+export type TaskWeight = 'light' | 'medium' | 'heavy' | 'exclusive';
 export type UserRole = 'free' | 'pro' | 'premium' | 'enterprise' | 'sovereign_protocol' | 'vip';
 
 interface QueueTask{
@@ -25,6 +25,7 @@ export class SmartQueueService{
     private activeHeavyTasks = 0;
     private readonly MAX_CONCURRENT_HEAVY = 2;
     private static instance:SmartQueueService;
+    private compressActive = false;
     
     private vipActivity = new Map<number,{timestamps:number[],warned:boolean,blocked:boolean,blockedUntil:number}>();
     
@@ -72,6 +73,23 @@ export class SmartQueueService{
         
     }
     
+    private async notifyQueueAboutCompress(lang:string):Promise<void>{
+        
+        const i18n = this.localization.get(lang)
+        const waitingTasks = this.queue.filter(t=>t.weight === 'heavy' || t.weight === 'medium');
+        
+        for(const task of waitingTasks){
+            
+            try{
+                
+                
+                
+            }catch{}
+            
+        }
+        
+    }
+    
     public async enqueue<T>(ctx:BotContext,action:string,sizeBytes:number,taskFn:()=>Promise<T>):Promise<T>{
         
         const userId = ctx.from!.id;
@@ -104,15 +122,29 @@ export class SmartQueueService{
             
         }
         
-        if(weight === 'medium' && (role === 'enterprise' || role === 'sovereign_protocol' || role === 'vip')){
+        if(weight === 'medium' && (role === 'enterprise' || role === 'sovereign_protocol' || role === 'vip') && !this.compressActive){
             
             return taskFn();
             
         }
         
+        if(this.compressActive && weight !== 'exclusive'){
+            
+            await ctx.reply(i18n.messages.queue.compress_active_warning,{parse_mode:'HTML'});
+            
+        }
+        
+        
+        
         if(weight === 'heavy'){
             
             await ctx.reply(i18n.messages.queue.heavy_task_warning,{parse_mode:'HTML'});
+            
+        }
+        
+        if(weight === 'exclusive'){
+            
+            await ctx.reply(i18n.messages.queue.compress_exclusive_start, {parse_mode:'HTML'});
             
         }
         
@@ -128,7 +160,7 @@ export class SmartQueueService{
                 resolve,
                 reject,
                 addedAt:Date.now(),
-                priorityScore:this.getBasePriority(role)
+                priorityScore:weight === 'exclusive' ? 999 : this.getBasePriority(role)
                 
             };
             
@@ -136,9 +168,14 @@ export class SmartQueueService{
             this.queue.sort((a,b)=>b.priorityScore - a.priorityScore);
             
             const position = this.queue.findIndex(t=>t.id === task.id) + 1;
-            const positionText = i18n.messages.queue.position.replace('{{position}}',position.toString());
             
-            ctx.reply(positionText,{parse_mode:'HTML'}).catch(()=>{});
+            if(weight !== 'exclusive'){
+                
+                 const positionText = i18n.messages.queue.position.replace('{{position}}',position.toString());
+                 ctx.reply(positionText,{parse_mode:'HTML'}).catch(()=>{});
+                 
+                 
+            }
             
             this.processQueue();
             
@@ -148,17 +185,42 @@ export class SmartQueueService{
     
     private processQueue(){
         
-        if(this.queue.length === 0 || this.activeHeavyTasks >= this.MAX_CONCURRENT_HEAVY) return;
+        if(this.queue.length === 0)return;
+        const nextTask = this.queue[0];
+        
+        if(nextTask.weight === 'exclusive'){
+            
+            if(this.activeHeavyTasks > 0)return;
+            
+            this.queue.shift();
+            this.compressActive = true;
+            this.activeHeavyTasks += 2;
+            
+            nextTask.execute().then(res=>nextTask.resolve(res)).catch(err=>nextTask.reject(err)).finally(()=>{
+                
+                this.activeHeavyTasks -= 2;
+                this.compressActive = false;
+                this.processQueue();
+                
+            });
+            return;
+        }
+        
+        if(this.compressActive) return;
+        if(this.activeHeavyTasks >= this.MAX_CONCURRENT_HEAVY) return;
         
         const task = this.queue.shift();
         if(!task) return;
         
         this.activeHeavyTasks++;
         
-        task.execute().then(res=>task.resolve(res)).catch(err=>task.reject(err)).finally(()=>{
-            this.activeHeavyTasks--;
-            this.processQueue();
-        });
+        task.execute()
+            .then(res => task.resolve(res))
+            .catch(err => task.reject(err))
+            .finally(()=>{
+                this.activeHeavyTasks--;
+                this.processQueue();
+            });
         
     }
     
