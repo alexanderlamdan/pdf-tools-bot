@@ -189,13 +189,13 @@ export class PdfWorkerService{
             if(data.status === 'error') throw new Error(data.error);
  
             const info = data.info as any || {};
- 
+
             return{
                 path:           data.path!,
                 alreadyOptimal: data.status === 'already_optimal',
-                originalSize:   Number(info.originalSize   || 0),
-                compressedSize: Number(info.compressedSize || 0),
-                savedBytes:     Number(info.savedBytes     || 0),
+                originalSize:   Number(info.originalSize   || info.OriginalSize   || 0),
+                compressedSize: Number(info.compressedSize || info.CompressedSize || 0),
+                savedBytes:     Number(info.savedBytes     || info.SavedBytes     || 0),
             };
             
         });

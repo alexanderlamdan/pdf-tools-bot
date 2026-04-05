@@ -334,69 +334,64 @@ export class ButtonHandler extends BaseHandler{
     
     private async handleCompress(ctx:BotContext, lang:string, i18n:any):Promise<void>{
 
-        const localPath = ctx.session.filePaths[0];
+        const localPath    = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
 
         await this.logger.logAction('ButtonHandler:handleCompress', ctx.from!, 'Compress', `File: ${originalName}`);
 
-        const statusMsg = await ctx.reply(i18n.messages.actions.compressing, {parse_mode:'HTML'});
+        await ctx.reply(i18n.messages.queue.compress_exclusive_start, {parse_mode:'HTML'});
 
-        try{
+        const chatId  = ctx.chat!.id;
+        const userId  = ctx.from!.id;
+        const sizeBytes = fs.statSync(localPath).size;
 
-            const sizeBytes = fs.statSync(localPath).size;
-            const result = await this.worker.compress(ctx, localPath, sizeBytes);
+        setImmediate(async()=>{
 
-            await this.db.logAction(ctx.from!.id, 'compress', result.compressedSize || sizeBytes);
-            await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(()=>{});
+            try{
 
-            // Файл уже оптимален — возвращаем оригинал
-            if(result.alreadyOptimal){
-                await ctx.reply(i18n.messages.queue.compress_already_optimal, {parse_mode:'HTML'});
-                await ctx.reply(i18n.messages.actions.repair_success, {
-                    parse_mode: 'HTML',
-                    reply_markup: this.keyboards.getFileActionsMenu(lang)
-                });
-                return;
-            }
+                const result = await this.worker.compress(ctx, localPath, sizeBytes);
 
-            const safeName = FileNameUtils.getSafeName(originalName, i18n.messages.actions.suffix_compressed);
-            const beforeMB = (result.originalSize / 1024 / 1024).toFixed(2);
-            const afterMB  = (result.compressedSize / 1024 / 1024).toFixed(2);
-            const savedMB  = (result.savedBytes / 1024 / 1024).toFixed(2);
+                await this.db.logAction(userId, 'compress', result.compressedSize || sizeBytes);
 
-            await this.fileService.deleteFile(localPath);
-            ctx.session.filePaths     = [result.path];
-            ctx.session.currentAction = 'ready';
-
-            await ctx.replyWithDocument(new InputFile(result.path, safeName));
-            await ctx.reply(
-                i18n.messages.actions.success_compress
-                    .replace('{{before}}', `${beforeMB} MB`)
-                    .replace('{{after}}',  `${afterMB} MB`)
-                    .replace('{{saved}}',  `${savedMB} MB`),
-                {
-                    parse_mode:   'HTML',
-                    reply_markup: this.keyboards.getFileActionsMenu(lang)
+                if(result.alreadyOptimal){
+                    await ctx.api.sendMessage(chatId, i18n.messages.queue.compress_already_optimal, {parse_mode:'HTML'});
+                    return;
                 }
-            );
 
-            await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                const safeName = FileNameUtils.getSafeName(originalName, i18n.messages.actions.suffix_compressed);
+                const beforeMB = (result.originalSize   / 1024 / 1024).toFixed(2);
+                const afterMB  = (result.compressedSize / 1024 / 1024).toFixed(2);
+                const savedMB  = (result.savedBytes     / 1024 / 1024).toFixed(2);
 
-        }catch(e:any){
+                await this.fileService.deleteFile(localPath);
+                ctx.session.filePaths     = [result.path];
+                ctx.session.currentAction = 'ready';
 
-            await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(()=>{});
-            
-            if(e.message === 'COMPRESS_TIMEOUT'){
-                await ctx.reply(i18n.messages.queue.compress_timeout, {parse_mode:'HTML'});
+                await ctx.api.sendDocument(chatId, new InputFile(result.path, safeName));
+                await ctx.api.sendMessage(chatId,
+                                          i18n.messages.actions.success_compress
+                                          .replace('{{before}}', `${beforeMB} MB`)
+                                          .replace('{{after}}',  `${afterMB} MB`)
+                                          .replace('{{saved}}',  `${savedMB} MB`),
+                                          { parse_mode: 'HTML', reply_markup: this.keyboards.getFileActionsMenu(lang) }
+                );
+
+                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+
+            }catch(e:any){
+
+                if(e.message === 'COMPRESS_TIMEOUT'){
+                    await ctx.api.sendMessage(chatId, i18n.messages.queue.compress_timeout, {parse_mode:'HTML'});
+                }else{
+                    await this.logger.error('ButtonHandler:handleCompress', e, {user:ctx.from!, message:ctx.message!});
+                    await ctx.api.sendMessage(chatId, `❌ ${i18n.messages.common.technical_problem} ${e.message}`, {parse_mode:'HTML'});
+                }
+
                 ctx.session = initialSession();
-                return;
+
             }
 
-            await this.logger.error('ButtonHandler:handleCompress', e, {user:ctx.from!, message:ctx.message!});
-            await ctx.reply(`❌ ${i18n.messages.common.technical_problem} ${e.message}`, {parse_mode:'HTML'});
-            ctx.session = initialSession();
-
-        }
+        });
 
     }
     
