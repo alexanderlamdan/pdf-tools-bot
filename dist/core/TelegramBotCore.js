@@ -20,7 +20,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
     constructor(configSource) {
         super();
         this.config = configSource;
-        this.localization = new LocalizationService();
+        this.localization = new LocalizationService(this.config.forceLang);
         this.antiSpam = new AntiSpamService();
         this.bot = new Bot(this.config.token, {
             client: {
