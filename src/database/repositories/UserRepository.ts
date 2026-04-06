@@ -84,7 +84,7 @@ export class UserRepository extends BaseRepository<IUser>{
     
     public async getExpiringSubscriptions(startMs:number,endMs:number):Promise<IUser[]>{
         
-        const res = await this.query(`SELECT * FROM users WHERE sub_type != 'free' AND is_vip = false AND sub_expires_at BETWEEN 1$ AND $2`,[startMs,endMs]);
+        const res = await this.query(`SELECT * FROM users WHERE sub_type != 'free' AND is_vip = false AND sub_expires_at BETWEEN $1 AND $2`,[startMs,endMs]);
         return this.normalize(res);
         
     }
