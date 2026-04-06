@@ -4,8 +4,14 @@ import type {FullLocale} from '../locales/index.js';
 
 export class LocalizationService{
     
-    private readonly defaultLang = 'en';
+    private readonly defaultLang:string;
     private availableLangs:string[] = Object.keys(locales);
+    
+    constructor(forceLang?:string){
+        
+        this.defaultLang = forceLang || 'en';
+        
+    }
     
     public getUserLanguage(code?:string):{lang:string,isFallback:boolean}{
         
@@ -19,7 +25,7 @@ export class LocalizationService{
             
         }
         
-        return {lang:this.defaultLang,isFallback:true};
+        return {lang:this.defaultLang,isFallback:false};
         
     }
     public get(lang:string):FullLocale{

@@ -1,7 +1,10 @@
 import { locales } from '../locales/index.js';
 export class LocalizationService {
-    defaultLang = 'en';
+    defaultLang;
     availableLangs = Object.keys(locales);
+    constructor(forceLang) {
+        this.defaultLang = forceLang || 'en';
+    }
     getUserLanguage(code) {
         if (!code)
             return { lang: this.defaultLang, isFallback: false };
@@ -9,7 +12,7 @@ export class LocalizationService {
         if (this.availableLangs.includes(shortCode)) {
             return { lang: shortCode, isFallback: false };
         }
-        return { lang: this.defaultLang, isFallback: true };
+        return { lang: this.defaultLang, isFallback: false };
     }
     get(lang) {
         const baseI18n = locales[this.defaultLang];
