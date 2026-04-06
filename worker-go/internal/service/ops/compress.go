@@ -28,7 +28,7 @@ func Compress(req domain.Request, log *logger.Logger) domain.Response {
 
 	cmd := exec.CommandContext(ctx, "gs",
 
-		"-sDEVICE=pdfwrite", "-dCompatibiltyLevel=1.4", "-dPDFSETTINGS=/ebook",
+		"-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", "-dPDFSETTINGS=/ebook",
 		"-dNOPAUSE", "-dQUIET", "-dBATCH",
 		fmt.Sprintf("-dNumRenderingThreads=%d", compressThreads),
 		"-dCompressFonts=true", "-dSubsetFonts=true",
