@@ -1,6 +1,5 @@
 import { UserRepository } from '../database/repositories/UserRepository.js';
 import { LogRepository } from '../database/repositories/LogRepository.js';
-import { DbInit } from '../database/DbInit.js';
 import { DbLogger } from '../database/DbLogger.js';
 import { Migrator } from '../database/migrations/Migrator.js';
 import { Postgresql } from '../database/Postgresql.js';

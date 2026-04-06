@@ -11,8 +11,12 @@
     "axios": "^1.13.2",
     "express": "^5.1.0",
     "grammy": "^1.39.3",
+    "nodemailer": "^8.0.4",
     "nodemon": "^3.1.9",
     "pg": "^8.18.0",
     "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.0"
   }
 }

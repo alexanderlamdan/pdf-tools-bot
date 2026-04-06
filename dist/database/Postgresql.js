@@ -1,17 +1,24 @@
 import pg from 'pg';
-import { dbConfig } from './config/configLocal.js';
 import { DbLogger } from './DbLogger.js';
 const { Pool } = pg;
 export class Postgresql {
     static instance;
     pool;
-    constructor() {
-        this.pool = new Pool(dbConfig);
+    constructor(db) {
+        this.pool = new Pool(db);
         this.pool.on('error', (err) => DbLogger.getInstance().error('PG_POOL', err));
     }
+    static init(db) {
+        if (Postgresql.instance) {
+            console.warn('[Postgresql] Already initialized, skipping.');
+            return;
+        }
+        Postgresql.instance = new Postgresql(db);
+    }
     static getInstance() {
-        if (!Postgresql.instance)
-            Postgresql.instance = new Postgresql();
+        if (!Postgresql.instance) {
+            throw new Error('[Postgresql] Not initialized. Call Postgresql.init(config.db) in index.ts first');
+        }
         return Postgresql.instance;
     }
     async query(text, params) {

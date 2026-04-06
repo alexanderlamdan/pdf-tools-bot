@@ -2,9 +2,14 @@ import fs      from 'fs';
 import http    from 'http';
 import express from 'express';
 import {LocalConfig} from './config/LocalConfig.js';
+import {Postgresql} from './database/Postgresql.js';
 import {TelegramBotCore} from './core/TelegramBotCore.js';
 
 const config = new LocalConfig();
+
+await config.validate();
+Postgresql.init(config.db);
+
 const botCore = new TelegramBotCore(config);
 const app = express();
 

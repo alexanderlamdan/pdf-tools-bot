@@ -1,7 +1,6 @@
 import pg from 'pg';
-import {dbConfig} from './config/configLocal.js';
 import {DbLogger} from './DbLogger.js';
-
+import type { IWithDatabase } from '../config/interfaces/IBotConfig.js';
 const {Pool} = pg;
 
 export class Postgresql{
@@ -9,17 +8,33 @@ export class Postgresql{
     private static instance:Postgresql;
     private pool:pg.Pool;
     
-    private constructor(){
+    private constructor(db:IWithDatabase['db']){
         
-        this.pool = new Pool(dbConfig);
+        this.pool = new Pool(db);
         this.pool.on('error',(err)=>DbLogger.getInstance().error('PG_POOL',err));
         
         
     }
     
+    public static init(db:IWithDatabase['db']):void{
+        
+        if(Postgresql.instance){
+            
+            console.warn('[Postgresql] Already initialized, skipping.');
+            return;
+        }
+        
+        Postgresql.instance = new Postgresql(db);
+        
+    }
+    
     public static getInstance():Postgresql{
         
-        if(!Postgresql.instance) Postgresql.instance = new Postgresql();
+        if(!Postgresql.instance){
+            
+            throw new Error('[Postgresql] Not initialized. Call Postgresql.init(config.db) in index.ts first');
+            
+        }
         return Postgresql.instance;
         
     }
