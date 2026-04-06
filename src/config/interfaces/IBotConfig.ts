@@ -7,6 +7,7 @@ export interface IBotConfigCore{
 	readonly channelLogId:number;
 	readonly slug:string;
 	readonly path:string;
+	readonly forceLang:string;
 	
 }
 

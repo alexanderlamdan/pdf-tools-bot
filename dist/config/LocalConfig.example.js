@@ -8,6 +8,7 @@ export class LocalConfig {
     workerSocketPath = '/run/bots/ИМЯ.sock';
     localApiFile = 'http://127.0.0.1:PORT';
     telegramStoragePath = '/srv/ПУТЬ';
+    forceLang = 'lang';
     db = {
         host: 'localhost',
         port: 0,

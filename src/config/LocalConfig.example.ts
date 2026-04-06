@@ -17,6 +17,7 @@ export class LocalConfig implements IBotConfig {
     // ── Local API ─────────────────────────────────────────────────────────────
     readonly localApiFile:        PLACEHOLDER = 'http://127.0.0.1:PORT' as never;
     readonly telegramStoragePath: PLACEHOLDER = '/srv/ПУТЬ'             as never;
+    readonly forceLang:PLACEHOLDER = 'lang' as never;
  
     // ── Database ──────────────────────────────────────────────────────────────
     readonly db: PLACEHOLDER = {
