@@ -5,6 +5,7 @@ export interface IBotConfigCore{
 	readonly botName: string;
 	readonly url:string;
 	readonly channelLogId:number;
+	readonly botGroupId:number;
 	readonly slug:string;
 	readonly path:string;
 	readonly forceLang:string;

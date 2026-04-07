@@ -178,7 +178,10 @@ function validateCore(cfg, errors) {
         errors.push({ field: 'url', reason: 'Should start with https:// and include domain', hint: mask(cfg.url) });
     }
     if (!Number.isInteger(cfg.channelLogId) || cfg.channelLogId >= 0) {
-        errors.push({ field: 'channelLogId', reason: 'Channel ID — negative integer nunber. Example: -1001234567890', hint: mask(cfg.channelLogId) });
+        errors.push({ field: 'channelLogId', reason: 'Channel ID — negative integer number. Example: -1001234567890', hint: mask(cfg.channelLogId) });
+    }
+    if (!Number.isInteger(cfg.botGroupId) || cfg.botGroupId >= 0) {
+        errors.push({ field: 'channelLogId', reason: 'Group ID — negative integer number. Example: -1001234567890', hint: mask(cfg.botGroupId) });
     }
     const expectedSlug = cfg.botName.replace(/-bot$/, '');
     if (cfg.slug !== expectedSlug) {

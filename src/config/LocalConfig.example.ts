@@ -10,6 +10,7 @@ export class LocalConfig implements IBotConfig {
     readonly botName:      PLACEHOLDER = 'ЗАМЕНИ_НА_ИМЯ_БОТА'          as never;
     readonly url:          PLACEHOLDER = 'https://ТВОЙ_ДОМЕН.com'       as never;
     readonly channelLogId: PLACEHOLDER = 0                              as never;
+    readonly botGroupId:PLACEHOLDER =  0 as never;
  
     // ── Worker ────────────────────────────────────────────────────────────────
     readonly workerSocketPath: PLACEHOLDER = '/run/bots/ИМЯ.sock'       as never;

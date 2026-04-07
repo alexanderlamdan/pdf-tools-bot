@@ -5,6 +5,7 @@ export class LocalConfig {
     botName = 'ЗАМЕНИ_НА_ИМЯ_БОТА';
     url = 'https://ТВОЙ_ДОМЕН.com';
     channelLogId = 0;
+    botGroupId = 0;
     workerSocketPath = '/run/bots/ИМЯ.sock';
     localApiFile = 'http://127.0.0.1:PORT';
     telegramStoragePath = '/srv/ПУТЬ';

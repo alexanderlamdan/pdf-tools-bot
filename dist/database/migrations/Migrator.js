@@ -1,11 +1,13 @@
 import { Postgresql } from '../Postgresql.js';
 import { Migration001 } from './files/001_Initial.js';
 import { Migration002 } from './files/002_AddLang.js';
+import { Migration003 } from './files/003_Support.js';
 export class Migrator {
     db = Postgresql.getInstance();
     migrations = [
         { name: '001_Initial', class: Migration001 },
-        { name: '002_AddLang', class: Migration002 }
+        { name: '002_AddLang', class: Migration002 },
+        { name: '003_Support', class: Migration003 }
     ];
     async migrate() {
         await this.db.query(`CREATE TABLE IF NOT EXISTS _migrations(id SERIAL PRIMARY KEY, name VARCHAR(255) UNIQUE, run_at BIGINT)`);

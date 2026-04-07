@@ -11,6 +11,8 @@ import { StartCommandHandler }   from './commands/StartCommandHandler.js';
 import { HelpCommandHandler }    from './commands/HelpCommandHandler.js';
 import { AboutCommandHandler }   from './commands/AboutCommandHandler.js';
 import { AdminCommandHandler }   from './commands/AdminCommandHandler.js';
+import { SupportCommandHandler }  from './commands/SupportCommandHandler.js';
+import { AdminSupportHandler }    from './commands/AdminSupportHandler.js';
 
 import { ButtonHandler }         from './buttons/ButtonHandler.js';
 import { TextHandler }           from './text/TextHandler.js';
@@ -32,7 +34,8 @@ export class HandlerRegistry{
     
     {command:'start',Handler:StartCommandHandler},
     {command:'help',Handler:HelpCommandHandler},
-    {command:'about',Handler:AboutCommandHandler}
+    {command:'about',Handler:AboutCommandHandler},
+    { command: 'support', Handler: SupportCommandHandler }
     
   ];
   
@@ -56,17 +59,40 @@ export class HandlerRegistry{
     const buttonHandler  = new ButtonHandler(this.config, this.localApi, this.localization);
     const textHandler    = new TextHandler(this.config, this.localApi, this.localization);
     const archiveHandler = new MergeArchiveHandler(this.config, this.localApi, this.localization);
+    const adminSupportHandler = new AdminSupportHandler(this.config, this.localization);
+    const supportHandler      = new SupportCommandHandler(this.config, this.localization);
     
     this.bot.on('message:text',async(ctx)=>{
       
       const text = ctx.message?.text;
+      const chatId  = ctx.chat?.id;
       if(!text) return;
+      
+      if(chatId === this.config.botGroupId && ctx.message?.reply_to_message){
+        
+          await adminSupportHandler.handleAdminReply(ctx);
+          return;
+        
+      }
+      
+      if (ctx.chat?.type !== 'private') return;
       
       if(text.startsWith('/publish') || text.startsWith('/add_vip') || text.startsWith('/admin_mode_on') || text.startsWith('/admin_mode_off')){
         
         await adminHandler.handle(ctx);
         return;
         
+      }
+      
+      if (text.startsWith('/open-chat')) {
+          await adminSupportHandler.handleOpenChat(ctx);
+          return;
+      }
+ 
+      if (text.startsWith('/close-chat')) {
+          const args = text.replace('/close-chat', '').trim();
+          await adminSupportHandler.handleCloseChat(ctx, args);
+          return;
       }
       
       const step = ctx.session.step;
@@ -80,6 +106,11 @@ export class HandlerRegistry{
         await textHandler.handle(ctx);
         return;
         
+      }
+      
+      if (step === 'waiting_for_support_message') {
+          await supportHandler.handleMessage(ctx);
+          return;
       }
       
       if(this.localization.getActionKeyByText(text)){
@@ -101,6 +132,19 @@ export class HandlerRegistry{
       
       await textHandler.handle(ctx); 
       
+    });
+    
+    this.bot.on('callback_query:data', async (ctx) => {
+ 
+      const data = ctx.callbackQuery?.data || '';
+ 
+      if (data.startsWith('support_cat:')) {
+                await supportHandler.handleCategoryCallback(ctx);
+                return;
+      }
+ 
+        await ctx.answerCallbackQuery();
+ 
     });
     
     this.bot.on('message:document', async (ctx) => {
