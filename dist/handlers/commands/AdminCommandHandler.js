@@ -24,14 +24,8 @@ export class AdminCommandHandler {
         const command = text.split(' ')[0];
         const args = text.substring(command.length).trim();
         switch (command) {
-            case '/publish_message_to_russian_users':
-                await this.broadcast(ctx, 'ru', args);
-                break;
             case '/publish_message_to_english_users':
                 await this.broadcast(ctx, 'en', args);
-                break;
-            case '/publish_message_to_hebrew_users':
-                await this.broadcast(ctx, 'he', args);
                 break;
             case '/add_vip':
                 await this.addVip(ctx, args);
@@ -49,12 +43,12 @@ export class AdminCommandHandler {
         if (enable) {
             ctx.session.adminMode = true;
             ctx.session.simulateUser = false;
-            await ctx.reply('🛡 <b>Admin Mode ON</b>\n\nЛимиты трафика отключены. Заливай файлы и тестируй всё что угодно.\n\nВыключить (simulate user): /admin_mode_off', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, true) });
+            await ctx.reply('🛡 <b>Admin Mode ON</b>\n\nTraffic limits is off. Upload files and test as admin every functionality.\n\nTo turn off admin mode: /admin_mode_off', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, true) });
         }
         else {
             ctx.session.adminMode = false;
             ctx.session.simulateUser = true;
-            await ctx.reply('👤 <b>Simulate User Mode ON</b>\n\nТы видишь бот глазами обычного юзера.\nЛимиты трафика активны, кнопки админа скрыты.\n\nВернуться в admin mode: /admin_mode_on', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, false) });
+            await ctx.reply('👤 <b>Simulate User Mode ON</b>\n\nFrom now and on you bot as user.\nTraffic limits are on, buttons and command for admin is hide.\n\nTurn back to admin mode: /admin_mode_on', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, false) });
         }
         await this.logger.logAction('AdminCommandHandler:setAdminMode', ctx.from, enable ? 'Admin Mode ON' : 'Simulate User Mode ON', `adminMode=${enable} simulateUser=${!enable}`);
     }
@@ -91,20 +85,14 @@ export class AdminCommandHandler {
             const user = await this.db.getUser(targetId);
             const userLang = user?.langCode || 'en';
             let msg = '';
-            if (userLang === 'ru') {
-                msg = 'Добрый день, разработчик бота добавил вас в качестве важного пользователя. Вам даны безлимитное пользование. Спасибо за ваше доверие.';
-            }
-            else if (userLang === 'he') {
-                msg = 'שלום רב, המפתח הוסיף אותך כמשתמש VIP. ניתנה לך גישה ללא הגבלה. תודה על האמון שלך.';
-            }
-            else {
+            if (userLang === 'en') {
                 msg = 'Good afternoon, the bot developer has added you as a VIP user. You have been given unlimited bot usage. Thank you for your trust.';
             }
             await ctx.api.sendMessage(targetId, msg);
             await ctx.reply(`✅ User <code>${targetId}</code> now s VIP ang get the notification.`, { parse_mode: 'HTML' });
         }
         catch (e) {
-            await ctx.reply(`❌ Ошибка: Пользователь не найден в базе или бот заблокирован.\n${e.message}`);
+            await ctx.reply(`❌ Error: can't find user or the bot is on blacklist.\n${e.message}`);
         }
     }
 }
