@@ -13,6 +13,7 @@ import { AboutCommandHandler }   from './commands/AboutCommandHandler.js';
 import { AdminCommandHandler }   from './commands/AdminCommandHandler.js';
 import { SupportCommandHandler }  from './commands/SupportCommandHandler.js';
 import { AdminSupportHandler }    from './commands/AdminSupportHandler.js';
+import { FeedbackCommandHandler } from './commands/FeedbackCommandHandler.js';
 
 import { ButtonHandler }         from './buttons/ButtonHandler.js';
 import { TextHandler }           from './text/TextHandler.js';
@@ -35,7 +36,8 @@ export class HandlerRegistry{
     {command:'start',Handler:StartCommandHandler},
     {command:'help',Handler:HelpCommandHandler},
     {command:'about',Handler:AboutCommandHandler},
-    { command: 'support', Handler: SupportCommandHandler }
+    {command: 'support', Handler: SupportCommandHandler },
+    {command:'feedback',Handler:FeedbackCommandHandler}
     
   ];
   
@@ -61,6 +63,7 @@ export class HandlerRegistry{
     const archiveHandler = new MergeArchiveHandler(this.config, this.localApi, this.localization);
     const adminSupportHandler = new AdminSupportHandler(this.config, this.localization);
     const supportHandler      = new SupportCommandHandler(this.config, this.localization);
+    const feedbackHandler = new FeedbackCommandHandler(this.config,this.localization);
     
     this.bot.on('message:text',async(ctx)=>{
       
@@ -111,6 +114,13 @@ export class HandlerRegistry{
       if (step === 'waiting_for_support_message') {
           await supportHandler.handleMessage(ctx);
           return;
+      }
+      
+      if(step === 'waiting_for_feedback'){
+        
+        await feedbackHandler.handleMessage(ctx);
+        return;
+        
       }
       
       if(this.localization.getActionKeyByText(text)){

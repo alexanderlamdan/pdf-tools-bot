@@ -15,6 +15,7 @@ export interface SessionData{
         'waiting_for_metadata_confirm' |
         'waiting_for_metadata_mode' |
         'waiting_for_support_category' |
+        'waiting_for_feedback' |
         'waiting_for_support_message'; 
     
     filePaths: string[];
