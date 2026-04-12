@@ -7,6 +7,7 @@ import { BotMenuService } from "../services/BotMenuService.js";
 import { initialSession } from "../types/SessionData.js";
 import { DatabaseService } from '../services/DatabaseService.js';
 import { AntiSpamService } from '../services/AntiSpamService.js';
+import { SmartQueueService } from '../services/SmartQueueService.js';
 export class TelegramBotCore extends AbstractTelegramBotCore {
     bot;
     webhookHandler;
@@ -47,6 +48,7 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
             }
         });
         new HandlerRegistry(this.bot, this.config, this.localApi, this.localization).registerAll();
+        SmartQueueService.getInstance(this.localization, new DatabaseService(this.logger)).setApi(this.localApi);
     }
     async init() {
         try {

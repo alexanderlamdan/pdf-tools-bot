@@ -168,4 +168,8 @@ export class LocalizationService{
         
     }
     
+    public getDefaultLang(): string {
+        return this.defaultLang;
+    }
+    
 }

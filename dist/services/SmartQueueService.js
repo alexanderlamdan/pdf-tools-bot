@@ -1,5 +1,7 @@
 import { LocalizationService } from './LocalizationService.js';
 import { DatabaseService } from './DatabaseService.js';
+const VIP_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+const VIP_ACTIVITY_TTL_MS = 30 * 60 * 1000;
 export class SmartQueueService {
     localization;
     db;
@@ -8,16 +10,21 @@ export class SmartQueueService {
     MAX_CONCURRENT_HEAVY = 2;
     static instance;
     compressActive = false;
+    api = null;
     vipActivity = new Map();
     constructor(localization, db) {
         this.localization = localization;
         this.db = db;
+        setInterval(() => this.cleanVipActivity(), VIP_CLEANUP_INTERVAL_MS);
     }
     static getInstance(localization, db) {
         if (!SmartQueueService.instance) {
             SmartQueueService.instance = new SmartQueueService(localization, db);
         }
         return SmartQueueService.instance;
+    }
+    setApi(api) {
+        this.api = api;
     }
     calculateWeight(action, sizeBytes) {
         const sizeMB = sizeBytes / 1024 / 1024;
@@ -42,17 +49,24 @@ export class SmartQueueService {
             default: return 10;
         }
     }
-    async notifyQueueAboutCompress(lang) {
-        const i18n = this.localization.get(lang);
+    async notifyQueueAboutCompress() {
+        if (!this.api)
+            return;
         const waitingTasks = this.queue.filter(t => t.weight === 'heavy' || t.weight === 'medium');
+        if (waitingTasks.length === 0)
+            return;
+        const i18n = this.localization.get(this.localization.getDefaultLang());
         for (const task of waitingTasks) {
             try {
+                await this.api.sendMessage(task.chatId, i18n.messages.queue.compress_active_warning, { parse_mode: 'HTML' });
             }
-            catch { }
+            catch {
+            }
         }
     }
     async enqueue(ctx, action, sizeBytes, taskFn) {
         const userId = ctx.from.id;
+        const chatId = ctx.chat.id;
         const user = await this.db.getUser(userId);
         const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
         const i18n = this.localization.get(lang);
@@ -63,16 +77,17 @@ export class SmartQueueService {
         if (role === 'vip') {
             const abuseStatus = await this.handleVipAbuse(ctx, userId, lang);
             if (abuseStatus === 'blocked') {
-                throw new Error("VIP_BLOCKED");
+                throw new Error('VIP_BLOCKED');
             }
             else if (abuseStatus === 'warned') {
                 role = 'free';
             }
         }
-        if (weight === 'light') {
+        if (weight === 'light')
             return taskFn();
-        }
-        if (weight === 'medium' && (role === 'enterprise' || role === 'sovereign_protocol' || role === 'vip') && !this.compressActive) {
+        if (weight === 'medium' &&
+            (role === 'enterprise' || role === 'sovereign_protocol' || role === 'vip') &&
+            !this.compressActive) {
             return taskFn();
         }
         if (this.compressActive && weight !== 'exclusive') {
@@ -86,15 +101,16 @@ export class SmartQueueService {
         }
         return new Promise((resolve, reject) => {
             const task = {
-                id: Math.random().toString(36).substr(2, 9),
+                id: Math.random().toString(36).substring(2, 9),
                 userId,
+                chatId,
                 role,
                 weight,
                 execute: taskFn,
                 resolve,
                 reject,
                 addedAt: Date.now(),
-                priorityScore: weight === 'exclusive' ? 999 : this.getBasePriority(role)
+                priorityScore: weight === 'exclusive' ? 999 : this.getBasePriority(role),
             };
             this.queue.push(task);
             this.queue.sort((a, b) => b.priorityScore - a.priorityScore);
@@ -116,7 +132,11 @@ export class SmartQueueService {
             this.queue.shift();
             this.compressActive = true;
             this.activeHeavyTasks += 2;
-            nextTask.execute().then(res => nextTask.resolve(res)).catch(err => nextTask.reject(err)).finally(() => {
+            this.notifyQueueAboutCompress().catch(() => { });
+            nextTask.execute()
+                .then(res => nextTask.resolve(res))
+                .catch(err => nextTask.reject(err))
+                .finally(() => {
                 this.activeHeavyTasks -= 2;
                 this.compressActive = false;
                 this.processQueue();
@@ -139,6 +159,16 @@ export class SmartQueueService {
             this.processQueue();
         });
     }
+    cleanVipActivity() {
+        const cutoff = Date.now() - VIP_ACTIVITY_TTL_MS;
+        for (const [userId, tracker] of this.vipActivity.entries()) {
+            const hasRecentActivity = tracker.timestamps.some(t => t > cutoff);
+            const isBlocked = tracker.blockedUntil > Date.now();
+            if (!hasRecentActivity && !isBlocked) {
+                this.vipActivity.delete(userId);
+            }
+        }
+    }
     async handleVipAbuse(ctx, userId, lang) {
         const i18n = this.localization.get(lang);
         const now = Date.now();
@@ -157,7 +187,7 @@ export class SmartQueueService {
             tracker.blockedUntil = 0;
             tracker.warned = false;
             tracker.timestamps = [];
-            await ctx.reply(`${i18n.messages.queue.vip_unblock_notice}`);
+            await ctx.reply(i18n.messages.queue.vip_unblock_notice).catch(() => { });
         }
         tracker.timestamps = tracker.timestamps.filter(t => now - t < 5 * 60 * 1000);
         tracker.timestamps.push(now);

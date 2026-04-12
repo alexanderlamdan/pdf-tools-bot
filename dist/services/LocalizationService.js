@@ -111,4 +111,7 @@ export class LocalizationService {
         }
         return null;
     }
+    getDefaultLang() {
+        return this.defaultLang;
+    }
 }
