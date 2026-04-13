@@ -217,72 +217,56 @@ To receive this file and continue, please choose a plan:`,
             choose_plan: "💳 Choose a subscription plan:",
             plans: {
                 free: `🆓 <b>Free Plan</b>
-
+ 
 📦 Up to 2 GB file size (Telegram limit)
 📊 2 GB monthly traffic
 🔧 All tools unlocked
-🗑 Secure delete from our server
-🖼 Bot logo as watermark
+🗑 Files deleted immediately after delivery
 🚶 Basic queue
-
+ 
 <i>Free forever. No credit card required.</i>`,
-                pro: `⚡️ <b>Pro Plan</b>
-
-💰 <b>$5 / month</b>  or  <b>$35 / year</b>
-
+                pro: `⚡️ <b>Pro Plan — $10/month</b>
+ 
 📦 Up to 2 GB file size (Telegram limit)
 📊 12 GB monthly traffic
 🔧 All tools unlocked
-🗑 Secure delete from server and bot
 🖼 Your own watermark
 ⚡️ Pro queue (priority over free users)
-
+🗑 Files deleted immediately after delivery
+ 
 <i>Best choice for personal use.</i>`,
-                premium: `💎 <b>Premium Plan</b>
-
-💰 <b>$15 / month</b>  or  <b>$70 / year</b>
-
+                premium: `💎 <b>Premium Plan — $25/month</b>
+ 
 📦 Up to 2 GB file size (Telegram limit)
 📊 24 GB monthly traffic
 🔧 All tools unlocked
-🧹 Full log and file cleanup from bot and server
 🖼 Your own watermark
 💎 Premium queue
-🎧 Premium support
-🔑 Encrypted private key for secure files
-
+🎧 Priority support via /support
+🗑 Files deleted immediately after delivery
+ 
 <i>Perfect for heavy daily use.</i>`,
-                enterprise: `🏢 <b>Enterprise Plan</b>
-
-💰 <b>$45 / month</b>  or  <b>$360 / year</b>
-
+                enterprise: `🏢 <b>Enterprise Plan — $75/month</b>
+ 
 📦 Up to 2 GB file size (Telegram limit)
 📊 48 GB monthly traffic
 🔧 All tools unlocked
-🧹 Full activity cleanup from servers and bot chat history
 🖼 Your company watermark
 🚀 No queue — instant processing
-🔒 Privacy support
-🔑 Encrypted private key for secure files
-💾 Files saved in secure folder for <b>30 days</b>
-
+🎧 Dedicated support
+🗑 Files deleted immediately after delivery
+ 
 <i>Designed for businesses and teams.</i>`,
-                sovereign_protocol: `👑 <b>Sovereign Protocol</b>
-
-💰 <b>$3,000 / month</b>  or  <b>$12,000 / year</b>
-
+                sovereign_protocol: `👑 <b>Sovereign Protocol — $3,000/month</b>
+ 
 📦 Up to 2 GB file size (Telegram limit)
 📊 90 GB monthly traffic
 🔧 All tools unlocked
-🧹 Full activity cleanup from servers and bot chat history
-🚫 Watermark removal
-🧬 Metadata cleaning
-🔐 Isolated queue in LUKS (encrypted filesystem)
-🛡 End-to-end encrypted files (E2EE)
-💬 Personal chat with developer for support
-💾 Files saved in secure folder for <b>180 days</b>
-
-<i>For those who demand the absolute maximum.</i>`,
+🚀 No queue — instant processing
+💬 Personal communication with developer
+🗑 Files deleted immediately after delivery
+ 
+<i>For those who demand the absolute maximum.\nContact via /support → Business inquiry.</i>`,
             },
             traffic_warning: `⚠️ <b>Heads up!</b> You have <b>{{remain}}</b> of free traffic left.\nConsider upgrading to keep working without interruptions.`
         },
