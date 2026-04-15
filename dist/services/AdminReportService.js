@@ -106,7 +106,7 @@ export class AdminReportService {
             `📅 Joined: ${joined}\n` +
             `🕐 Last seen: ${lastSeen}\n\n` +
             `💾 <b>Traffic this month:</b>\n` +
-            `${bar} ${usedMB} MB / 2048 MB (${pct}%)\n\n` +
+            `${usedMB} MB / 2048 MB (${pct}%)\n\n` +
             `📈 <b>All-time activity:</b>\n${statsText}`;
         await this.api.sendMessage(this.config.channelLogId, msg, { parse_mode: 'HTML' });
     }
