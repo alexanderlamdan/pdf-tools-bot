@@ -60,7 +60,7 @@ export class AdminReportService {
             `📊 <b>Traffic usage:</b>\n` +
             `  🔴 >80% used:  ${segments.critical} users\n` +
             `  🟡 50–80%:     ${segments.warning} users\n` +
-            `  🟢 <50%:       ${segments.normal} users\n` +
+            `  🟢 &lt;50%:    ${segments.normal} users\n` +
             `  ⚫ Not used:   ${segments.unused} users\n\n` +
             `🏆 <b>Top 10 (last 7 days):</b>\n\n${top10Text}`;
         await this.api.sendMessage(this.config.channelLogId, report, { parse_mode: 'HTML' });
@@ -83,7 +83,7 @@ export class AdminReportService {
             return;
         }
         const u = userRows[0];
-        const name = u.username ? `@${u.username}` : `${u.first_name || ''} ${u.last_name || ''}`.trim();
+        const name = u.username ? `@${u.username}` : (u.first_name || '').trim();
         const joined = u.joined_at
             ? new Date(Number(u.joined_at)).toLocaleDateString('en-US', { timeZone: 'Asia/Jerusalem' })
             : 'unknown';
