@@ -2,6 +2,7 @@ import type { IBotConfig } from '../../config/interfaces/IBotConfig.js';
 import { DatabaseService } from '../../services/DatabaseService.js';
 import { LoggerService } from '../../services/LoggerService.js';
 import { LocalizationService } from '../../services/LocalizationService.js';
+import { AdminReportService }      from '../../services/AdminReportService.js';
 import type { BotContext } from '../../types/BotContext.js';
 import { Keyboards } from '../../services/Keyboards.js';
 
@@ -43,10 +44,58 @@ export class AdminCommandHandler{
             case '/admin_mode_off':
                 await this.setAdminMode(ctx,false);
                 break;
-            
+            case '/admin_report':
+                await this.sendFullReport(ctx);
+                break;
+            case '/admin_user':
+                await this.sendUserDetails(ctx, args);
+                break;
             
         }
         
+    }
+    
+    private async sendFullReport(ctx: BotContext): Promise<void> {
+ 
+        const statusMsg = await ctx.reply('📊 Generating report...');
+ 
+        try {
+ 
+            const reportService = new AdminReportService(this.config, ctx.api);
+            await reportService.sendFullReport();
+            await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
+            await ctx.reply('✅ Report sent to log channel.');
+ 
+        } catch (e: any) {
+ 
+            await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
+            await ctx.reply(`❌ Report failed: ${e.message}`);
+ 
+        }
+ 
+    }
+ 
+    private async sendUserDetails(ctx: BotContext, args: string): Promise<void> {
+ 
+        const targetId = Number(args.trim());
+ 
+        if (!targetId || isNaN(targetId)) {
+            await ctx.reply('⚠️ Usage: <code>/admin_user 123456789</code>', { parse_mode: 'HTML' });
+            return;
+        }
+ 
+        try {
+ 
+            const reportService = new AdminReportService(this.config, ctx.api);
+            await reportService.sendUserDetails(targetId);
+            await ctx.reply(`✅ Sent to log channel.`);
+ 
+        } catch (e: any) {
+ 
+            await ctx.reply(`❌ Failed: ${e.message}`);
+ 
+        }
+ 
     }
     
     private async setAdminMode(ctx:BotContext,enable:boolean):Promise<void>{

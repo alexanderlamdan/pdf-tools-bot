@@ -132,7 +132,7 @@ function startTrafficResetCron() {
                     EXTRACT(DAY FROM to_timestamp(joined_at / 1000)) = $1
                     AND (last_reset_at IS NULL OR last_reset_at < $2)
             `, [todayDay, startOfMonth]);
-            if (usersToReset === 0)
+            if (usersToReset.length === 0)
                 return;
             const ids = usersToReset.map((u) => u.id);
             await db.query(`

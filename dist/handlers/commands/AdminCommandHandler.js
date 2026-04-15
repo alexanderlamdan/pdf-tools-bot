@@ -1,6 +1,7 @@
 import { DatabaseService } from '../../services/DatabaseService.js';
 import { LoggerService } from '../../services/LoggerService.js';
 import { LocalizationService } from '../../services/LocalizationService.js';
+import { AdminReportService } from '../../services/AdminReportService.js';
 import { Keyboards } from '../../services/Keyboards.js';
 export class AdminCommandHandler {
     config;
@@ -36,6 +37,40 @@ export class AdminCommandHandler {
             case '/admin_mode_off':
                 await this.setAdminMode(ctx, false);
                 break;
+            case '/admin_report':
+                await this.sendFullReport(ctx);
+                break;
+            case '/admin_user':
+                await this.sendUserDetails(ctx, args);
+                break;
+        }
+    }
+    async sendFullReport(ctx) {
+        const statusMsg = await ctx.reply('📊 Generating report...');
+        try {
+            const reportService = new AdminReportService(this.config, ctx.api);
+            await reportService.sendFullReport();
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            await ctx.reply('✅ Report sent to log channel.');
+        }
+        catch (e) {
+            await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
+            await ctx.reply(`❌ Report failed: ${e.message}`);
+        }
+    }
+    async sendUserDetails(ctx, args) {
+        const targetId = Number(args.trim());
+        if (!targetId || isNaN(targetId)) {
+            await ctx.reply('⚠️ Usage: <code>/admin_user 123456789</code>', { parse_mode: 'HTML' });
+            return;
+        }
+        try {
+            const reportService = new AdminReportService(this.config, ctx.api);
+            await reportService.sendUserDetails(targetId);
+            await ctx.reply(`✅ Sent to log channel.`);
+        }
+        catch (e) {
+            await ctx.reply(`❌ Failed: ${e.message}`);
         }
     }
     async setAdminMode(ctx, enable) {

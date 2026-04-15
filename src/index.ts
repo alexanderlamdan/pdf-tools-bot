@@ -183,7 +183,7 @@ function startTrafficResetCron():void{
             `,[todayDay,startOfMonth]
 			);
 			
-			if(usersToReset === 0) return;
+			if(usersToReset.length === 0) return;
 			
 			const ids = usersToReset.map((u:any)=>u.id);
 			await db.query(`

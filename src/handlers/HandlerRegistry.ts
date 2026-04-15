@@ -80,11 +80,16 @@ export class HandlerRegistry{
       
       if (ctx.chat?.type !== 'private') return;
       
-      if(text.startsWith('/publish') || text.startsWith('/add_vip') || text.startsWith('/admin_mode_on') || text.startsWith('/admin_mode_off')){
-        
-        await adminHandler.handle(ctx);
-        return;
-        
+        if (
+          text.startsWith('/publish')       ||
+          text.startsWith('/add_vip')       ||
+          text.startsWith('/admin_mode_on') ||
+          text.startsWith('/admin_mode_off') ||
+          text.startsWith('/admin_report')   ||
+          text.startsWith('/admin_user')
+      ) {
+          await adminHandler.handle(ctx);
+          return;
       }
       
       if (text.startsWith('/open-chat')) {
