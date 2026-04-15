@@ -20,7 +20,6 @@ export class AdminReportService {
         private readonly api:    Api<RawApi>,
     ) {}
 
-
     public async sendFullReport(): Promise<void> {
 
         const ts = new Date().toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' });
@@ -84,6 +83,8 @@ export class AdminReportService {
             `🏆 <b>Top 10 (last 7 days):</b>\n\n${top10Text}`;
 
         await this.api.sendMessage(this.config.channelLogId, report, { parse_mode: 'HTML' });
+
+        // CSV
         const csvPath = await this.generateCsv(users);
         try {
             await this.api.sendDocument(
@@ -102,7 +103,7 @@ export class AdminReportService {
         const ts = new Date().toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' });
 
         const [userRows, stats] = await Promise.all([
-            this.db.query(`SELECT * FROM users WHERE id = $1`, [targetId]),
+            this.db.query(`SELECT id, username, first_name, lang_code, is_vip, sub_type, monthly_traffic, joined_at, last_active_at FROM users WHERE id = $1`, [targetId]),
             this.db.query(
                 `SELECT action_type, COUNT(*) as count FROM activity_logs WHERE user_id = $1 GROUP BY action_type ORDER BY count DESC`,
                 [targetId]
@@ -155,7 +156,7 @@ export class AdminReportService {
 
     private async getAllUsers(): Promise<any[]> {
         return this.db.query(`
-            SELECT id, username, first_name, last_name, lang_code,
+            SELECT id, username, first_name, lang_code,
                    is_vip, sub_type, monthly_traffic, joined_at, last_active_at
             FROM users WHERE id != $1
             ORDER BY joined_at DESC
