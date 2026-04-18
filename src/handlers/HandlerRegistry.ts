@@ -170,7 +170,7 @@ export class HandlerRegistry{
         if(!planText) return;
  
         const { InlineKeyboard } = await import('grammy');
-        const kb = new InlineKeyboard().url('🌐 View all plans on our website', this.config.url);
+        const kb = new InlineKeyboard().url('🌐 Our website', this.config.url);
  
         await ctx.reply(planText, { parse_mode: 'HTML', reply_markup: kb });
         return;
