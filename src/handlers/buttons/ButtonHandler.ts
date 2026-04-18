@@ -254,7 +254,7 @@ export class ButtonHandler extends BaseHandler{
         
         const subEnd = user.subExpiresAt > 0 ? new Date(user.subExpiresAt).toLocaleDateString() : subs.no_sub;
         
-        const joinedDate = user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('en-US',{
+        const joinedDate = user.joinedAt ? new Date(Number(user.joinedAt)).toLocaleDateString('en-US',{
             
             timeZone:'UTC',
             year:'numeric',
@@ -294,7 +294,7 @@ export class ButtonHandler extends BaseHandler{
         
         if(!joinedAt) return '-';
         
-        const joinDay = new Date(joinedAt).getUTCDate();
+        const joinDay = new Date(Number(joinedAt)).getUTCDate();
         const now = new Date();
         const nowDay = now.getUTCMonth();
         

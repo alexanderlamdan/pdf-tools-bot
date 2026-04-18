@@ -106,6 +106,7 @@ The bot does not see, know, or receive any of your data except what is necessary
                 crack: "🕵️‍♂️ Cracked",
                 split: "✂️ Split",
                 merge: "🔗 Merged",
+                metadata_wipe: 'Metadata wiped',
             },
             subscriptions: {
                 no_sub: "Free",

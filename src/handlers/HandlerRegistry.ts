@@ -161,9 +161,20 @@ export class HandlerRegistry{
       if(data.startsWith('sub_info:')){
         
         await ctx.answerCallbackQuery();
-        await buttonHandler.handle(ctx);
+ 
+        const plan = data.replace('sub_info:', '') as 'pro' | 'premium' | 'enterprise';
+        const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
+        const i18n = this.localization.get(lang);
+        const planText = (i18n.messages.subscription.plans as any)[plan] as string;
+ 
+        if(!planText) return;
+ 
+        const { InlineKeyboard } = await import('grammy');
+        const kb = new InlineKeyboard().url('🌐 View all plans on our website', this.config.url);
+ 
+        await ctx.reply(planText, { parse_mode: 'HTML', reply_markup: kb });
         return;
-        
+ 
       }
       
         await ctx.answerCallbackQuery();
