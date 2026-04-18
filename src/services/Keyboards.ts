@@ -28,12 +28,10 @@ export class Keyboards{
         
     }
     
-    public getFileActionsMenu(lang:string,excludeKeys:string[] = []):Keyboard{
-        
-        const buttons = this.localization.getFileActionsButtons(lang,excludeKeys);
-        return this.buildFromList(buttons,2);
-        
-    }
+    public getFileActionsMenu(lang: string, excludeKeys: string[] = [], isPaid: boolean = false): Keyboard {
+       const buttons = this.localization.getFileActionsButtons(lang, excludeKeys, isPaid);
+       return this.buildFromList(buttons, 2);
+   }
     
     public getEncryptedFileMenu(lang:string):Keyboard{
         

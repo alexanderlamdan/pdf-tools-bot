@@ -10,6 +10,7 @@ import { AdminLogService } from '../../services/AdminLogService.js';
 import {getPaymentLink} from '../../utils/SubscriptionUtils.js';
 import { notifyTrafficAfterResult } from '../../utils/TrafficNotifier.js';
 import { FileNameUtils } from '../../utils/FileNameUtils.js';
+import { InlineKeyboard } from 'grammy';
 import fs from 'fs';
 import {OutgoingMessage} from 'http';
 
@@ -198,17 +199,17 @@ export class ButtonHandler extends BaseHandler{
     private async handleSubscriptionInfo(ctx:BotContext,lang:string,plan:'pro'|'premium'|'enterprise'):Promise<void>{
         
         const i18n = this.getI18n(ctx);
-        const paymentLink = getPaymentLink(lang,plan);
         const planText = (i18n.messages.subscription.plans as any)[plan] as string;
-        const buyText = i18n.buttons.subscription.buy.replace('{{name}}',this.capitalize(plan));
         
-        await this.logger.logAction('ButtonHandler', ctx.from!, 'Subscription viewed', `Plan: ${plan}`);
+        const kb = new InlineKeyboard().url(`🌐 View all plans`,`${this.config.url}`).row();
         
-        await ctx.reply(planText, {
-            parse_mode:   'HTML',
-            reply_markup: {
-                inline_keyboard: [[{ text: `💳 ${buyText}`, url: paymentLink }]],
-            },
+        await this.logger.logAction('ButtonHandler:handleSubscriptionInfo',ctx.from!,'Subscription viewed',`Plan:${plan}`);
+        
+        await ctx.reply(planText,{
+            
+            parse_mode:'HTML',
+            reply_markup:kb
+            
         });
         
     }
@@ -253,15 +254,76 @@ export class ButtonHandler extends BaseHandler{
         
         const subEnd = user.subExpiresAt > 0 ? new Date(user.subExpiresAt).toLocaleDateString() : subs.no_sub;
         
-        const msg = i18n.messages.status.user.title
+        const joinedDate = user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('en-US',{
+            
+            timeZone:'UTC',
+            year:'numeric',
+            month:'long',
+            day:'numeric'
+            
+        }) : '-';
+        
+        const resetInfo = this.calcNextReset(user.joinedAt);
+        
+        
+        const msg =  i18n.messages.status.user.title
             + `📛 <b>${i18n.messages.status.user.name}:</b> ${user.firstName}\n`
             + `🏷 <b>${i18n.messages.status.user.role}:</b> ${displayRole}\n`
-            + `💾 <b>${i18n.messages.status.user.usage}:</b> ${usedMB} MB / ${maxStorage}\n`
+            + `📅 <b>${i18n.messages.status.user.joined}:</b> ${joinedDate}\n`
+            + `💾 <b>${i18n.messages.status.user.usage}:</b>\n`
+            + `${usedMB} MB / ${maxStorage}\n`
+            + `♻️ <b>${i18n.messages.status.user.reset}:</b> ${resetInfo}\n`
             + `📊 <b>${i18n.messages.status.user.stats}:</b>\n`
             + myStats + `\n`
             + `💳 <b>${i18n.messages.status.user.plan}:</b> ${user.subPeriod || subEnd}`;
+            
+        const isFree = !user.isVip && (!user.subType || user.subType === 'free');
         
-        await ctx.reply(msg,{parse_mode:'HTML'});
+        const kb = new InlineKeyboard();
+        
+        if(isFree){
+            
+            kb.text('⚡️ Pro — $10/mo',   `sub_info:pro`).row().text('💎 Premium — $25/mo', `sub_info:premium`).row().text('🏢 Enterprise — $75/mo', `sub_info:enterprise`).row();
+            
+        }
+        
+        await ctx.reply(msg,{parse_mode:'HTML',reply_markup:isFree ? kb : undefined});
+    }
+    
+    private calcNextReset(joinedAt:number):string{
+        
+        if(!joinedAt) return '-';
+        
+        const joinDay = new Date(joinedAt).getUTCDate();
+        const now = new Date();
+        const nowDay = now.getUTCMonth();
+        
+        let resetYear = now.getUTCFullYear();
+        let resetMonth = now.getUTCMonth();
+        
+        if(nowDay >= joinDay){
+            
+            resetMonth += 1;
+            if(resetMonth > 11){resetMonth = 0;resetYear += 1;}
+            
+        }
+        
+        const resetDate = new Date(Date.UTC(resetYear,resetMonth,joinDay,0,0,0));
+        const diffMs = resetDate.getTime() - Date.now();
+        const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffHours / 24);
+        
+        const dateStr  = resetDate.toLocaleDateString('en-US',{
+            
+            timeZone:'UTC',
+            month:'long',
+            day:'numeric'
+            
+        });
+        
+        if(diffDays > 0) return `${dateStr} (in ${diffDays}d ${diffHours % 24}h UTC)`;
+        return `${dateStr} (in ${diffHours}h UTC)`;
+        
     }
     
     private async handleAdminStats(ctx:BotContext,lang:string):Promise<void>{
@@ -281,11 +343,14 @@ export class ButtonHandler extends BaseHandler{
               }).join('');
 
         const msg = i18n.messages.status.admin.title
-            + `👥 <b>Users:</b> ${counts.total} (🟢 ${counts.active})\n\n`
-            + `📊 <b>${i18n.messages.status.admin.global_stats}:</b>\n${actionStats}`
-            + `\n💾 <b>${i18n.messages.status.admin.traffic}:</b> ${totalGB} GB\n\n`
-            + `💎 <b>${i18n.messages.status.admin.subs}:</b> `
-            + `VIP:${counts.subscribers.vip} | Pro:${counts.subscribers.pro} | Premium:${counts.subscribers.premium} | Enterprise:${counts.subscribers.enterprise} | Sovereign:${counts.subscribers.sovereign}`;
+            + `👥 <b>Users:</b> ${counts.total} (🟢 ${counts.active} active 24h)\n\n`
+            + `📊 <b>${i18n.messages.status.admin.global_stats}:</b>\n${actionStats}\n\n`
+            + `💾 <b>${i18n.messages.status.admin.traffic}:</b> ${totalGB} GB\n\n`
+            + `💎 <b>${i18n.messages.status.admin.subs}:</b>\n`
+            + `  VIP: ${counts.subscribers.vip} | Pro: ${counts.subscribers.pro} | Premium: ${counts.subscribers.premium}\n`
+            + `  Enterprise: ${counts.subscribers.enterprise} | Sovereign: ${counts.subscribers.sovereign}\n\n`
+            + `📋 Full report → /admin_report\n`
+            + `👤 User details → /admin_user 123456789`;
         
         await ctx.reply(msg,{parse_mode:'HTML'});
         

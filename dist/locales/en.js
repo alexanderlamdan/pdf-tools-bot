@@ -16,7 +16,7 @@ export default {
             btn_extract: "🖼 Extract Img/Text",
             btn_protect: "🔐 Protect",
             btn_unlock: "🔓 Unlock",
-            btn_watermark: "© Watermark",
+            btn_watermark: "Your © Watermark",
             btn_repair: "🚑 Repair",
             btn_to_long_image: "📜 To Long Image",
             btn_metadata_wiper: "🧹 Wipe Metadata",
@@ -24,6 +24,7 @@ export default {
             btn_merge_one_by_one: '📄 One by one (up to 10)',
             btn_merge_archive: '📦 Upload archive',
             btn_merge_bulk: '🗂 All files at once',
+            btn_bot_watermark: "🤖 Bot Watermark + URL"
         },
         common: {
             btn_cancel: "❌ Cancel",
@@ -85,9 +86,11 @@ The bot does not see, know, or receive any of your data except what is necessary
                 name: "Name",
                 role: "Role",
                 usage: "Usage",
-                stats: "Stats",
+                stats: "Statistics",
                 plan: "Plan",
-                ends: "Ends",
+                ends: "Valid until",
+                joined: 'Member since',
+                reset: 'Next traffic reset'
             },
             admin: {
                 title: "👑 <b>ADMIN STATUS</b>\n\n",

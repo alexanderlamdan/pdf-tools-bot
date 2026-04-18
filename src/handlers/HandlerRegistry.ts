@@ -157,7 +157,15 @@ export class HandlerRegistry{
                 await supportHandler.handleCategoryCallback(ctx);
                 return;
       }
- 
+      
+      if(data.startsWith('sub_info:')){
+        
+        await ctx.answerCallbackQuery();
+        await buttonHandler.handle(ctx);
+        return;
+        
+      }
+      
         await ctx.answerCallbackQuery();
  
     });

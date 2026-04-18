@@ -20,8 +20,8 @@ export class Keyboards {
         const buttons = this.localization.getMainMenuButtons(lang, isAdmin);
         return this.buildFromList(buttons, 2);
     }
-    getFileActionsMenu(lang, excludeKeys = []) {
-        const buttons = this.localization.getFileActionsButtons(lang, excludeKeys);
+    getFileActionsMenu(lang, excludeKeys = [], isPaid = false) {
+        const buttons = this.localization.getFileActionsButtons(lang, excludeKeys, isPaid);
         return this.buildFromList(buttons, 2);
     }
     getEncryptedFileMenu(lang) {

@@ -133,6 +133,8 @@ export class DocumentMessageHandler extends BaseHandler {
     }
     async handleValidFile(ctx, doc, info, lang) {
         const i18n = this.getI18n(ctx);
+        const user = await this.db.getUser(ctx.from.id);
+        const isPaid = !!(user?.isVip || (user?.subType && user.subType !== 'free'));
         ctx.session.currentAction = 'ready';
         const reportText = this.generateAnalysisReport(doc, info, lang);
         await ctx.reply(reportText, {
@@ -141,8 +143,8 @@ export class DocumentMessageHandler extends BaseHandler {
                 'btn_merge_one_by_one',
                 'btn_merge_archive',
                 'btn_merge_bulk',
-                'btn_execute_merge'
-            ])
+                'btn_execute_merge',
+            ], isPaid)
         });
     }
     async handleInvalidFormat(ctx, doc, lang, isAdmin) {

@@ -100,7 +100,7 @@ export class LocalizationService{
         
     }
     
-    public getFileActionsButtons(lang:string,excludeKeys:string[] = []):string[]{
+    public getFileActionsButtons(lang:string,excludeKeys:string[] = [],isPaid:boolean = false):string[]{
         
        const i18n = this.get(lang);
        const files = i18n.buttons.files || {};
@@ -113,15 +113,19 @@ export class LocalizationService{
         'btn_execute_merge',
     ];
        
-       const result:string[] = [];
-       for(const [key,val] of Object.entries(files)){
-        
-        if(!excludeKeys.includes(key) && !alwaysExclude.includes(key)){
-            result.push(val as string);
+       const planExclude = isPaid ? ['btn_bot_watermark'] : ['btn_watermark'];
+        const result: string[] = [];
+        for (const [key, val] of Object.entries(files)) {
+ 
+            if (
+                !excludeKeys.includes(key) &&
+                !alwaysExclude.includes(key) &&
+                !planExclude.includes(key)
+            ) {
+                result.push(val as string);
+            }
+ 
         }
-        
-       }
-        
        return [...result,...(common as string[])];
        
     }

@@ -217,26 +217,27 @@ export class DocumentMessageHandler extends BaseHandler{
     
   }
   
-  private async handleValidFile(ctx:BotContext,doc:Document,info:IPdfInfo,lang:string):Promise<void>{
-    
-    const i18n = this.getI18n(ctx);
-    ctx.session.currentAction = 'ready';
-    
-    const reportText = this.generateAnalysisReport(doc,info,lang);
-    
-    await ctx.reply(reportText,{
-      
-      parse_mode:'HTML',
-      reply_markup:this.keyboards.getFileActionsMenu(lang,[
-        'btn_merge_one_by_one',
-        'btn_merge_archive', 
-        'btn_merge_bulk',
-        'btn_execute_merge'
-      ])
-      
-    });
-    
-  }
+  private async handleValidFile(ctx: BotContext, doc: Document, info: IPdfInfo, lang: string): Promise<void> {
+ 
+        const i18n    = this.getI18n(ctx);
+        const user    = await this.db.getUser(ctx.from!.id);
+        const isPaid  = !!(user?.isVip || (user?.subType && user.subType !== 'free'));
+ 
+        ctx.session.currentAction = 'ready';
+ 
+        const reportText = this.generateAnalysisReport(doc, info, lang);
+ 
+        await ctx.reply(reportText, {
+            parse_mode:   'HTML',
+            reply_markup: this.keyboards.getFileActionsMenu(lang, [
+                'btn_merge_one_by_one',
+                'btn_merge_archive',
+                'btn_merge_bulk',
+                'btn_execute_merge',
+            ], isPaid)
+        });
+ 
+    }
   
   private async handleInvalidFormat(ctx:BotContext,doc:Document,lang:string,isAdmin:boolean):Promise<void>{
     
