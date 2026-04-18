@@ -9,6 +9,7 @@ export interface IBotConfigCore{
 	readonly slug:string;
 	readonly path:string;
 	readonly forceLang:string;
+	readonly marketplaceUrl:string;
 	
 }
 

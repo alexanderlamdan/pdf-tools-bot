@@ -201,7 +201,7 @@ export class ButtonHandler extends BaseHandler{
         const i18n = this.getI18n(ctx);
         const planText = (i18n.messages.subscription.plans as any)[plan] as string;
         
-        const kb = new InlineKeyboard().url(`🌐 View all plans`,`${this.config.url}`).row();
+        const kb = new InlineKeyboard().url(`🌐 View all plans`,`${this.config.marketplaceUrl}`).row();
         
         await this.logger.logAction('ButtonHandler:handleSubscriptionInfo',ctx.from!,'Subscription viewed',`Plan:${plan}`);
         
