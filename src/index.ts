@@ -174,8 +174,7 @@ function startTrafficResetCron():void{
 			
 			const todayDay = now.getDate();
 			const usersToReset = await db.query(
-				`
-                SELECT id, monthly_traffic, lang_code
+				`SELECT id, username, first_name, monthly_traffic, lang_code, joined_at
                 FROM users
                 WHERE
                     EXTRACT(DAY FROM to_timestamp(joined_at / 1000)) = $1
@@ -191,39 +190,80 @@ function startTrafficResetCron():void{
                 SET monthly_traffic = 0, last_reset_at = $1
                 WHERE id = ANY($2::bigint[])`,[Date.now(),ids]);
 			
-			
 			const ts = now.toLocaleString('en-US',{timeZone:'Asia/Jerusalem'});
 			console.log(`[Cron] ✅ Traffic reset for ${usersToReset.length} users (day=${todayDay}) at ${ts}`);
-			
-			const activeUsers = usersToReset.filter((u:any)=>Number(u.monthly_traffic) > 0);
-			for(const user of activeUsers){
-				
-				try{
+ 
+			const logDir = path.resolve('logs', 'traffic_resets');
+			fs.mkdirSync(logDir, {recursive: true});
+			const logFile = path.join(logDir, `reset_${now.toISOString().slice(0,10)}.log`);
+ 
+			for(const user of usersToReset){
+ 
+				const usedMB     = (Number(user.monthly_traffic) / 1024 / 1024).toFixed(2);
+				const username   = user.username  ? `@${user.username}` : '—';
+				const firstName  = user.first_name || '—';
+				const joinedStr  = user.joined_at
+					? new Date(Number(user.joined_at)).toLocaleDateString('en-US', {timeZone:'Asia/Jerusalem'})
+					: '—';
 					
-					const lang = user.lang_code || 'en';
-					const msg = getResetMessage(lang);
-					await sendToUser(Number(user.id),msg);
-					
-					await new Promise(r=>setTimeout(r,100));
-					
-				}catch{
-					
+				const logLine = `[${ts}] RESET | ID: ${user.id} | ${username} | ${firstName} | Joined: ${joinedStr} | Was: ${usedMB}MB → Now: 0 MB / 2048 MB`;
+				fs.appendFileSync(logFile, logLine + '\n', 'utf-8');
+ 
+				if(Number(user.monthly_traffic) > 0){
+ 
+					const tgBody = JSON.stringify({
+						chat_id:    config.channelLogId,
+						text:       `♻️ <b>Traffic reset</b>\n\n` +
+						            `👤 ${username} (ID: <code>${user.id}</code>)\n` +
+						            `📛 Name: ${firstName}\n` +
+						            `📅 Joined: ${joinedStr}\n` +
+						            `💾 Was: <b>${usedMB} MB</b> → Now: <b>0 MB / 2 GB</b>`,
+						parse_mode: 'HTML',
+					});
+ 
+					const urlObjLog = new URL(`https://api.telegram.org/bot${config.token}/sendMessage`);
+					await new Promise<void>((resolve) => {
+						const req = https.request({
+							hostname: urlObjLog.hostname,
+							port:     443,
+							path:     urlObjLog.pathname,
+							method:   'POST',
+							headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(tgBody) },
+						}, () => resolve());
+						req.setTimeout(5_000, () => { req.destroy(); resolve(); });
+						req.on('error', () => resolve());
+						req.write(tgBody);
+						req.end();
+					});
+ 
+					await new Promise(r => setTimeout(r, 300)); // антифлуд
+ 
 				}
-				
+ 
 			}
-			
+ 
+			const activeUsers = usersToReset.filter((u:any) => Number(u.monthly_traffic) > 0);
+			for(const user of activeUsers){
+				try{
+					const lang = user.lang_code || 'en';
+					const msg  = getResetMessage(lang);
+					await sendToUser(Number(user.id), msg);
+					await new Promise(r => setTimeout(r, 100));
+				}catch{}
+			}
+ 
 			console.log(`[Cron] 📨 Notified ${activeUsers.length} active users`);
-			
+
 			const body = JSON.stringify({
-				chat_id:config.channelLogId,
-				text: `♻️ <b>Traffic reset</b>\n` +
-				`🕐 ${ts} IST\n` +
-				`👥 Reset: <b>${usersToReset.length}</b> users\n` +
-				`📨 Notified: <b>${activeUsers.length}</b> active users\n` +
-				`😴 Silent: <b>${usersToReset.length - activeUsers.length}</b> inactive`,
-				parse_mode:'HTML'
+				chat_id:    config.channelLogId,
+				text:       `♻️ <b>Traffic reset complete</b>\n` +
+				            `🕐 ${ts} IST\n` +
+				            `👥 Reset: <b>${usersToReset.length}</b> users\n` +
+				            `📨 Notified: <b>${activeUsers.length}</b> active users\n` +
+				            `😴 Silent: <b>${usersToReset.length - activeUsers.length}</b> inactive`,
+				parse_mode: 'HTML',
 			});
-			
+ 
 			const urlObj = new URL(`https://api.telegram.org/bot${config.token}/sendMessage`);
             await new Promise<void>((resolve) => {
                 const req = https.request({

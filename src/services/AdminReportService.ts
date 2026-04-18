@@ -54,15 +54,17 @@ export class AdminReportService {
 
         const top10Text = top10.map((u: any, i: number) => {
             const name     = u.username ? `@${u.username}` : (u.first_name || `ID:${u.id}`);
-            const lastSeen = u.last_active_at
-                ? new Date(Number(u.last_active_at)).toLocaleDateString('en-US', { timeZone: 'Asia/Jerusalem' })
-                : 'never';
+            const lastSeen = this.fmtDate(u.last_active_at);
+            const joined = this.fmtDate(u.joined_at);
+            const nextReset = this.calcNextResetDate(u.joined_at);
             const usedMB   = (Number(u.monthly_traffic || 0) / MB).toFixed(0);
             const pct      = Math.min(100, Math.round(Number(u.monthly_traffic || 0) / FREE_LIMIT * 100));
             const plan     = u.is_vip ? 'VIP' : (u.sub_type || 'free');
             return (
                 `${i + 1}. ${name} (ID: <code>${u.id}</code>)\n` +
-                `   Last: ${lastSeen} | ${usedMB}MB (${pct}%) | ${plan} | actions: ${u.actions_count}`
+                `   📅 Joined: ${joined} | Last: ${lastSeen}\n` +
+                `   ♻️ Next reset: ${nextReset}\n` +
+                `   💾 ${usedMB}MB (${pct}%) | ${plan} | actions: ${u.actions_count}`
             );
         }).join('\n\n');
 
@@ -127,6 +129,8 @@ export class AdminReportService {
         const lastSeen = u.last_active_at
             ? new Date(Number(u.last_active_at)).toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' })
             : 'never';
+        const lastReset = u.last_reset_at ? this.fmtDate(u.last_reset_at) : 'never';
+        const nextReset = this.calcNextResetDate(u.joined_at);
         const usedMB  = (Number(u.monthly_traffic || 0) / MB).toFixed(2);
         const pct     = Math.min(100, Math.round(Number(u.monthly_traffic || 0) / FREE_LIMIT * 100));
         const plan    = u.is_vip ? 'VIP' : (u.sub_type || 'free');
@@ -138,16 +142,19 @@ export class AdminReportService {
         const bar = this.trafficBar(pct);
 
         const msg =
-            `👤 <b>USER DETAILS</b>\n` +
+                        `👤 <b>USER DETAILS</b>\n` +
             `🕐 ${ts} IST\n\n` +
             `🆔 ID: <code>${u.id}</code>\n` +
             `👤 Name: ${name}\n` +
             `🌐 Lang: ${u.lang_code || 'unknown'}\n` +
-            `💎 Plan: ${plan}\n` +
-            `📅 Joined: ${joined}\n` +
-            `🕐 Last seen: ${lastSeen}\n\n` +
+            `💎 Plan: ${plan}\n\n` +
+            `📅 <b>Dates:</b>\n` +
+            `  Joined:      ${joined}\n` +
+            `  Last seen:   ${lastSeen}\n` +
+            `  Last reset:  ${lastReset}\n` +
+            `  Next reset:  ${nextReset}\n\n` +
             `💾 <b>Traffic this month:</b>\n` +
-            `${usedMB} MB / 2048 MB (${pct}%)\n\n` +
+            `${bar} ${usedMB} MB / 2048 MB (${pct}%)\n\n` +
             `📈 <b>All-time activity:</b>\n${statsText}`;
 
         await this.api.sendMessage(this.config.channelLogId, msg, { parse_mode: 'HTML' });
@@ -190,16 +197,77 @@ export class AdminReportService {
         const filled = Math.round(pct / 10);
         return '█'.repeat(filled) + '░'.repeat(10 - filled);
     }
-
+    
+    private calcNextResetDate(joinedAt:number):string{
+        
+        if(!joinedAt) return '-';
+        
+        const joinDay = new Date(joinedAt).getUTCDate();
+        const now = new Date();
+        const nowDay = now.getUTCDate();
+        
+        let resetYear = now.getUTCFullYear();
+        let resetMonth = now.getUTCMonth();
+        
+        if(nowDay >= joinDay){
+            
+            resetMonth += 1;
+            if(resetMonth > 11){resetMonth = 0; resetYear += 1;}
+            
+        }
+        
+        const resetDate = new Date(Date.UTC(resetYear,resetMonth,joinDay));
+        return resetDate.toLocaleDateString('en-US',{
+            timeZone:'UTC',
+            year:'numeric',month:'short',day:'numeric'
+        });
+        
+    }
+    
+    private fmtDate(ts:number | null):string{
+        
+        if(!ts) return '-';
+        
+        return new Date(Number(ts)).toLocaleDateString('en-US', {
+            timeZone: 'Asia/Jerusalem',
+            year: 'numeric', month: 'short', day: 'numeric'
+        });
+        
+    }
+    
+    private fmtDateTime(ts: number | null): string {
+        if (!ts) return '—';
+        return new Date(Number(ts)).toLocaleString('en-US', {
+            timeZone: 'Asia/Jerusalem',
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+    
     private async generateCsv(users: any[]): Promise<string> {
-        const header = 'ID,Username,FirstName,Lang,Plan,TrafficMB,TrafficPct,JoinedAt,LastSeenAt\n';
+         const header = 'ID,Username,FirstName,Lang,Plan,TrafficMB,TrafficPct,JoinedAt,LastSeenAt,LastResetAt,NextResetAt\n';
         const rows   = users.map(u => {
             const usedMB   = (Number(u.monthly_traffic || 0) / MB).toFixed(2);
             const pct      = Math.min(100, Math.round(Number(u.monthly_traffic || 0) / FREE_LIMIT * 100));
             const plan     = u.is_vip ? 'VIP' : (u.sub_type || 'free');
-            const joined   = u.joined_at   ? new Date(Number(u.joined_at)).toISOString().slice(0, 10)   : '';
-            const lastSeen = u.last_active_at ? new Date(Number(u.last_active_at)).toISOString().slice(0, 10) : '';
-            return [u.id, u.username || '', u.first_name || '', u.lang_code || '', plan, usedMB, pct + '%', joined, lastSeen].join(',');
+            const joined    = u.joined_at      ? new Date(Number(u.joined_at)).toISOString().slice(0, 10)      : '';
+            const lastSeen  = u.last_active_at ? new Date(Number(u.last_active_at)).toISOString().slice(0, 10) : '';
+            const lastReset = u.last_reset_at  ? new Date(Number(u.last_reset_at)).toISOString().slice(0, 10)  : '';
+            const nextReset = this.calcNextResetDate(u.joined_at);
+            
+            return [
+                u.id,
+                u.username  || '',
+                u.first_name || '',
+                u.lang_code || '',
+                plan,
+                usedMB,
+                pct + '%',
+                joined,
+                lastSeen,
+                lastReset,
+                nextReset,
+            ].join(',');
         });
         const csv     = header + rows.join('\n');
         const tmpFile = path.join(os.tmpdir(), `users_${Date.now()}.csv`);
