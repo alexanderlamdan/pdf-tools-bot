@@ -4,10 +4,10 @@ import type {Keyboards} from '../services/Keyboards.js';
 import type {LoggerService} from '../services/LoggerService.js';
 import {initialSession} from '../types/SessionData.js';
 
-export async function notifyTrafficAfterResult(ctx:BotContext,lang:string,localization:LocalizationService,keyboards:Keyboards,logger:LoggerService):Promise<void>{
+export async function notifyTrafficAfterResult(ctx:BotContext,localization:LocalizationService,keyboards:Keyboards,logger:LoggerService):Promise<void>{
     
     const params = ctx.session.tempParams as any;
-    const i18n = localization.get(lang);
+    const i18n = localization.get();
     
     if(params?.willExceedLimit === 'true'){
         
@@ -18,10 +18,10 @@ export async function notifyTrafficAfterResult(ctx:BotContext,lang:string,locali
             'Showing subscription offer'
         );
         
-        await ctx.reply(i18n.messages.subscription.done_but_exceeded,{
+        await ctx.reply(i18n.messages.subscriptions.done_but_exceeded,{
             
             parse_mode:'HTML',
-            reply_markup:keyboards.getSubscriptionMenu(lang)
+            reply_markup:keyboards.getSubscriptionMenu()
             
         });
         
@@ -50,7 +50,7 @@ export async function notifyTrafficAfterResult(ctx:BotContext,lang:string,locali
             `Remaining: ${remainMB}`
         );
         
-        await ctx.reply(i18n.messages.subscription.traffic_warning.replace('{{remain}}',remainMB),{
+        await ctx.reply(i18n.messages.subscriptions.traffic_warning.replace('{{remain}}',remainMB),{
             parse_mode:'HTML'
         });
         

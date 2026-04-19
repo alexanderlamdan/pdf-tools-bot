@@ -20,7 +20,7 @@ export class SupportRepository extends BaseRepository {
     }
     async getOpenSession(userId) {
         const cutoff = Date.now() - TTL_MS;
-        const res = await this.query(`SELECT * FROM support_session WHERE user_id = $1 AND status='open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`, [userId, cutoff]);
+        const res = await this.query(`SELECT * FROM support_sessions WHERE user_id = $1 AND status='open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`, [userId, cutoff]);
         return this.normalize(res)[0];
     }
     async getActiveSessions() {
@@ -41,7 +41,7 @@ export class SupportRepository extends BaseRepository {
             return this.normalize(byUsername)[0];
         const numId = Number(identifier);
         if (!isNaN(numId)) {
-            const byId = await this.query(`SELECT * FROM support_session WHERE user_id = $1 AND status = 'open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`, [numId, cutoff]);
+            const byId = await this.query(`SELECT * FROM support_sessions WHERE user_id = $1 AND status = 'open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`, [numId, cutoff]);
             if (byId.length > 0)
                 return this.normalize(byId)[0];
         }

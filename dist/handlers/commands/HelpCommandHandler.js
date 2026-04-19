@@ -14,14 +14,13 @@ export class HelpCommandHandler {
     }
     async handle(ctx) {
         const userCode = ctx.from?.language_code;
-        const { lang } = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
-        const i18n = this.localization.get(lang);
+        const i18n = this.localization.get();
         await this.logger.logAction('HelpCommandHandler', ctx.from, 'Command', '/help', 'Command received');
         try {
             await ctx.reply(i18n.messages.help, {
                 parse_mode: 'HTML',
-                reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                reply_markup: this.keyboards.getMainMenu(isAdmin)
             });
         }
         catch (e) {

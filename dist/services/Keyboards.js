@@ -16,25 +16,16 @@ export class Keyboards {
         }
         return kb.resized();
     }
-    getMainMenu(lang, isAdmin) {
-        const buttons = this.localization.getMainMenuButtons(lang, isAdmin);
-        return this.buildFromList(buttons, 2);
+    getMainMenu(isAdmin) {
+        return this.buildFromList(this.localization.getMainMenuButtons(isAdmin), 2);
     }
-    getFileActionsMenu(lang, excludeKeys = [], isPaid = false) {
-        const buttons = this.localization.getFileActionsButtons(lang, excludeKeys, isPaid);
-        return this.buildFromList(buttons, 2);
+    getFileActionsMenu(excludeKeys = [], isPaid = false) {
+        return this.buildFromList(this.localization.getFileActionsButtons(excludeKeys, isPaid), 2);
     }
-    getEncryptedFileMenu(lang) {
-        const buttons = this.localization.getEncryptedMenuButtons(lang);
-        return this.buildFromList(buttons, 1);
+    getEncryptedMenu() {
+        return this.buildFromList(this.localization.getEncryptedMenuButtons(), 2);
     }
-    getSubscriptionMenu(lang) {
-        const i18n = this.localization.get(lang);
-        const buttons = this.localization.getSubscriptionButtons(lang);
-        const kb = new Keyboard();
-        for (const btn of buttons) {
-            kb.text(btn).row();
-        }
-        return kb.resized();
+    getSubscriptionMenu() {
+        return this.buildFromList(this.localization.getSubscriptionButtons(), 1);
     }
 }

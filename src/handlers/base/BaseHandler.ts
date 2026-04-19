@@ -26,22 +26,15 @@ export abstract class BaseHandler{
         
     }
     
-    protected getLang(ctx:any):string{
+    protected getI18n(){
         
-        return this.localization.getUserLanguage(ctx.from?.language_code).lang;
-        
-    }
-    
-    protected getI18n(ctx:any){
-        
-        return this.localization.get(this.getLang(ctx));
+        return this.localization.get();
         
     }
     
     protected async registerUser(ctx:any):Promise<void>{
         
-        const lang = this.getLang(ctx);
-        await this.db.registerUser(ctx.from!.id,ctx.from!.username,ctx.from!.first_name,lang);
+        await this.db.registerUser(ctx.from!.id,ctx.from!.username,ctx.from!.first_name,this.localization.getLang());
         
     }
     

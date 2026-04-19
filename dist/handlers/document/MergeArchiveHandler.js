@@ -29,8 +29,7 @@ export class MergeArchiveHandler extends BaseHandler {
         return ARCHIVE_MIMES.has(mime) || ARCHIVE_EXTENSIONS.has(ext);
     }
     async handle(ctx) {
-        const lang = this.getLang(ctx);
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const isAdmin = this.isAdmin(ctx);
         const doc = ctx.message?.document;
         await this.logger.logAction('MergeArchiveHandler:handle', ctx.from, 'Archive received', `${doc.file_name} (${doc.mime_type})`);
@@ -58,7 +57,7 @@ export class MergeArchiveHandler extends BaseHandler {
             const result = await this.worker.merge(ctx, pdfFiles, totalSize);
             const archiveName = FileNameUtils.getSafeName(doc.file_name || 'archived', '_merged');
             if (result.isFallback) {
-                await new MergeAction(ctx, this).deliverFallback(result, lang, isAdmin, i18n);
+                await new MergeAction(ctx, this).deliverFallback(result, isAdmin, i18n);
             }
             else {
                 const safeName = archiveName.replace(/\.[^.]+$/, '') + '_merged.pdf';
@@ -66,11 +65,11 @@ export class MergeArchiveHandler extends BaseHandler {
                 await ctx.replyWithDocument(new InputFile(result.path, safeName), {
                     caption: `${i18n.messages.actions.merged_from_archive} ${pdfFiles.length}`,
                     parse_mode: 'HTML',
-                    reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                    reply_markup: this.keyboards.getMainMenu(isAdmin)
                 });
                 await this.db.logAction(ctx.from.id, 'merge', totalSize);
                 await this.fileService.deleteFile(result.path);
-                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                await notifyTrafficAfterResult(ctx, this.localization, this.keyboards, this.logger);
             }
             ctx.session = initialSession();
         }

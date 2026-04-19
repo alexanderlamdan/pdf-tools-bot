@@ -95,8 +95,8 @@ export class HandlerRegistry {
                 await buttonHandler.handle(ctx);
                 return;
             }
-            const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-            const cancel = this.localization.get(lang).buttons.common.btn_cancel;
+            const i18n = this.localization.get();
+            const cancel = i18n.buttons.common.btn_cancel;
             if (this.localization.getSubscriptionPlanByButton(text) || text === cancel) {
                 await buttonHandler.handle(ctx);
                 return;
@@ -112,9 +112,8 @@ export class HandlerRegistry {
             if (data.startsWith('sub_info:')) {
                 await ctx.answerCallbackQuery();
                 const plan = data.replace('sub_info:', '');
-                const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-                const i18n = this.localization.get(lang);
-                const planText = i18n.messages.subscription.plans[plan];
+                const i18n = this.localization.get();
+                const planText = i18n.messages.subscriptions.plans[plan];
                 if (!planText)
                     return;
                 const { InlineKeyboard } = await import('grammy');
@@ -131,8 +130,7 @@ export class HandlerRegistry {
                     await archiveHandler.handle(ctx);
                 }
                 else {
-                    const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-                    await ctx.reply(this.localization.get(lang).errors.not_archive, { parse_mode: 'HTML' });
+                    await ctx.reply(this.localization.get().errors.not_archive, { parse_mode: 'HTML' });
                 }
                 return;
             }
@@ -141,8 +139,7 @@ export class HandlerRegistry {
                     await docHandler.handleBulkMergeFile(ctx);
                 }
                 else {
-                    const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-                    await ctx.reply(this.localization.get(lang).errors.not_pdf, { parse_mode: 'HTML' });
+                    await ctx.reply(this.localization.get().errors.not_pdf, { parse_mode: 'HTML' });
                 }
                 return;
             }
@@ -152,9 +149,8 @@ export class HandlerRegistry {
         });
         this.bot.on(['message:photo', 'message:voice', 'message:video', 'message:sticker',
             'message:audio', 'message:animation', 'message:video_note'], async (ctx) => {
-            const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
             const isAdmin = ctx.from?.id === this.config.adminId;
-            const i18n = this.localization.get(lang);
+            const i18n = this.localization.get();
             await this.logger.logAction('HandlerRegistry', ctx.from, 'Unsupported media', Object.keys(ctx.message || {}).filter(k => !['message_id', 'from', 'chat', 'date'].includes(k)).join(', '));
             try {
                 await ctx.deleteMessage();
@@ -162,7 +158,7 @@ export class HandlerRegistry {
             catch { }
             await ctx.reply(i18n.errors.not_pdf, {
                 parse_mode: 'HTML',
-                reply_markup: new Keyboards(this.localization).getMainMenu(lang, isAdmin),
+                reply_markup: new Keyboards(this.localization).getMainMenu(isAdmin),
             });
         });
     }

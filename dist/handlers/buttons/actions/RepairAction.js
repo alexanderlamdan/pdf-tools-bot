@@ -12,8 +12,7 @@ export class RepairAction {
     }
     async execute() {
         const { ctx, handler } = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         await handler.logger.logAction('RepairAction:execute', ctx.from, 'Repair', `File: ${originalName}`);
@@ -32,9 +31,9 @@ export class RepairAction {
             await ctx.replyWithDocument(new InputFile(resultPath, safeName));
             await ctx.reply(i18n.messages.actions.repair_success, {
                 parse_mode: 'HTML',
-                reply_markup: handler.keyboards.getFileActionsMenu(lang)
+                reply_markup: handler.keyboards.getFileActionsMenu()
             });
-            await notifyTrafficAfterResult(ctx, lang, handler.localization, handler.keyboards, handler.logger);
+            await notifyTrafficAfterResult(ctx, handler.localization, handler.keyboards, handler.logger);
         }
         catch (e) {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });

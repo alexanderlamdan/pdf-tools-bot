@@ -26,7 +26,7 @@ export class AdminCommandHandler {
         const args = text.substring(command.length).trim();
         switch (command) {
             case '/publish_message_to_english_users':
-                await this.broadcast(ctx, 'en', args);
+                await this.broadcast(ctx, args);
                 break;
             case '/add_vip':
                 await this.addVip(ctx, args);
@@ -74,25 +74,25 @@ export class AdminCommandHandler {
         }
     }
     async setAdminMode(ctx, enable) {
-        const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
         if (enable) {
             ctx.session.adminMode = true;
             ctx.session.simulateUser = false;
-            await ctx.reply('🛡 <b>Admin Mode ON</b>\n\nTraffic limits is off. Upload files and test as admin every functionality.\n\nTo turn off admin mode: /admin_mode_off', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, true) });
+            await ctx.reply('🛡 <b>Admin Mode ON</b>\n\nTraffic limits is off. Upload files and test as admin every functionality.\n\nTo turn off admin mode: /admin_mode_off', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(true) });
         }
         else {
             ctx.session.adminMode = false;
             ctx.session.simulateUser = true;
-            await ctx.reply('👤 <b>Simulate User Mode ON</b>\n\nFrom now and on you bot as user.\nTraffic limits are on, buttons and command for admin is hide.\n\nTurn back to admin mode: /admin_mode_on', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(lang, false) });
+            await ctx.reply('👤 <b>Simulate User Mode ON</b>\n\nFrom now and on you bot as user.\nTraffic limits are on, buttons and command for admin is hide.\n\nTurn back to admin mode: /admin_mode_on', { parse_mode: 'HTML', reply_markup: this.keyboards.getMainMenu(false) });
         }
         await this.logger.logAction('AdminCommandHandler:setAdminMode', ctx.from, enable ? 'Admin Mode ON' : 'Simulate User Mode ON', `adminMode=${enable} simulateUser=${!enable}`);
     }
-    async broadcast(ctx, lang, message) {
+    async broadcast(ctx, message) {
+        const lang = this.localization.getLang();
         if (!message) {
-            await ctx.reply(`⚠️ Insert text after the command.\nExample: <code>/publish_message_to_${lang}_users Hello everybody!</code>`, { parse_mode: 'HTML' });
+            await ctx.reply(`⚠️ Insert text after the command.\nExample: <code>/publish_message_to_english_users Hello everybody!</code>`, { parse_mode: 'HTML' });
             return;
         }
-        await ctx.reply(`⏳ Starting broadcast for language: <b>${lang.toUpperCase()}</b>...`, { parse_mode: 'HTML' });
+        await ctx.reply(`⏳ Starting broadcast for language: <b>English</b>...`, { parse_mode: 'HTML' });
         const ids = await this.db.getUserIdsByLang(lang);
         let success = 0;
         let fail = 0;

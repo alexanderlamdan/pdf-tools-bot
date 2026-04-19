@@ -93,14 +93,13 @@ export class PdfWorkerService{
         
     }
     
-    public async getPdfInfo(ctx:BotContext,filePath:string,lang:string,sizeBytes:number):Promise<IPdfInfo>{
+    public async getPdfInfo(ctx:BotContext,filePath:string,sizeBytes:number):Promise<IPdfInfo>{
         return this.queueService.enqueue(ctx,'info',sizeBytes,async()=>{
             
            const data = await this.sendRequest({
             
                 action:'info',
                 inputPath:filePath,
-                lang:lang
                 
             });
             

@@ -102,7 +102,7 @@ export class SmartQueueService {
 
         if (waitingTasks.length === 0) return;
 
-        const i18n = this.localization.get(this.localization.getDefaultLang());
+        const i18n = this.localization.get();
 
         for (const task of waitingTasks) {
 
@@ -127,8 +127,7 @@ export class SmartQueueService {
         const userId = ctx.from!.id;
         const chatId = ctx.chat!.id;
         const user   = await this.db.getUser(userId);
-        const lang   = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-        const i18n   = this.localization.get(lang);
+        const i18n   = this.localization.get();
 
         let role: UserRole = user?.subType as UserRole || 'free';
         if (user?.isVip) role = 'vip';
@@ -137,7 +136,7 @@ export class SmartQueueService {
 
         if (role === 'vip') {
 
-            const abuseStatus = await this.handleVipAbuse(ctx, userId, lang);
+            const abuseStatus = await this.handleVipAbuse(ctx, userId);
 
             if (abuseStatus === 'blocked') {
                 throw new Error('VIP_BLOCKED');
@@ -264,9 +263,9 @@ export class SmartQueueService {
 
     }
 
-    private async handleVipAbuse(ctx: BotContext, userId: number, lang: string): Promise<'ok' | 'warned' | 'blocked'> {
+    private async handleVipAbuse(ctx: BotContext, userId: number): Promise<'ok' | 'warned' | 'blocked'> {
 
-        const i18n = this.localization.get(lang);
+        const i18n = this.localization.get();
         const now  = Date.now();
 
         if (!this.vipActivity.has(userId)) {

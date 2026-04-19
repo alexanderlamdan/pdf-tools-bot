@@ -12,8 +12,7 @@ export class TextHandler extends BaseHandler {
         const text = ctx.message?.text;
         if (!text)
             return;
-        const lang = this.getLang(ctx);
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const isAdmin = this.isAdmin(ctx);
         await this.registerUser(ctx);
         if (text.startsWith('/'))
@@ -24,30 +23,30 @@ export class TextHandler extends BaseHandler {
         const route = `${action}:${step}`;
         switch (route) {
             case 'protect:waiting_for_password':
-                await this.handleProtectPassword(ctx, lang, i18n, isAdmin, text);
+                await this.handleProtectPassword(ctx, i18n, isAdmin, text);
                 break;
             case 'unlock:waiting_for_password':
-                await this.handleUnlockPassword(ctx, lang, i18n, isAdmin, text);
+                await this.handleUnlockPassword(ctx, i18n, isAdmin, text);
                 break;
             case 'split:waiting_for_split_pages':
-                await this.handleSplitPages(ctx, lang, i18n, isAdmin, text);
+                await this.handleSplitPages(ctx, i18n, isAdmin, text);
                 break;
             case 'analyze:waiting_for_metadata_mode':
-                await this.handleMetadataMode(ctx, lang, i18n, text);
+                await this.handleMetadataMode(ctx, i18n, text);
                 break;
             case 'analyze:waiting_for_metadata_confirm':
-                await this.handleMetadataConfirm(ctx, lang, i18n, text);
+                await this.handleMetadataConfirm(ctx, i18n, text);
                 break;
             default:
                 if (step === 'waiting_for_merge_confirm' || step === 'waiting_for_merge_bulk') {
                     await new MergeAction(ctx, this).handleBulkConfirm(text);
                 }
                 else {
-                    await this.handleRejected(ctx, lang, i18n, isAdmin, text);
+                    await this.handleRejected(ctx, i18n, isAdmin, text);
                 }
         }
     }
-    async handleProtectPassword(ctx, lang, i18n, isAdmin, text) {
+    async handleProtectPassword(ctx, i18n, isAdmin, text) {
         await this.logger.logAction('TextHandler:handleProtectPassword', ctx.from, 'Password input', 'protect — ***HIDDEN***');
         const password = text.trim();
         if (password.length < 1) {
@@ -72,11 +71,11 @@ export class TextHandler extends BaseHandler {
             await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                 caption: i18n.messages.actions.success_protect,
                 parse_mode: 'HTML',
-                reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                reply_markup: this.keyboards.getMainMenu(isAdmin)
             });
             await this.fileService.deleteFile(filePath);
             await this.fileService.deleteFile(resultPath);
-            await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+            await notifyTrafficAfterResult(ctx, this.localization, this.keyboards, this.logger);
             ctx.session = initialSession();
         }
         catch (e) {
@@ -88,7 +87,7 @@ export class TextHandler extends BaseHandler {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
         }
     }
-    async handleUnlockPassword(ctx, lang, i18n, isAdmin, text) {
+    async handleUnlockPassword(ctx, i18n, isAdmin, text) {
         await this.logger.logAction('TextHandler:handleUnlockPassword', ctx.from, 'Password input', 'unlock - ***HIDDEN***');
         const password = text.trim();
         const filePath = ctx.session.filePaths[0];
@@ -107,11 +106,11 @@ export class TextHandler extends BaseHandler {
             await ctx.replyWithDocument(new InputFile(resultPath, safeName), {
                 caption: i18n.messages.actions.success_crack.replace('{{password}}', password),
                 parse_mode: 'HTML',
-                reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                reply_markup: this.keyboards.getMainMenu(isAdmin)
             });
             await this.fileService.deleteFile(resultPath);
             await this.fileService.deleteFile(filePath);
-            await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+            await notifyTrafficAfterResult(ctx, this.localization, this.keyboards, this.logger);
             ctx.session = initialSession();
         }
         catch (e) {
@@ -122,7 +121,7 @@ export class TextHandler extends BaseHandler {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
         }
     }
-    async handleSplitPages(ctx, lang, i18n, isAdmin, text) {
+    async handleSplitPages(ctx, i18n, isAdmin, text) {
         const pages = text.trim();
         const filePath = ctx.session.filePaths[0];
         if (!filePath) {
@@ -152,7 +151,7 @@ export class TextHandler extends BaseHandler {
                 await ctx.replyWithDocument(new InputFile(result.zipPath, safeNameZip), {
                     caption: i18n.messages.actions.split_caption_success_zip + `<b>${pages}</b>`,
                     parse_mode: 'HTML',
-                    reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                    reply_markup: this.keyboards.getMainMenu(isAdmin)
                 });
                 await this.fileService.deleteFile(result.zipPath);
             }
@@ -160,25 +159,25 @@ export class TextHandler extends BaseHandler {
             await this.db.logAction(ctx.from.id, 'split', totalSize);
             await this.logger.logAction('TextHandler:handleSplitPages', ctx.from, 'Split result', `Pages: ${pages}`, result.paths ? `${result.paths.length} files + ZIP` : 'ZIP only');
             await this.fileService.deleteFile(filePath);
-            await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+            await notifyTrafficAfterResult(ctx, this.localization, this.keyboards, this.logger);
             ctx.session = initialSession();
         }
         catch (e) {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });
             await this.logger.error('TextHandler:handleSplitPages', e, { user: ctx.from, message: ctx.message });
-            await ctx.reply(`Error: ${e.message}`, { reply_markup: this.keyboards.getMainMenu(lang, isAdmin) });
+            await ctx.reply(`Error: ${e.message}`, { reply_markup: this.keyboards.getMainMenu(isAdmin) });
             ctx.session = initialSession();
         }
     }
-    async handleRejected(ctx, lang, i18n, isAdmin, text) {
+    async handleRejected(ctx, i18n, isAdmin, text) {
         await this.logger.logAction('TextHandler', ctx.from, 'Rejected text', text.length > 50 ? text.substring(0, 50) + '...' : text);
         await ctx.reply(i18n.errors.text_rejected, {
             parse_mode: 'HTML',
-            reply_markup: this.keyboards.getMainMenu(lang, isAdmin),
+            reply_markup: this.keyboards.getMainMenu(isAdmin),
         });
     }
-    async handleMetadataConfirm(ctx, lang, i18n, text) {
-        const confirmWords = ['yes', 'да', 'כן', 'yeah', 'yep', 'sure', 'ok', 'ок', 'ага'];
+    async handleMetadataConfirm(ctx, i18n, text) {
+        const confirmWords = ['yes', 'yeah', 'yep', 'sure', 'ok'];
         if (!confirmWords.includes(text.trim().toLowerCase())) {
             const hasSignature = ctx.session.tempParams?.metadataHasSignature;
             const mode = ctx.session.tempParams?.password;
@@ -195,7 +194,7 @@ export class TextHandler extends BaseHandler {
         }
         await new MetadataAction(ctx, this).execute();
     }
-    async handleMetadataMode(ctx, lang, i18n, text) {
+    async handleMetadataMode(ctx, i18n, text) {
         await new MetadataAction(ctx, this).handleModeChoise(text);
     }
 }

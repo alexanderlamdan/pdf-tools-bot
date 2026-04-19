@@ -12,8 +12,7 @@ export class MetadataAction{
     async showAndAskConfirm():Promise<void>{
         
         const {ctx,handler} = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         
         await handler.logger.logAction("MetadataAction:showAndAskConfirm",ctx.from!,'Read metadata',localPath);
@@ -68,7 +67,7 @@ export class MetadataAction{
     async handleModeChoise(text:string):Promise<void>{
         
         const {ctx,handler} = this;
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const choise = text.trim();
         
         if(choise === '1'){
@@ -104,8 +103,7 @@ export class MetadataAction{
     async execute():Promise<void>{
         
         const {ctx,handler} = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
@@ -138,10 +136,10 @@ export class MetadataAction{
             await ctx.replyWithDocument(new InputFile(resultPath,safeName));
             await ctx.reply(i18n.messages.actions.metadata_wipe_success,{
                 parse_mode:'HTML',
-                reply_markup:handler.keyboards.getFileActionsMenu(lang)
+                reply_markup:handler.keyboards.getFileActionsMenu()
             });
             
-            await notifyTrafficAfterResult(ctx,lang,handler.localization,handler.keyboards,handler.logger);
+            await notifyTrafficAfterResult(ctx,handler.localization,handler.keyboards,handler.logger);
             
         }catch(e:any){
             

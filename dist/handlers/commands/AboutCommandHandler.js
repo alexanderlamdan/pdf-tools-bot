@@ -14,14 +14,13 @@ export class AboutCommandHandler {
     }
     async handle(ctx) {
         const userCode = ctx.from?.language_code;
-        const { lang } = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
-        const i18n = this.localization.get(lang);
+        const i18n = this.localization.get();
         await this.logger.logAction('AboutCommandHandler', ctx.from, 'Command', '/about', 'Command received');
         try {
             await ctx.reply(i18n.messages.about, {
                 parse_mode: 'HTML',
-                reply_markup: this.keyboards.getMainMenu(lang, isAdmin)
+                reply_markup: this.keyboards.getMainMenu(isAdmin)
             });
         }
         catch (e) {

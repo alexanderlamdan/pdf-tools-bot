@@ -30,8 +30,7 @@ export class ButtonHandler extends BaseHandler{
         const text = ctx.message?.text;
         if(!text) return;
         
-        const lang = this.getLang(ctx);
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const isAdmin = this.isAdmin(ctx);
         
         await this.registerUser(ctx);
@@ -40,21 +39,21 @@ export class ButtonHandler extends BaseHandler{
         
         if(plan){
             
-            await this.handleSubscriptionInfo(ctx,lang,plan);
+            await this.handleSubscriptionInfo(ctx,plan);
             return;
             
         }
         
         if(text === i18n.buttons.common.btn_cancel || text === '/cancel'){
             
-            await this.handleCancel(ctx,lang,i18n);
+            await this.handleCancel(ctx,i18n);
             return;
         }
         
         if(Object.values(i18n.buttons.admin || {}).includes(text as any)){
             
             if(!isAdmin) return;
-            await this.handleAdminButton(ctx,lang,i18n,text);
+            await this.handleAdminButton(ctx,i18n,text);
             return;
             
         }
@@ -62,7 +61,7 @@ export class ButtonHandler extends BaseHandler{
         if(text === i18n.buttons.main.btn_status){
             
             await this.logger.logAction('ButtonHandler', ctx.from!, 'Status','');
-            await this.handleStatus(ctx,lang);
+            await this.handleStatus(ctx);
             return;
             
         }
@@ -84,11 +83,11 @@ export class ButtonHandler extends BaseHandler{
             
         }
         
-        await this.dispatch(ctx,lang,i18n,text, isAdmin);
+        await this.dispatch(ctx,i18n,text, isAdmin);
         
     }
     
-    private async dispatch(ctx:BotContext,lang:string,i18n:any,text:string,isAdmin:boolean):Promise<void>{
+    private async dispatch(ctx:BotContext,i18n:any,text:string,isAdmin:boolean):Promise<void>{
         
         const btn = i18n.buttons.files;
         const merge = new MergeAction(ctx,this);
@@ -96,7 +95,7 @@ export class ButtonHandler extends BaseHandler{
         switch(true){
             
             case text === btn.btn_compress:
-                await this.handleCompress(ctx, lang, i18n);
+                await this.handleCompress(ctx,i18n);
                 break;
 
             case text === btn.btn_unlock:
@@ -159,7 +158,7 @@ export class ButtonHandler extends BaseHandler{
         
     }
     
-    private async handleCancel(ctx:BotContext,lang:string,i18n:any):Promise<void>{
+    private async handleCancel(ctx:BotContext,i18n:any):Promise<void>{
         
         await this.logger.logAction('ButtonHandler', ctx.from!, 'Cancel', 'Session cleared');
         
@@ -169,19 +168,19 @@ export class ButtonHandler extends BaseHandler{
         await ctx.reply('❌',{reply_markup:{remove_keyboard:true}});
         await ctx.reply(i18n.messages.start,{
             
-            reply_markup:this.keyboards.getMainMenu(lang,this.isAdmin(ctx))
+            reply_markup:this.keyboards.getMainMenu(this.isAdmin(ctx))
             
         });
         
     }
     
-    private async handleAdminButton(ctx:BotContext,lang:string,i18n:any,text:string):Promise<void>{
+    private async handleAdminButton(ctx:BotContext,i18n:any,text:string):Promise<void>{
         
         const btn = i18n.buttons.admin;
         if(text === btn.adm_btn_stats){
             
             await this.logger.logAction('ButtonHandler', ctx.from!, 'Admin', 'Stats');
-            await this.handleAdminStats(ctx,lang);
+            await this.handleAdminStats(ctx);
             
         }else if(text === btn.adm_btn_logs){
             
@@ -196,10 +195,10 @@ export class ButtonHandler extends BaseHandler{
         
     }
     
-    private async handleSubscriptionInfo(ctx:BotContext,lang:string,plan:'pro'|'premium'|'enterprise'):Promise<void>{
+    private async handleSubscriptionInfo(ctx:BotContext,plan:'pro'|'premium'|'enterprise'):Promise<void>{
         
-        const i18n = this.getI18n(ctx);
-        const planText = (i18n.messages.subscription.plans as any)[plan] as string;
+        const i18n = this.getI18n();
+        const planText = (i18n.messages.subscriptions.plans as any)[plan] as string;
         
         const kb = new InlineKeyboard().url(`🌐 View all plans`,`${this.config.marketplaceUrl}`).row();
         
@@ -214,9 +213,9 @@ export class ButtonHandler extends BaseHandler{
         
     }
     
-    private async handleStatus(ctx:BotContext,lang:string):Promise<void>{
+    private async handleStatus(ctx:BotContext):Promise<void>{
         
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const userId = ctx.from!.id;
         const user = await this.db.getUser(userId);
         
@@ -296,7 +295,7 @@ export class ButtonHandler extends BaseHandler{
         
         const joinDay = new Date(Number(joinedAt)).getUTCDate();
         const now = new Date();
-        const nowDay = now.getUTCMonth();
+        const nowDay = now.getUTCDate();
         
         let resetYear = now.getUTCFullYear();
         let resetMonth = now.getUTCMonth();
@@ -326,9 +325,9 @@ export class ButtonHandler extends BaseHandler{
         
     }
     
-    private async handleAdminStats(ctx:BotContext,lang:string):Promise<void>{
+    private async handleAdminStats(ctx:BotContext):Promise<void>{
         
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const global = await this.db.getGlobalStats(this.config.adminId);
         const counts = await this.db.getUserCounts();
         const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
@@ -397,7 +396,7 @@ export class ButtonHandler extends BaseHandler{
         
     }
     
-    private async handleCompress(ctx:BotContext, lang:string, i18n:any):Promise<void>{
+    private async handleCompress(ctx:BotContext,i18n:any):Promise<void>{
 
         const localPath    = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
@@ -438,10 +437,10 @@ export class ButtonHandler extends BaseHandler{
                                           .replace('{{before}}', `${beforeMB} MB`)
                                           .replace('{{after}}',  `${afterMB} MB`)
                                           .replace('{{saved}}',  `${savedMB} MB`),
-                                          { parse_mode: 'HTML', reply_markup: this.keyboards.getFileActionsMenu(lang) }
+                                          { parse_mode: 'HTML', reply_markup: this.keyboards.getFileActionsMenu() }
                 );
 
-                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                await notifyTrafficAfterResult(ctx,this.localization, this.keyboards, this.logger);
 
             }catch(e:any){
 

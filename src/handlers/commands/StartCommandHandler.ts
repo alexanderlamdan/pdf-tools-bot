@@ -26,17 +26,15 @@ export class StartCommandHandler{
 	async handle(ctx:Context){
 		
 		const userCode = ctx.from?.language_code;
-		const {lang,isFallback} = this.localization.getUserLanguage(userCode);
 		const isAdmin = ctx.from?.id === this.config.adminId;
-		const i18n = this.localization.get(lang);
+		const i18n = this.localization.get();
 		
 		if(ctx.from){
 			
 			await this.db.registerUser(
 				ctx.from.id,
 				ctx.from.username,
-				ctx.from.first_name,
-				lang
+				ctx.from.first_name
 			);
 			
 		}
@@ -51,13 +49,7 @@ export class StartCommandHandler{
 		
 		try{
 			
-			if(isFallback){
-				
-				await ctx.reply(i18n.errors.language_not_supported);
-				
-			}
-			
-			const keyboard = this.keyboards.getMainMenu(lang, isAdmin);
+			const keyboard = this.keyboards.getMainMenu(isAdmin);
 			
 			await ctx.reply(
 				i18n.messages.start,
@@ -70,19 +62,6 @@ export class StartCommandHandler{
 		}catch(e){
 			
 			await this.logger.error('StartCommandHandler', e as Error,{user:ctx.from,message:ctx.message});
-			
-		}
-		
-		try{
-			
-			await ctx.reply(i18n.errors.spam_warning,{
-				parse_mode:'HTML',
-				reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
-			});
-			
-		}catch(e){
-			
-			console.error(e);
 			
 		}
 		

@@ -15,7 +15,7 @@ const ARCHIVE_MIMES = new Set([
     'application/x-rar-compressed', 'application/vnd.rar',
     'application/x-7z-compressed',
     'application/x-tar', 'application/gzip', 'application/x-gzip', 'application/x-bzip2',
-    'application/octet-stream', // RAR иногда приходит как octet-stream
+    'application/octet-stream',
 ]);
 
 const ARCHIVE_EXTENSIONS = new Set(['.zip','.rar','.7z','.tar','.gz','tgz']);
@@ -38,8 +38,7 @@ export class MergeArchiveHandler extends BaseHandler{
     
     async handle(ctx:BotContext):Promise<void>{
         
-        const lang = this.getLang(ctx);
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const isAdmin = this.isAdmin(ctx);
         
         const doc = ctx.message?.document!;
@@ -86,7 +85,7 @@ export class MergeArchiveHandler extends BaseHandler{
             
             if(result.isFallback){
                 
-                await new MergeAction(ctx,this).deliverFallback(result,lang,isAdmin,i18n);
+                await new MergeAction(ctx,this).deliverFallback(result,isAdmin,i18n);
                 
             }else{
                 
@@ -98,13 +97,13 @@ export class MergeArchiveHandler extends BaseHandler{
                     
                     caption:`${i18n.messages.actions.merged_from_archive} ${pdfFiles.length}`,
                     parse_mode:'HTML',
-                    reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
+                    reply_markup:this.keyboards.getMainMenu(isAdmin)
                     
                 });
                 
                 await this.db.logAction(ctx.from!.id,'merge',totalSize);
                 await this.fileService.deleteFile(result.path!);
-                await notifyTrafficAfterResult(ctx,lang,this.localization,this.keyboards,this.logger);
+                await notifyTrafficAfterResult(ctx,this.localization,this.keyboards,this.logger);
                 
             }
             

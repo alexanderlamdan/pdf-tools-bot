@@ -55,7 +55,7 @@ export class SmartQueueService {
         const waitingTasks = this.queue.filter(t => t.weight === 'heavy' || t.weight === 'medium');
         if (waitingTasks.length === 0)
             return;
-        const i18n = this.localization.get(this.localization.getDefaultLang());
+        const i18n = this.localization.get();
         for (const task of waitingTasks) {
             try {
                 await this.api.sendMessage(task.chatId, i18n.messages.queue.compress_active_warning, { parse_mode: 'HTML' });
@@ -68,14 +68,13 @@ export class SmartQueueService {
         const userId = ctx.from.id;
         const chatId = ctx.chat.id;
         const user = await this.db.getUser(userId);
-        const lang = this.localization.getUserLanguage(ctx.from?.language_code).lang;
-        const i18n = this.localization.get(lang);
+        const i18n = this.localization.get();
         let role = user?.subType || 'free';
         if (user?.isVip)
             role = 'vip';
         const weight = this.calculateWeight(action, sizeBytes);
         if (role === 'vip') {
-            const abuseStatus = await this.handleVipAbuse(ctx, userId, lang);
+            const abuseStatus = await this.handleVipAbuse(ctx, userId);
             if (abuseStatus === 'blocked') {
                 throw new Error('VIP_BLOCKED');
             }
@@ -169,8 +168,8 @@ export class SmartQueueService {
             }
         }
     }
-    async handleVipAbuse(ctx, userId, lang) {
-        const i18n = this.localization.get(lang);
+    async handleVipAbuse(ctx, userId) {
+        const i18n = this.localization.get();
         const now = Date.now();
         if (!this.vipActivity.has(userId)) {
             this.vipActivity.set(userId, { timestamps: [], warned: false, blocked: false, blockedUntil: 0 });

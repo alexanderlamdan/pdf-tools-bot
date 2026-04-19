@@ -16,8 +16,7 @@ export class DocumentMessageHandler extends BaseHandler{
   
   async handle(ctx:BotContext):Promise<void>{
     
-    const lang = this.getLang(ctx);
-    const i18n = this.getI18n(ctx);
+    const i18n = this.getI18n();
     const isAdmin = this.isAdmin(ctx);
     
     const document = ctx.message?.document;
@@ -26,7 +25,7 @@ export class DocumentMessageHandler extends BaseHandler{
     
     if(!this.isSupportedDocument(ctx)){
       
-      await this.handleInvalidFormat(ctx,document,lang,isAdmin);
+      await this.handleInvalidFormat(ctx,document,isAdmin);
       return;
       
     }
@@ -34,7 +33,7 @@ export class DocumentMessageHandler extends BaseHandler{
     const isBlocked = await this.checkTrafficLimits(ctx, document);
     if(isBlocked) return;
     
-    await this.trackActivity(ctx,document,lang);
+    await this.trackActivity(ctx,document);
     
     const statusMsg = await ctx.reply(i18n.messages.analysis.processing, {
       parse_mode:   'HTML',
@@ -46,7 +45,7 @@ export class DocumentMessageHandler extends BaseHandler{
       try{
         
         localPath = await this.fileService.downloadFile(ctx,document.file_id);
-        const info = await this.worker.getPdfInfo(ctx,localPath,lang,document.file_size || 0);
+        const info = await this.worker.getPdfInfo(ctx,localPath,document.file_size || 0);
         
         ctx.session.filePaths = [localPath];
         ctx.session.tempParams = {originalName:document.file_name || 'doc.pdf'};
@@ -55,15 +54,15 @@ export class DocumentMessageHandler extends BaseHandler{
         
         if(info.is_corrupt && !info.encrypted){
           
-          await this.handleCorruptFile(ctx,lang);
+          await this.handleCorruptFile(ctx);
           
         }else if(info.encrypted){
           
-          await this.handleEncryptedFile(ctx,lang);
+          await this.handleEncryptedFile(ctx);
           
         }else{
           
-          await this.handleValidFile(ctx,document,info,lang);
+          await this.handleValidFile(ctx,document,info);
           
         }
         
@@ -71,7 +70,7 @@ export class DocumentMessageHandler extends BaseHandler{
         
       }catch(error){
         
-        await this.handleError(ctx,error as Error,statusMsg.message_id,localPath,lang);
+        await this.handleError(ctx,error as Error,statusMsg.message_id,localPath);
         
       }
     
@@ -79,8 +78,7 @@ export class DocumentMessageHandler extends BaseHandler{
   
   async handleBulkMergeFile(ctx:BotContext):Promise<void>{
     
-      const lang = this.getLang(ctx);
-      const i18n = this.getI18n(ctx);
+      const i18n = this.getI18n();
       const doc  = ctx.message?.document!;
       
       try{
@@ -111,7 +109,7 @@ export class DocumentMessageHandler extends BaseHandler{
         
         await this.logger.error('DocumentMessageHandler:handleBulkMergeFile',e,{user:ctx.from!,message:ctx.message!});
         
-        await ctx.reply(this.getI18n(ctx).messages.actions.file_lost);
+        await ctx.reply(this.getI18n().messages.actions.file_lost);
         
       }
       
@@ -124,9 +122,8 @@ export class DocumentMessageHandler extends BaseHandler{
     const user = await this.db.getUser(ctx.from!.id);
     if(!user || user.isVip === 1) return false;
     
-    const i18n = this.getI18n(ctx);
+    const i18n = this.getI18n();
     const isAdmin= this.isAdmin(ctx);
-    const lang= this.getLang(ctx);
     const currentState = getTrafficState(user,this.config.adminId);
     
     const fileSizeBytes = document.file_size || 0;
@@ -140,9 +137,9 @@ export class DocumentMessageHandler extends BaseHandler{
         `${isAdmin ? '[ADMIN] ' : ''}Used ${(currentState.usedBytes / 1024 / 1024 / 1024).toFixed(2)} GB`
       );
       
-      await ctx.reply(i18n.messages.subscription.limit_exceeded, {
+      await ctx.reply(i18n.messages.subscriptions.limit_exceeded, {
         parse_mode:   'HTML',
-        reply_markup: this.keyboards.getSubscriptionMenu(lang)
+        reply_markup: this.keyboards.getSubscriptionMenu()
       });
       
       ctx.session.currentAction = 'idle';
@@ -168,7 +165,7 @@ export class DocumentMessageHandler extends BaseHandler{
     
   }
   
-  private async trackActivity(ctx:BotContext,doc:Document,lang:string):Promise<void>{
+  private async trackActivity(ctx:BotContext,doc:Document):Promise<void>{
     
     await this.registerUser(ctx);
     await this.db.logAction(ctx.from!.id,'upload',doc.file_size || 0);
@@ -179,9 +176,9 @@ export class DocumentMessageHandler extends BaseHandler{
     
   }
   
-  private async handleCorruptFile(ctx:BotContext,lang:string):Promise<void>{
+  private async handleCorruptFile(ctx:BotContext):Promise<void>{
     
-    const i18n = this.getI18n(ctx);
+    const i18n = this.getI18n();
     ctx.session.currentAction = 'ready';
     
     await ctx.reply(i18n.messages.analysis.corrupt,{
@@ -203,33 +200,33 @@ export class DocumentMessageHandler extends BaseHandler{
     
   }
   
-  private async handleEncryptedFile(ctx:BotContext,lang:string):Promise<void>{
+  private async handleEncryptedFile(ctx:BotContext):Promise<void>{
     
-    const i18n = this.getI18n(ctx);
+    const i18n = this.getI18n();
     ctx.session.currentAction = 'unlock';
     
     await ctx.reply(i18n.messages.analysis.encrypted,{
       
       parse_mode:'HTML',
-      reply_markup:this.keyboards.getEncryptedFileMenu(lang)
+      reply_markup:this.keyboards.getEncryptedMenu()
       
     });
     
   }
   
-  private async handleValidFile(ctx: BotContext, doc: Document, info: IPdfInfo, lang: string): Promise<void> {
+  private async handleValidFile(ctx: BotContext, doc: Document, info: IPdfInfo): Promise<void> {
  
-        const i18n    = this.getI18n(ctx);
+        const i18n    = this.getI18n();
         const user    = await this.db.getUser(ctx.from!.id);
         const isPaid  = !!(user?.isVip || (user?.subType && user.subType !== 'free'));
  
         ctx.session.currentAction = 'ready';
  
-        const reportText = this.generateAnalysisReport(doc, info, lang);
+        const reportText = this.generateAnalysisReport(doc, info);
  
         await ctx.reply(reportText, {
             parse_mode:   'HTML',
-            reply_markup: this.keyboards.getFileActionsMenu(lang, [
+            reply_markup: this.keyboards.getFileActionsMenu( [
                 'btn_merge_one_by_one',
                 'btn_merge_archive',
                 'btn_merge_bulk',
@@ -239,9 +236,9 @@ export class DocumentMessageHandler extends BaseHandler{
  
     }
   
-  private async handleInvalidFormat(ctx:BotContext,doc:Document,lang:string,isAdmin:boolean):Promise<void>{
+  private async handleInvalidFormat(ctx:BotContext,doc:Document,isAdmin:boolean):Promise<void>{
     
-    const i18n = this.getI18n(ctx);
+    const i18n = this.getI18n();
     await this.logger.logAction('DocumentMessageHandler:handleInvalidFormat',ctx.from!,'Trash upload',`Rejected: ${doc.file_name} (${doc.mime_type})`);
     
     try{await ctx.deleteMessage();}catch{}
@@ -249,15 +246,15 @@ export class DocumentMessageHandler extends BaseHandler{
     await ctx.reply(i18n.errors.not_pdf,{
       
       parse_mode:'HTML',
-      reply_markup:this.keyboards.getMainMenu(lang,isAdmin,)
+      reply_markup:this.keyboards.getMainMenu(isAdmin,)
       
     });
     
   }
   
-  private async handleError(ctx:BotContext,e:Error,msgId:number,path:string|null,lang:string):Promise<void>{
+  private async handleError(ctx:BotContext,e:Error,msgId:number,path:string|null):Promise<void>{
     
-    const i18n = this.getI18n(ctx);
+    const i18n = this.getI18n();
     await this.logger.error('DocumentMessageHandler:handleError',e,{user:ctx.from,message:ctx.message});
     
     const isCorrupt = e.message?.includes('invalid') || e.message?.includes('corrupt');
@@ -270,9 +267,9 @@ export class DocumentMessageHandler extends BaseHandler{
     
   }
   
-  private generateAnalysisReport(doc: Document, info: IPdfInfo, lang: string): string {
+  private generateAnalysisReport(doc: Document, info: IPdfInfo): string {
 
-    const i18n = this.getI18n({ from: { language_code: lang } });
+    const i18n = this.getI18n();
     const yes  = i18n.messages.analysis.val_yes;
     const no   = i18n.messages.analysis.val_no;
 

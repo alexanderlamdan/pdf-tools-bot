@@ -24,15 +24,11 @@ export class BaseHandler {
         this.fileService = new FileService(this.config, this.localApi);
         this.worker = new PdfWorkerService(this.config, SmartQueueService.getInstance(this.localization, this.db));
     }
-    getLang(ctx) {
-        return this.localization.getUserLanguage(ctx.from?.language_code).lang;
-    }
-    getI18n(ctx) {
-        return this.localization.get(this.getLang(ctx));
+    getI18n() {
+        return this.localization.get();
     }
     async registerUser(ctx) {
-        const lang = this.getLang(ctx);
-        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, lang);
+        await this.db.registerUser(ctx.from.id, ctx.from.username, ctx.from.first_name, this.localization.getLang());
     }
     isAdmin(ctx) {
         const realAdmin = ctx.from?.id === this.config.adminId;

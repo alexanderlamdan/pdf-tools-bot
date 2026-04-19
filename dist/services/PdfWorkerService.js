@@ -36,12 +36,11 @@ export class PdfWorkerService {
             throw new Error(e.response?.data?.error || e.message);
         }
     }
-    async getPdfInfo(ctx, filePath, lang, sizeBytes) {
+    async getPdfInfo(ctx, filePath, sizeBytes) {
         return this.queueService.enqueue(ctx, 'info', sizeBytes, async () => {
             const data = await this.sendRequest({
                 action: 'info',
                 inputPath: filePath,
-                lang: lang
             });
             return data.info;
         });

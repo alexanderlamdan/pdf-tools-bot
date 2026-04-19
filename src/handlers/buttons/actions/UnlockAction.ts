@@ -12,8 +12,7 @@ export class UnlockAction{
     async execute():Promise<void>{
         
         const {ctx,handler} = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         
@@ -36,13 +35,13 @@ export class UnlockAction{
             
             await ctx.replyWithDocument(new InputFile(crackResult.path,safeName),{
                 
-                reply_markup:handler.keyboards.getMainMenu(lang,handler.isAdmin(ctx))
+                reply_markup:handler.keyboards.getMainMenu(handler.isAdmin(ctx))
                 
             });
             
             await handler.fileService.deleteFile(crackResult.path);
             await handler.fileService.deleteFile(localPath);
-            await notifyTrafficAfterResult(ctx,lang,handler.localization,handler.keyboards,handler.logger);
+            await notifyTrafficAfterResult(ctx,handler.localization,handler.keyboards,handler.logger);
             
             ctx.session = initialSession();
             

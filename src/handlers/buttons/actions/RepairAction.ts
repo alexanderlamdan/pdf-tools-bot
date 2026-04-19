@@ -12,8 +12,7 @@ export class RepairAction{
     async execute():Promise<void>{
         
         const {ctx,handler} = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         
@@ -43,11 +42,11 @@ export class RepairAction{
             await ctx.reply(i18n.messages.actions.repair_success,{
                 
                 parse_mode:'HTML',
-                reply_markup:handler.keyboards.getFileActionsMenu(lang)
+                reply_markup:handler.keyboards.getFileActionsMenu()
                 
             });
             
-            await notifyTrafficAfterResult(ctx,lang,handler.localization,handler.keyboards,handler.logger);
+            await notifyTrafficAfterResult(ctx,handler.localization,handler.keyboards,handler.logger);
             
         }catch(e:any){
             

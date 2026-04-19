@@ -22,28 +22,27 @@ export class ButtonHandler extends BaseHandler {
         const text = ctx.message?.text;
         if (!text)
             return;
-        const lang = this.getLang(ctx);
-        const i18n = this.getI18n(ctx);
+        const i18n = this.getI18n();
         const isAdmin = this.isAdmin(ctx);
         await this.registerUser(ctx);
         const plan = this.localization.getSubscriptionPlanByButton(text);
         if (plan) {
-            await this.handleSubscriptionInfo(ctx, lang, plan);
+            await this.handleSubscriptionInfo(ctx, plan);
             return;
         }
         if (text === i18n.buttons.common.btn_cancel || text === '/cancel') {
-            await this.handleCancel(ctx, lang, i18n);
+            await this.handleCancel(ctx, i18n);
             return;
         }
         if (Object.values(i18n.buttons.admin || {}).includes(text)) {
             if (!isAdmin)
                 return;
-            await this.handleAdminButton(ctx, lang, i18n, text);
+            await this.handleAdminButton(ctx, i18n, text);
             return;
         }
         if (text === i18n.buttons.main.btn_status) {
             await this.logger.logAction('ButtonHandler', ctx.from, 'Status', '');
-            await this.handleStatus(ctx, lang);
+            await this.handleStatus(ctx);
             return;
         }
         if (text === i18n.buttons.main.btn_help) {
@@ -56,14 +55,14 @@ export class ButtonHandler extends BaseHandler {
             await ctx.reply(i18n.messages.actions.file_lost);
             return;
         }
-        await this.dispatch(ctx, lang, i18n, text, isAdmin);
+        await this.dispatch(ctx, i18n, text, isAdmin);
     }
-    async dispatch(ctx, lang, i18n, text, isAdmin) {
+    async dispatch(ctx, i18n, text, isAdmin) {
         const btn = i18n.buttons.files;
         const merge = new MergeAction(ctx, this);
         switch (true) {
             case text === btn.btn_compress:
-                await this.handleCompress(ctx, lang, i18n);
+                await this.handleCompress(ctx, i18n);
                 break;
             case text === btn.btn_unlock:
                 await new UnlockAction(ctx, this).execute();
@@ -112,21 +111,21 @@ export class ButtonHandler extends BaseHandler {
                 await ctx.reply(i18n.messages.common.in_development, { parse_mode: 'HTML' });
         }
     }
-    async handleCancel(ctx, lang, i18n) {
+    async handleCancel(ctx, i18n) {
         await this.logger.logAction('ButtonHandler', ctx.from, 'Cancel', 'Session cleared');
         for (const p of ctx.session.filePaths)
             await this.fileService.deleteFile(p);
         ctx.session = initialSession();
         await ctx.reply('❌', { reply_markup: { remove_keyboard: true } });
         await ctx.reply(i18n.messages.start, {
-            reply_markup: this.keyboards.getMainMenu(lang, this.isAdmin(ctx))
+            reply_markup: this.keyboards.getMainMenu(this.isAdmin(ctx))
         });
     }
-    async handleAdminButton(ctx, lang, i18n, text) {
+    async handleAdminButton(ctx, i18n, text) {
         const btn = i18n.buttons.admin;
         if (text === btn.adm_btn_stats) {
             await this.logger.logAction('ButtonHandler', ctx.from, 'Admin', 'Stats');
-            await this.handleAdminStats(ctx, lang);
+            await this.handleAdminStats(ctx);
         }
         else if (text === btn.adm_btn_logs) {
             await this.logger.logAction('ButtonHandler', ctx.from, 'Admin', 'Logs');
@@ -136,9 +135,9 @@ export class ButtonHandler extends BaseHandler {
             await ctx.reply('Unknown admin command');
         }
     }
-    async handleSubscriptionInfo(ctx, lang, plan) {
-        const i18n = this.getI18n(ctx);
-        const planText = i18n.messages.subscription.plans[plan];
+    async handleSubscriptionInfo(ctx, plan) {
+        const i18n = this.getI18n();
+        const planText = i18n.messages.subscriptions.plans[plan];
         const kb = new InlineKeyboard().url(`🌐 View all plans`, `${this.config.marketplaceUrl}`).row();
         await this.logger.logAction('ButtonHandler:handleSubscriptionInfo', ctx.from, 'Subscription viewed', `Plan:${plan}`);
         await ctx.reply(planText, {
@@ -146,8 +145,8 @@ export class ButtonHandler extends BaseHandler {
             reply_markup: kb
         });
     }
-    async handleStatus(ctx, lang) {
-        const i18n = this.getI18n(ctx);
+    async handleStatus(ctx) {
+        const i18n = this.getI18n();
         const userId = ctx.from.id;
         const user = await this.db.getUser(userId);
         if (!user) {
@@ -202,7 +201,7 @@ export class ButtonHandler extends BaseHandler {
             return '-';
         const joinDay = new Date(Number(joinedAt)).getUTCDate();
         const now = new Date();
-        const nowDay = now.getUTCMonth();
+        const nowDay = now.getUTCDate();
         let resetYear = now.getUTCFullYear();
         let resetMonth = now.getUTCMonth();
         if (nowDay >= joinDay) {
@@ -225,8 +224,8 @@ export class ButtonHandler extends BaseHandler {
             return `${dateStr} (in ${diffDays}d ${diffHours % 24}h UTC)`;
         return `${dateStr} (in ${diffHours}h UTC)`;
     }
-    async handleAdminStats(ctx, lang) {
-        const i18n = this.getI18n(ctx);
+    async handleAdminStats(ctx) {
+        const i18n = this.getI18n();
         const global = await this.db.getGlobalStats(this.config.adminId);
         const counts = await this.db.getUserCounts();
         const totalGB = (global.traffic / 1024 / 1024 / 1024).toFixed(2);
@@ -278,7 +277,7 @@ export class ButtonHandler extends BaseHandler {
     capitalize(s) {
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
-    async handleCompress(ctx, lang, i18n) {
+    async handleCompress(ctx, i18n) {
         const localPath = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         await this.logger.logAction('ButtonHandler:handleCompress', ctx.from, 'Compress', `File: ${originalName}`);
@@ -305,8 +304,8 @@ export class ButtonHandler extends BaseHandler {
                 await ctx.api.sendMessage(chatId, i18n.messages.actions.success_compress
                     .replace('{{before}}', `${beforeMB} MB`)
                     .replace('{{after}}', `${afterMB} MB`)
-                    .replace('{{saved}}', `${savedMB} MB`), { parse_mode: 'HTML', reply_markup: this.keyboards.getFileActionsMenu(lang) });
-                await notifyTrafficAfterResult(ctx, lang, this.localization, this.keyboards, this.logger);
+                    .replace('{{saved}}', `${savedMB} MB`), { parse_mode: 'HTML', reply_markup: this.keyboards.getFileActionsMenu() });
+                await notifyTrafficAfterResult(ctx, this.localization, this.keyboards, this.logger);
             }
             catch (e) {
                 if (e.message === 'COMPRESS_TIMEOUT') {

@@ -69,7 +69,7 @@ export class SupportRepository extends BaseRepository<ISupportSession>{
         const cutoff = Date.now() - TTL_MS;
         
         const res = await this.query(
-            `SELECT * FROM support_session WHERE user_id = $1 AND status='open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`,[userId,cutoff]
+            `SELECT * FROM support_sessions WHERE user_id = $1 AND status='open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`,[userId,cutoff]
         );
         
         return this.normalize(res)[0];
@@ -120,7 +120,7 @@ export class SupportRepository extends BaseRepository<ISupportSession>{
         if(!isNaN(numId)){
             
             const byId = await this.query(
-                `SELECT * FROM support_session WHERE user_id = $1 AND status = 'open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`,[numId,cutoff]
+                `SELECT * FROM support_sessions WHERE user_id = $1 AND status = 'open' AND created_at > $2 ORDER BY created_at DESC LIMIT 1`,[numId,cutoff]
             );
             
             if(byId.length > 0) return this.normalize(byId)[0];

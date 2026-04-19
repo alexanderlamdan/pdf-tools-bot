@@ -20,9 +20,8 @@ export class AboutCommandHandler{
 	async handle(ctx:Context){
 		
 		const userCode = ctx.from?.language_code;
-		const {lang} = this.localization.getUserLanguage(userCode);
         const isAdmin = ctx.from?.id === this.config.adminId;
-		const i18n = this.localization.get(lang);
+		const i18n = this.localization.get();
 		
 		await this.logger.logAction(
 			'AboutCommandHandler',
@@ -38,7 +37,7 @@ export class AboutCommandHandler{
 				i18n.messages.about,
 				{
                     parse_mode:'HTML',
-                    reply_markup:this.keyboards.getMainMenu(lang,isAdmin)
+                    reply_markup:this.keyboards.getMainMenu(isAdmin)
                 }
 			);
 			

@@ -12,8 +12,7 @@ export class MetadataAction {
     }
     async showAndAskConfirm() {
         const { ctx, handler } = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         await handler.logger.logAction("MetadataAction:showAndAskConfirm", ctx.from, 'Read metadata', localPath);
         const statusMsg = await ctx.reply(i18n.messages.actions.metadata_reading, { parse_mode: 'HTML' });
@@ -51,7 +50,7 @@ export class MetadataAction {
     }
     async handleModeChoise(text) {
         const { ctx, handler } = this;
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const choise = text.trim();
         if (choise === '1') {
             ctx.session.step = 'waiting_for_metadata_confirm';
@@ -78,8 +77,7 @@ export class MetadataAction {
     }
     async execute() {
         const { ctx, handler } = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const localPath = ctx.session.filePaths[0];
         const originalName = ctx.session.tempParams?.originalName || 'document.pdf';
         const hasSignature = ctx.session.tempParams?.metadataHasSignature;
@@ -101,9 +99,9 @@ export class MetadataAction {
             await ctx.replyWithDocument(new InputFile(resultPath, safeName));
             await ctx.reply(i18n.messages.actions.metadata_wipe_success, {
                 parse_mode: 'HTML',
-                reply_markup: handler.keyboards.getFileActionsMenu(lang)
+                reply_markup: handler.keyboards.getFileActionsMenu()
             });
-            await notifyTrafficAfterResult(ctx, lang, handler.localization, handler.keyboards, handler.logger);
+            await notifyTrafficAfterResult(ctx, handler.localization, handler.keyboards, handler.logger);
         }
         catch (e) {
             await ctx.api.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => { });

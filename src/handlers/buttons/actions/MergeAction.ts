@@ -20,8 +20,7 @@ export class MergeAction{
     async showModeMenu():Promise<void>{
         
         const {ctx,handler} = this;
-        const lang = handler.getLang(ctx);
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         const isAdmin = handler.isAdmin(ctx);
         
         await handler.logger.logAction('MergeAction:showModeMenu',ctx.from!,'Merge','Showing mode menu');
@@ -52,7 +51,7 @@ export class MergeAction{
     async startOneByOne():Promise<void>{
         
         const {ctx,handler} = this;
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         
         await handler.logger.logAction('MergeAction:startOneByOne',ctx.from!,'Merge mode','One-by-one selected');
         
@@ -76,7 +75,7 @@ export class MergeAction{
     async startArchiveMode():Promise<void>{
         
         const { ctx, handler } = this;
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         
         await handler.logger.logAction('MergeAction:startArchiveMode',ctx.from!,'Merge mode', 'Archive selected');
         ctx.session.currentAction = 'merge';
@@ -99,7 +98,7 @@ export class MergeAction{
     async startBulkMode():Promise<void>{
         
         const { ctx, handler } = this;
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
 
         await handler.logger.logAction('MergeAction:startBulkMode', ctx.from!, 'Merge mode', 'Bulk selected');
         
@@ -124,7 +123,7 @@ export class MergeAction{
     async handleBulkConfirm(text:string):Promise<void>{
         
         const { ctx, handler } = this;
-        const i18n = handler.getI18n(ctx);
+        const i18n = handler.getI18n();
         
         const normalized = text.trim().toLowerCase();
         
@@ -161,8 +160,7 @@ export class MergeAction{
     async execute():Promise<void>{
         
         const { ctx, handler } = this;
-        const lang        = handler.getLang(ctx);
-        const i18n        = handler.getI18n(ctx);
+        const i18n        = handler.getI18n();
         const isAdmin     = handler.isAdmin(ctx);
         
         if(ctx.session.filePaths.length < 2){
@@ -187,11 +185,11 @@ export class MergeAction{
             const originalName = ctx.session.tempParams?.originalName || 'Document.pdf';
             if(result.isFallback){
                 
-                await this.deliverFallback(result,lang,isAdmin,i18n);
+                await this.deliverFallback(result,isAdmin,i18n);
                 
             }else{
                 
-                await this.deliverSuccess(result.path!,originalName,lang,isAdmin,i18n,totalSize);
+                await this.deliverSuccess(result.path!,originalName,isAdmin,i18n,totalSize);
                 
             }
             
@@ -209,7 +207,7 @@ export class MergeAction{
         
     }
     
-    private async deliverSuccess(resultPath:string,originalName:string,lang:string,isAdmin:boolean,i18n:any,totalSize:number):Promise<void>{
+    private async deliverSuccess(resultPath:string,originalName:string,isAdmin:boolean,i18n:any,totalSize:number):Promise<void>{
         
         const { ctx, handler } = this;
         const safeName = FileNameUtils.getSafeName(originalName, 'merged');
@@ -218,17 +216,17 @@ export class MergeAction{
         
         await ctx.replyWithDocument(new InputFile(resultPath,safeName),{
             
-            reply_markup:handler.keyboards.getMainMenu(lang,isAdmin)
+            reply_markup:handler.keyboards.getMainMenu(isAdmin)
             
         });
         
         await handler.db.logAction(ctx.from!.id,'merge',totalSize);
         await handler.fileService.deleteFile(resultPath);
-        await notifyTrafficAfterResult(ctx,lang,handler.localization,handler.keyboards,handler.logger);
+        await notifyTrafficAfterResult(ctx,handler.localization,handler.keyboards,handler.logger);
         
     }
     
-    public async deliverFallback(result:MergeResult,lang:string,isAdmin:boolean,i18n:any):Promise<void>{
+    public async deliverFallback(result:MergeResult,isAdmin:boolean,i18n:any):Promise<void>{
         
         const { ctx, handler } = this;
 
@@ -255,7 +253,7 @@ export class MergeAction{
             await ctx.replyWithDocument(new InputFile(result.zipPath, path.basename(result.zipPath)), {
                 caption:      i18n.messages.actions.merge_zip_success,
                 parse_mode:   'HTML',
-                reply_markup: handler.keyboards.getMainMenu(lang, isAdmin),
+                reply_markup: handler.keyboards.getMainMenu(isAdmin),
             });
             await handler.fileService.deleteFile(result.zipPath);
             
