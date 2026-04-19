@@ -3,7 +3,6 @@ import { AbstractTelegramBotCore } from './abstract/AbstractTelegramBotCore.js';
 import { HandlerRegistry } from '../handlers/HandlerRegistry.js';
 import { LoggerService } from '../services/LoggerService.js';
 import { LocalizationService } from "../services/LocalizationService.js";
-import { BotMenuService } from "../services/BotMenuService.js";
 import { initialSession } from "../types/SessionData.js";
 import { DatabaseService } from '../services/DatabaseService.js';
 import { AntiSpamService } from '../services/AntiSpamService.js';
@@ -15,7 +14,6 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
     logger;
     localApi;
     localization;
-    menuService;
     db;
     antiSpam;
     constructor(configSource) {
@@ -36,7 +34,6 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
         });
         this.logger = new LoggerService(this.config);
         this.db = new DatabaseService(this.logger);
-        this.menuService = new BotMenuService(this.bot);
         this.bot.use(async (ctx, next) => {
             if (!ctx.session)
                 return next();
@@ -61,7 +58,6 @@ export class TelegramBotCore extends AbstractTelegramBotCore {
             console.error(error);
             process.exit(1);
         }
-        await this.menuService.syncMenu();
     }
     getWebhookCallback() {
         return webhookCallback(this.bot, "express", {

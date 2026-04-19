@@ -6,7 +6,6 @@ import type {Request, Response, NextFunction} from 'express';
 import {HandlerRegistry} from '../handlers/HandlerRegistry.js';
 import {LoggerService} from '../services/LoggerService.js';
 import { LocalizationService } from "../services/LocalizationService.js";
-import { BotMenuService } from "../services/BotMenuService.js";
 import type { BotContext } from "../types/BotContext.js";
 import { initialSession } from "../types/SessionData.js";
 import {DatabaseService} from '../services/DatabaseService.js';
@@ -22,7 +21,6 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 	private readonly logger:LoggerService;
 	private readonly localApi: Api<RawApi>;
 	private readonly localization: LocalizationService;
-	private readonly menuService:BotMenuService;
 	private readonly db: DatabaseService;
 	private readonly antiSpam:AntiSpamService;
 
@@ -49,7 +47,6 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
 
   		this.logger = new LoggerService(this.config);
 		this.db = new DatabaseService(this.logger);
-  		this.menuService = new BotMenuService(this.bot);
 		
 		this.bot.use(async (ctx,next)=>{
 			
@@ -84,7 +81,6 @@ export class TelegramBotCore extends AbstractTelegramBotCore{
             process.exit(1);
         }
 		
-		await this.menuService.syncMenu();
 		
 	}
 	public getWebhookCallback(){
