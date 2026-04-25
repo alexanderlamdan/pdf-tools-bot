@@ -1,6 +1,6 @@
 # Node modules
 node_modules/
-
+dist/
 # Local env vars
 .env
 
@@ -19,7 +19,7 @@ Thumbs.db
 .tsbuildinfo
 config.json
 src/config/LocalConfig.ts
-dist/config/LocalConfig.js
+dist/src/config/LocalConfig.js
 /*/*.swp
 /*.swp
 */*.swp
