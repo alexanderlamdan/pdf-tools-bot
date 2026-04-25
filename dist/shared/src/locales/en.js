@@ -1,19 +1,15 @@
-import { buttons }      from './sections/buttons.js';
-import { analysis }     from './sections/analysis.js';
-import { status }       from './sections/status.js';
-import { actions }      from './sections/actions.js';
-import { queue }        from './sections/queue.js';
+import { buttons } from './sections/buttons.js';
+import { analysis } from './sections/analysis.js';
+import { status } from './sections/status.js';
+import { actions } from './sections/actions.js';
+import { queue } from './sections/queue.js';
 import { subscriptions } from './sections/subscriptions.js';
-import { errors }       from './sections/errors.js';
-import { common }       from './sections/common.js';
- 
+import { errors } from './sections/errors.js';
+import { common } from './sections/common.js';
 export const en = {
- 
     buttons,
- 
     messages: {
         start: '👋 <b>Hello!</b> I\'m <b>PDF Tools Bot</b> — your all-in-one PDF assistant.\n\nSend me any PDF file and I\'ll analyze it instantly.\n👇 <i>Just drop the file below to get started.</i>',
- 
         help: `📚 <b>PDF Tools Bot — Help</b>
  
 <b>How to use:</b>
@@ -33,7 +29,6 @@ export const en = {
  
 <b>Privacy:</b>
 🛡 Files are processed in an isolated environment and deleted immediately after delivery. Nothing is stored.`,
- 
         about: `🤖 <b>PDF Tools Bot</b>
  
 All your files go <b>directly to our server</b>, bypassing Telegram's own data centers. This is possible thanks to our local Telegram API setup — maximum speed, maximum privacy.
@@ -45,7 +40,6 @@ All your files go <b>directly to our server</b>, bypassing Telegram's own data c
 • Auto-wiped every 12 hours as an extra layer of safety
  
 The bot does not store, read, or share your documents. Only what's needed to run the operation is temporarily used.`,
- 
         analysis,
         status,
         actions,
@@ -53,7 +47,5 @@ The bot does not store, read, or share your documents. Only what's needed to run
         queue,
         subscriptions,
     },
- 
     errors,
- 
-} as const;
+};

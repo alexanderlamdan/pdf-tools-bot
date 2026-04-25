@@ -13,7 +13,7 @@
     "moduleDetection": "auto",
 
     "module": "NodeNext",
-    "rootDir": "./src",
+    "rootDir": ".",
     "moduleResolution": "NodeNext",
     "allowUmdGlobalAccess": false,
     "allowImportingTsExtensions": false,
@@ -61,6 +61,10 @@
     "types":["node"],
     "verbatimModuleSyntax":true,
     "noEmit":false
-  }
+  },
+  "include": [
+      "src/**/*",
+      "shared/src/**/*"
+    ]
 }
 
