@@ -5,8 +5,8 @@ import https      from 'https';
 import express    from 'express';
 import nodemailer from 'nodemailer';
 import { LocalConfig }     from './config/LocalConfig.js';
-import { Postgresql }      from './database/Postgresql.js';
-import { TelegramBotCore } from './core/TelegramBotCore.js';
+import { Postgresql }      from '../shared/src/database/Postgresql.js';
+import { TelegramBotCore } from '../shared/src/core/TelegramBotCore.js';
 
 const config = new LocalConfig();
 await config.validate();
