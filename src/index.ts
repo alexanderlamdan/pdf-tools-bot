@@ -7,10 +7,16 @@ import nodemailer from 'nodemailer';
 import { LocalConfig }     from './config/LocalConfig.js';
 import { Postgresql }      from '../shared/src/database/Postgresql.js';
 import { TelegramBotCore } from '../shared/src/core/TelegramBotCore.js';
+import { registerLocale } from '../shared/src/services/LocalizationService.js';
+import { locales }        from './locales/index.js';
+
 
 const config = new LocalConfig();
 await config.validate();
 Postgresql.init(config.db);
+
+
+registerLocale('en', locales.en);
 
 const botCore = new TelegramBotCore(config);
 const app = express();
