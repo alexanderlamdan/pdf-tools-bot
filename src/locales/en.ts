@@ -6,7 +6,7 @@ import { queue }        from './sections/queue.js';
 import { subscriptions } from './sections/subscriptions.js';
 import { errors }       from './sections/errors.js';
 import { common }       from './sections/common.js';
-import {messages} from './sections/messages.js';
+import {notifications} from './sections/notifications.js';
  
 export const en = {
  
@@ -53,7 +53,7 @@ The bot does not store, read, or share your documents. Only what's needed to run
         common,
         queue,
         subscriptions,
-        messages,
+        notifications,
     },
  
     errors,
