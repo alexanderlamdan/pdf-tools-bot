@@ -1,5 +1,5 @@
 
-export const messages = {
+export const notifications = {
 
 	feedback_intro: `💬 <b>Feedback</b>\n\n` +
 	`Share your thoughts, suggestions or feature requests.\n\n` +
