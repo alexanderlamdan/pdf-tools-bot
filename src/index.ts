@@ -254,7 +254,7 @@ function startTrafficResetCron(): void {
 				try {
 					const lang   = user.lang_code || 'en';
 					const locale = (locales[lang] ?? locales['en'])!;
-					const msg    = (locale.messages.notifications as any)?.traffic_reset_notification as string ?? '';
+					const msg = (locale.messages as any)?.notifications?.traffic_reset_notification as string ?? '';
 					if (msg) await sendToUser(Number(user.id), msg);
 					await new Promise(r => setTimeout(r, 100));
 				} catch {}
