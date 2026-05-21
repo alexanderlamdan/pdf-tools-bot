@@ -59,4 +59,49 @@ export const notifications = {
 	`More traffic, your own watermark and priority queue.\n\n` +
 	`👉 Tap 👤 <b>My Status</b> to view available plans.`,
 
+	subscribe_plans_title: `⚡️ <b>Upgrade your PDF Tools Bot</b>\n\n` +
+	`<b>Pro — $10/mo</b>\n` +
+	`• 12 GB monthly traffic\n` +
+	`• Priority queue\n` +
+	`• Your own watermark on processed files\n\n` +
+	`Secure payment via Creem. Cancel anytime.`,
+
+	subscribe_checkout_loading: `⏳ Generating checkout link...`,
+
+	subscribe_checkout_ready: `🔗 <b>Your checkout link is ready!</b>\n\n` +
+	`Click the button below to complete your payment.\n` +
+	`After payment you will receive a confirmation in this chat automatically.\n\n` +
+	`<i>Link expires in 30 minutes.</i>`,
+
+	subscribe_checkout_error: `❌ Failed to generate checkout link. Please try again later.`,
+
+	subscription_activated: `🎉 <b>Welcome to {{plan}}!</b>\n\n` +
+	`Your subscription is now active.\n\n` +
+	`{{features}}\n\n` +
+	`📅 Started: <b>{{started}}</b>\n` +
+	`📅 Valid until: <b>{{expires}}</b>\n\n` +
+	`Thank you for supporting PDF Tools Bot! 🙏`,
+
+	subscription_features: {
+		pro:        `✅ 12 GB monthly traffic\n✅ Priority queue\n✅ Your own watermark`,
+		premium:    `✅ 24 GB monthly traffic\n✅ Priority queue\n✅ Your own watermark\n✅ Advanced operations`,
+		enterprise: `✅ 48 GB traffic\n✅ Priority queue\n✅ Your own watermark\n✅ All operations\n✅ Dedicated support`,
+	},
+
+	subscription_expired: `😔 <b>Your subscription has ended.</b>\n\n` +
+	`Your access has been downgraded to the free plan.\n\n` +
+	`👉 Tap 👤 <b>My Status</b> to subscribe again.`,
+
+	subscription_expiring_soon: `⚠️ <b>Your subscription expires soon.</b>\n\n` +
+	`Your <b>{{plan}}</b> plan ends on <b>{{expires}}</b>.\n\n` +
+	`To keep your access, please renew before expiration.\n\n` +
+	`👉 Tap 👤 <b>My Status</b> to renew.`,
+
+	subscription_past_due: `⚠️ <b>Payment issue with your subscription.</b>\n\n` +
+	`We could not process your payment. Please update your payment method.\n\n` +
+	`Your access continues for now but will be suspended if payment fails again.`,
+
 } as const;
+
+
+
