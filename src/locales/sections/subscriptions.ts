@@ -2,13 +2,13 @@ export const subscriptions = {
 
     limit_exceeded: `🚫 <b>Your free traffic limit is exhausted.</b>
 
-You have used all <b>2 GB</b> of your free plan.
-Choose a subscription to continue using the bot:`,
+    You have used all <b>2 GB</b> of your free plan.
+    Choose a subscription to continue using the bot:`,
 
     done_but_exceeded: `✅ Done! The operation was completed successfully.
 
-🚫 <b>However, your free traffic limit has been reached.</b>
-To receive this file and continue, please choose a plan:`,
+    🚫 <b>However, your free traffic limit has been reached.</b>
+    To receive this file and continue, please choose a plan:`,
 
     choose_plan: '💳 Choose a subscription plan:',
 
@@ -18,60 +18,58 @@ To receive this file and continue, please choose a plan:`,
 
         free: `🆓 <b>Free Plan</b>
 
-📦 Up to 2 GB file size (Telegram limit)
-📊 2 GB monthly traffic
-🔧 All tools unlocked
-🗑 Files deleted immediately after delivery
-🚶 Basic queue
+        📦 Up to 2 GB file size (Telegram limit)
+        📊 2 GB monthly traffic
+        🔧 All tools unlocked
+        🗑 Files deleted immediately after delivery
+        🚶 Basic queue
 
-<i>Free forever. No credit card required.</i>`,
+        <i>Free forever. No credit card required.</i>`,
 
-        pro: `⚡️ <b>Pro Plan — $10/month</b>
+        starter: `⚡️ <b>Starter Plan — $10/month</b>
 
-📦 Up to 2 GB file size (Telegram limit)
-📊 12 GB monthly traffic
-🔧 All tools unlocked
-🖼 Your own watermark
-⚡️ Pro queue (priority over free users)
-🗑 Files deleted immediately after delivery
+        Ran out of free limit?
+        Starter gives you 12x more traffic.
 
-<i>Best choice for personal use.</i>`,
+        📦 Up to 2 GB file size
+        📊 24 GB monthly traffic
+        🔧 All tools unlocked
+        🖊️ Remove watermark from your files
+        ⚡ Priority queue — no waiting
+        🗑️ Files deleted immediately
 
-        premium: `💎 <b>Premium Plan — $25/month</b>
+        <i>Less than a coffee per month.</i>`,
 
-📦 Up to 2 GB file size (Telegram limit)
-📊 24 GB monthly traffic
-🔧 All tools unlocked
-🖼 Your own watermark
-💎 Premium queue
-🎧 Priority support via /support
-🗑 Files deleted immediately after delivery
+        pro: `💎 <b>Pro Plan — $25/month</b>
 
-<i>Perfect for heavy daily use.</i>`,
+        Processing PDFs daily for work?
+        This plan won't slow you down.
 
-        enterprise: `🏢 <b>Enterprise Plan — $75/month</b>
+        📦 Up to 2 GB file size
+        📊 48 GB monthly traffic
+        🔧 All tools unlocked
+        🖊️ Your own branding on files
+        💎 Premium queue — instant
+        🎧 Priority support
+        🗑️ Files deleted immediately
 
-📦 Up to 2 GB file size (Telegram limit)
-📊 48 GB monthly traffic
-🔧 All tools unlocked
-🖼 Your company watermark
-🚀 No queue — instant processing
-🎧 Dedicated support
-🗑 Files deleted immediately after delivery
+        <i>Built for freelancers &amp; small business.</i>`,
 
-<i>Designed for businesses and teams.</i>`,
+        ultra: `🏢 <b>Ultra Plan — $75/month</b>
 
-        sovereign_protocol: `👑 <b>Sovereign Protocol — $3,000/month</b>
+        Your team processes hundreds
+        of PDFs every day?
+        We handle the heavy lifting.
 
-📦 Up to 2 GB file size (Telegram limit)
-📊 90 GB monthly traffic
-🔧 All tools unlocked
-🚀 No queue — instant processing
-💬 Personal communication with developer
-🗑 Files deleted immediately after delivery
+        📦 Up to 2 GB file size
+        📊 200 GB monthly traffic
+        🔧 All tools unlocked
+        🏢 Company watermark on all files
+        🚀 No queue — instant processing
+        🎧 Dedicated support
+        🗑️ Files deleted immediately
 
-<i>For those who demand the absolute maximum.
-Contact via /support → Business inquiry.</i>`,
+        <i>For agencies, law firms &amp; teams.</i>`,
 
     },
 

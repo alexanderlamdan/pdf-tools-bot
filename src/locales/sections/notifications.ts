@@ -83,9 +83,9 @@ export const notifications = {
 	`Thank you for supporting PDF Tools Bot! 🙏`,
 
 	subscription_features: {
-		pro:        `✅ 12 GB monthly traffic\n✅ Priority queue\n✅ Your own watermark`,
-		premium:    `✅ 24 GB monthly traffic\n✅ Priority queue\n✅ Your own watermark\n✅ Advanced operations`,
-		enterprise: `✅ 48 GB traffic\n✅ Priority queue\n✅ Your own watermark\n✅ All operations\n✅ Dedicated support`,
+		starter: `✅ 24 GB monthly traffic\n✅ Priority queue\n✅ No watermark on your files`,
+		pro:     `✅ 48 GB monthly traffic\n✅ Premium queue — instant\n✅ Your own branding on files\n✅ Priority support`,
+		ultra:   `✅ 200 GB monthly traffic\n✅ No queue — instant processing\n✅ Company watermark on all files\n✅ Dedicated support`,
 	},
 
 	subscription_expired: `😔 <b>Your subscription has ended.</b>\n\n` +

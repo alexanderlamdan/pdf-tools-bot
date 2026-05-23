@@ -1,8 +1,8 @@
 export const buttons = {
 
     main: {
-        btn_status:  '👤 My Status',
-        btn_help:    '❓ Help',
+        btn_status: '👤 My Status',
+        btn_help:   '❓ Help',
     },
 
     admin: {
@@ -26,7 +26,7 @@ export const buttons = {
         btn_merge_one_by_one: '📄 One by one (up to 10)',
         btn_merge_archive:    '📦 Upload archive',
         btn_merge_bulk:       '🗂 All files at once',
-        btn_bot_watermark:    '🤖 Bot Watermark + URL',
+
     },
 
     common: {
@@ -34,8 +34,11 @@ export const buttons = {
     },
 
     subscription: {
-        back: '◀️ All plans',
-        buy:  '💳 Buy {{name}}',
+        back:    '◀️ All plans',
+        buy:     '💳 Buy {{name}}',
+        starter: '⚡️ Starter — $10/mo',
+        pro:     '💎 Pro — $25/mo',
+        ultra:   '🏢 Ultra — $75/mo',
     },
 
 } as const;
