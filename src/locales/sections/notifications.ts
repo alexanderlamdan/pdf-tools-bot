@@ -1,5 +1,16 @@
-
 export const notifications = {
+
+	redirect_ru: `👋 Привет! Я заметил, что в твоём Telegram стоит не английский язык.\n\n` +
+	`Если тебе удобнее русский — у меня есть отдельный бот для русскоязычных, с тем же самым функционалом один в один:\n\n` +
+	`👇 Просто нажми кнопку ниже и не потеряешься.`,
+
+	redirect_ru_button: `🇷🇺 Перейти в русский бот`,
+
+	redirect_he: `👋 שלום! הבחנתי שהשפה בטלגרם שלך מוגדרת לעברית.\n\n` +
+	`יש לי בוט ייעודי לדוברי עברית עם בדיוק אותן תכונות:\n\n` +
+	`👇 פשוט לחץ על הכפתור למטה.`,
+
+	redirect_he_button: `🇮🇱 עבור לבוט בעברית`,
 
 	feedback_intro: `💬 <b>Feedback</b>\n\n` +
 	`Share your thoughts, suggestions or feature requests.\n\n` +
@@ -46,7 +57,6 @@ export const notifications = {
 
 	support_reply_from_dev: `💬 <b>Response from developer:</b>\n\n{{text}}`,
 
-
 	vip_notification: `🌟 <b>You've been granted VIP access!</b>\n\n` +
 	`The bot developer has added you as a VIP user.\n` +
 	`You now have unlimited bot usage.\n\n` +
@@ -60,8 +70,8 @@ export const notifications = {
 	`👉 Tap 👤 <b>My Status</b> to view available plans.`,
 
 	subscribe_plans_title: `⚡️ <b>Upgrade your PDF Tools Bot</b>\n\n` +
-	`<b>Pro — $10/mo</b>\n` +
-	`• 12 GB monthly traffic\n` +
+	`<b>Starter — $10/mo</b>\n` +
+	`• 24 GB monthly traffic\n` +
 	`• Priority queue\n` +
 	`• Your own watermark on processed files\n\n` +
 	`Secure payment via Creem. Cancel anytime.`,
@@ -102,6 +112,3 @@ export const notifications = {
 	`Your access continues for now but will be suspended if payment fails again.`,
 
 } as const;
-
-
-
