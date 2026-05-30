@@ -111,4 +111,9 @@ export const notifications = {
 	`We could not process your payment. Please update your payment method.\n\n` +
 	`Your access continues for now but will be suspended if payment fails again.`,
 
+	plan_not_available:`⚠️ This plan is not available yet.`,
+	period_not_available:'⚠️ This plan/period combination is not available yet.',
+	payments_not_available:'⚠️ Payments are not configured for this bot yet.',
+	current_payment_not_available:'⚠️ This plan is not available with the current payment provider.'
+
 } as const;
