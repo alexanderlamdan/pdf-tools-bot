@@ -26,27 +26,27 @@ export const status = {
         compress:      '🗜 Compressed',
         unlock:        '🔓 Unlocked',
         protect:       '🔐 Protected',
-        crack:         '🕵️‍♂️ Cracked',
         split:         '✂️ Split',
         merge:         '🔗 Merged',
         metadata_wipe: '🧹 Metadata wiped',
+        asymmetric:    '🔑 Asymmetric encrypted',
     },
 
     subscriptions: {
         no_sub:    'Free',
         unlimited: 'Unlimited',
 
-        free_storage:              '2 GB',
-        starter_storage:           '24 GB',
-        pro_storage:               '48 GB',
-        ultra_storage:             '200 GB',
+        free_storage:    '2 GB',
+        starter_storage: '24 GB',
+        pro_storage:     '48 GB',
+        ultra_storage:   '200 GB',
 
-        free_role:               'Free',
-        free_admin_role:         'Free Admin',
-        starter_role:            '⚡️ Starter',
-        pro_role:                '💎 Pro',
-        ultra_role:              '🏢 Ultra',
-        vip_role:                '🌟 VIP',
+        free_role:       'Free',
+        free_admin_role: 'Free Admin',
+        starter_role:    '⚡️ Starter',
+        pro_role:        '💎 Pro',
+        ultra_role:      '🏢 Ultra',
+        vip_role:        '🌟 VIP',
     },
 
     plan_buttons: {

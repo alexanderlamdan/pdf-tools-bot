@@ -19,18 +19,26 @@ export const buttons = {
         btn_protect:          '🔐 Protect',
         btn_unlock:           '🔓 Unlock',
         btn_watermark:        '© Your Watermark',
-        btn_repair:           '🚑 Repair',
         btn_to_long_image:    '📜 To Long Image',
         btn_metadata_wiper:   '🧹 Wipe Metadata',
         btn_execute_merge:    '✅ Merge files',
         btn_merge_one_by_one: '📄 One by one (up to 10)',
         btn_merge_archive:    '📦 Upload archive',
         btn_merge_bulk:       '🗂 All files at once',
-
     },
 
     common: {
         btn_cancel: '❌ Cancel',
+    },
+
+    protect: {
+        password:    '🔐 Password (AES-256)',
+        asymmetric:  '🔑 Asymmetric encryption (RSA-4096)',
+    },
+
+    unlock: {
+        password:    '🔓 I know the password',
+        asymmetric:  '🔑 I have a private key',
     },
 
     subscription: {
