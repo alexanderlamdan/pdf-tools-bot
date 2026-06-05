@@ -23,10 +23,10 @@ export const notifications = {
 
 	feedback_max_chars_limit: `⚠️ Too long — <b>{{length}}</b> characters.\n` +
 	`Please keep it under <b>{{MAX_CHARS}}</b> characters,\n` +
-	`or send longer feedback to <code>support@lmdnbot.com</code>`,
+	`or send it to <code>support@lmdnbot.com</code>`,
 
 	feedback_reply: `✅ <b>Thank you for your feedback!</b>\n\n` +
-	`We read every message and use it to improve the bot.\n\n` +
+	`I read every message and use it to improve the bot.\n\n` +
 	`<i>You can submit feedback again in 7 days.</i>`,
 
 	support_title: `🆘 <b>Support</b>\n\nPlease select the topic of your request:`,
@@ -40,32 +40,32 @@ export const notifications = {
 
 	support_describe: `✍️ <b>Please describe your request</b>\n\n` +
 	`Maximum <b>{{MAX_CHARS}}</b> characters.\n` +
-	`For longer messages, email us at <code>support@lmdnbot.com</code>`,
+	`For longer messages: <code>support@lmdnbot.com</code>`,
 
 	support_too_long: `⚠️ Your message is too long (<b>{{length}}</b> characters).\n` +
 	`Please keep it under <b>{{MAX_CHARS}}</b> characters,\n` +
-	`or email us at <code>support@lmdnbot.com</code>`,
+	`or email <code>support@lmdnbot.com</code>`,
 
-	support_sent: `✅ <b>Your request has been sent to the developer.</b>\n\n` +
+	support_sent: `✅ <b>Your request has been sent.</b>\n\n` +
 	`📂 Topic: {{category}}\n\n` +
-	`We will get back to you within <b>24 hours</b>.\n\n` +
-	`<i>For urgent matters, email us at <code>support@lmdnbot.com</code></i>`,
+	`I'll get back to you within <b>24 hours</b>.\n\n` +
+	`<i>For urgent matters: <code>support@lmdnbot.com</code></i>`,
 
 	support_closed: `✅ <b>Your support session has been closed.</b>\n\n` +
-	`Thank you for contacting us.\n` +
-	`Feel free to reach out again anytime via /support.`,
+	`Thanks for reaching out.\n` +
+	`Feel free to contact me again anytime via /support.`,
 
 	support_reply_from_dev: `💬 <b>Response from developer:</b>\n\n{{text}}`,
 
 	vip_notification: `🌟 <b>You've been granted VIP access!</b>\n\n` +
-	`The bot developer has added you as a VIP user.\n` +
+	`I've added you as a VIP user.\n` +
 	`You now have unlimited bot usage.\n\n` +
 	`Thank you for your trust. 🙏`,
 
 	traffic_reset_notification: `♻️ <b>Your traffic limit has been reset!</b>\n\n` +
 	`You now have <b>2 GB</b> of free traffic again.\n\n` +
 	`Thank you for using PDF Tools Bot! 🙏\n\n` +
-	`If you find yourself hitting the limit often — consider one of our plans. ` +
+	`If you hit the limit often — consider upgrading. ` +
 	`More traffic, your own watermark and priority queue.\n\n` +
 	`👉 Tap 👤 <b>My Status</b> to view available plans.`,
 
@@ -73,14 +73,14 @@ export const notifications = {
 	`<b>Starter — $10/mo</b>\n` +
 	`• 24 GB monthly traffic\n` +
 	`• Priority queue\n` +
-	`• Your own watermark on processed files\n\n` +
-	`Secure payment via Creem. Cancel anytime.`,
+	`• No watermark on your files\n\n` +
+	`Secure payment. Cancel anytime.`,
 
 	subscribe_checkout_loading: `⏳ Generating checkout link...`,
 
 	subscribe_checkout_ready: `🔗 <b>Your checkout link is ready!</b>\n\n` +
 	`Click the button below to complete your payment.\n` +
-	`After payment you will receive a confirmation in this chat automatically.\n\n` +
+	`After payment you'll receive a confirmation here automatically.\n\n` +
 	`<i>Link expires in 30 minutes.</i>`,
 
 	subscribe_checkout_error: `❌ Failed to generate checkout link. Please try again later.`,
@@ -90,7 +90,7 @@ export const notifications = {
 	`{{features}}\n\n` +
 	`📅 Started: <b>{{started}}</b>\n` +
 	`📅 Valid until: <b>{{expires}}</b>\n\n` +
-	`Thank you for supporting PDF Tools Bot! 🙏`,
+	`Thank you! 🙏`,
 
 	subscription_features: {
 		starter: `✅ 24 GB monthly traffic\n✅ Priority queue\n✅ No watermark on your files`,
@@ -104,16 +104,16 @@ export const notifications = {
 
 	subscription_expiring_soon: `⚠️ <b>Your subscription expires soon.</b>\n\n` +
 	`Your <b>{{plan}}</b> plan ends on <b>{{expires}}</b>.\n\n` +
-	`To keep your access, please renew before expiration.\n\n` +
+	`Renew before it expires to keep your access.\n\n` +
 	`👉 Tap 👤 <b>My Status</b> to renew.`,
 
 	subscription_past_due: `⚠️ <b>Payment issue with your subscription.</b>\n\n` +
-	`We could not process your payment. Please update your payment method.\n\n` +
+	`I couldn't process your payment. Please update your payment method.\n\n` +
 	`Your access continues for now but will be suspended if payment fails again.`,
 
-	plan_not_available:`⚠️ This plan is not available yet.`,
-	period_not_available:'⚠️ This plan/period combination is not available yet.',
-	payments_not_available:'⚠️ Payments are not configured for this bot yet.',
-	current_payment_not_available:'⚠️ This plan is not available with the current payment provider.'
+	plan_not_available:            `⚠️ This plan is not available yet.`,
+	period_not_available:          `⚠️ This plan/period combination is not available yet.`,
+	payments_not_available:        `⚠️ Payments are not configured for this bot yet.`,
+	current_payment_not_available: `⚠️ This plan is not available with the current payment provider.`,
 
 } as const;
