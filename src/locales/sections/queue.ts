@@ -15,5 +15,6 @@ export const queue = {
     compress_timeout:         '❌ <b>Compression cancelled.</b>\n\nThe file is too complex and the server reached its limit. Unfortunately, no tool can compress this file better than we tried. We sincerely apologize for the inconvenience.',
     compress_already_optimal: '✅ <b>File is already optimized!</b>\n\nCompression would not reduce the size — the file is already at its minimum. Returning original.',
     compress_active_warning:  '⏳ <b>Heads up!</b>\n\nSomeone just started a large compression job and the server is fully focused on it.\n\nYour task is still in queue and will start automatically when compression is done. You can close the bot — we\'ll send you the result when it\'s ready.',
+    task_already_running: `⏳ <b>Your task is already running.</b>\n\nPlease wait — I'll send you the result as soon as it's ready.`,
 
 } as const;
