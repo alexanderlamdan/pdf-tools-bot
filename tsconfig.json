@@ -64,7 +64,7 @@
   },
   "include": [
       "src/**/*",
-      "shared/src/**/*"
+      "shared/src/**/*",
+      "shared/scripts/**/*"
     ]
 }
-

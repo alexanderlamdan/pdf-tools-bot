@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "locale:generate": "node dist/shared/scripts/generate-schema.js",
+    "locale:check": "node dist/shared/scripts/check-locale.js"
   },
   "dependencies": {
     "@types/node": "^22.14.1",
