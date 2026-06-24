@@ -36,6 +36,26 @@ export const actions = {
     `Both keys have been deleted from my server.\n\n` +
     `<b>To decrypt:</b> send all three files to me and press <b>🔓 Unlock</b>.`,
 
+    ask_long_image_pages: `📜 <b>PDF to Long Image</b>\n\n` +
+    `Send the page numbers you want to convert into one long scrollable image.\n\n` +
+    `<i>Examples:</i>\n` +
+    `• <code>5-12</code> (range)\n` +
+    `• <code>1, 3, 5</code> (comma separated)\n` +
+    `• <code>1-5 10-15</code> (multiple ranges)`,
+
+    long_image_processing: `📜 <b>Converting to a long image...</b>\nThis may take a moment for files with many pages.`,
+
+    success_long_image: `✅ <b>Done!</b>\n\nYour selected pages have been combined into one long image — perfect for scrolling on mobile or sharing as a single picture.`,
+
+    long_image_limit_exceeded: `❌ <b>Too many pages selected.</b>\n\n` +
+    `You selected <b>{{pages}}</b> pages, but your current plan allows up to <b>{{limit}}</b>.\n\n` +
+    `📊 <b>Page limits by plan:</b>\n` +
+    `🆓 Free — 10 pages\n` +
+    `⚡️ Starter — 20 pages\n` +
+    `💎 Pro — 30 pages\n` +
+    `🏢 Ultra — 100 pages\n\n` +
+    `👉 Tap 👤 <b>My Status</b> to upgrade and select more pages.`,
+
     // ── Unlock ────────────────────────────────────────────────────────────────
     ask_unlock_password: `🔓 <b>Enter the password</b>\n\nType the password for this PDF and I'll remove the protection.`,
     ask_unlock_method:   `🔓 <b>Unlock PDF</b>\n\nHow is this file protected?`,
