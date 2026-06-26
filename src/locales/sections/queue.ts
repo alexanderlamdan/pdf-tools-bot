@@ -1,20 +1,62 @@
 export const queue = {
 
-    heavy_task_warning: '⚠️ <b>Warning:</b> This is a heavy task and will push the server to its limits. Processing will take from 1 to 120 minutes depending on the number of pages, fonts, and images. Please wait.',
+    heavy_task_warning: `⚠️ <b>This operation may take some time.</b>\n\n` +
+    `Large PDF files with many pages, fonts, or images require more processing time.\n\n` +
+    `⏳ Estimated time: <b>1 minute to 4 hours</b>.\n` +
+    `Most files are completed much sooner.\n\n` +
+    `💬 You don't need to wait here. I'll send you the result as soon as it's ready.`,
 
-    position: '⏳ Task added to queue.\nYour position: <b>{{position}}</b>.',
+    position: `⏳ <b>Your task has been added to the queue.</b>\n\n` +
+    `Current position: <b>#{{position}}</b>.`,
 
-    vip_warning:        '🛑 <b>Warning:</b> You are overusing the bot. Please leave server capacity for other users to prevent crashes! Your VIP priority has been temporarily reduced.',
-    vip_blocked:        '🚫 <b>Access restricted:</b> You ignored the warning. To protect the server from overloading, your VIP functions have been temporarily blocked.',
-    vip_message_notice: '🚫 <b>Access temporarily restricted.</b>\nThe server is cooling down from your tasks. Please wait another time',
-    vip_unblock_notice: '✅ <b>Access restored!</b>\nPlease send large files one by one to avoid overloading the server',
+    vip_warning: `⚠️ <b>Server protection is active.</b>\n\n` +
+    `You've started many large tasks in a short time.\n\n` +
+    `To keep PDF Tools Bot fast and stable for everyone, your VIP priority has been temporarily reduced.\n\n` +
+    `💬 It will be restored automatically.`,
 
-    file_upload: '⏳ File has big size. Starting processing and analysis in background... You will get the message after it complete',
+    vip_blocked: `🚫 <b>VIP access has been temporarily paused.</b>\n\n` +
+    `Too many large tasks were started in a short time.\n\n` +
+    `This temporary limit helps keep the service stable for all users.\n\n` +
+    `💬 Your VIP access will be restored automatically.`,
 
-    compress_exclusive_start: '🗜 <b>Compression started.</b>\n\nAll server resources are focused on your file. This may take up to 5 minutes. You can close the bot — you will receive the file when compression is complete.',
-    compress_timeout:         '❌ <b>Compression cancelled.</b>\n\nThe file is too complex and the server reached its limit. Unfortunately, no tool can compress this file better than we tried. We sincerely apologize for the inconvenience.',
-    compress_already_optimal: '✅ <b>File is already optimized!</b>\n\nCompression would not reduce the size — the file is already at its minimum. Returning original.',
-    compress_active_warning:  '⏳ <b>Heads up!</b>\n\nSomeone just started a large compression job and the server is fully focused on it.\n\nYour task is still in queue and will start automatically when compression is done. You can close the bot — we\'ll send you the result when it\'s ready.',
-    task_already_running: `⏳ <b>Your task is already running.</b>\n\nPlease wait — I'll send you the result as soon as it's ready.`,
+    vip_message_notice: `⏳ <b>Please wait a little longer.</b>\n\n` +
+    `The server is still processing your previous tasks.\n\n` +
+    `You'll be able to start new tasks again soon.`,
+
+    vip_unblock_notice: `✅ <b>Your VIP access has been restored!</b>\n\n` +
+    `Thank you for waiting.\n\n` +
+    `💡 For the best performance, send large PDF files one at a time.`,
+
+    file_upload: `⏳ <b>Large file detected.</b>\n\n` +
+    `Your PDF is being processed in the background.\n` +
+    `This may take some time for large files.\n\n` +
+    `💬 You can close Telegram or continue using it.\n` +
+    `I'll send you the result as soon as it's ready.`,
+
+    compress_exclusive_start: `🗜 <b>Compression started.</b>\n\n` +
+    `Your PDF is being compressed using all available processing power.\n\n` +
+    `⏳ Processing may take from <b>1 minute</b> to <b>4 hours</b>, depending on the file.\n` +
+    `Most PDF files are completed much sooner.\n\n` +
+    `💬 You don't need to wait here.\n` +
+    `I'll send your PDF as soon as it's ready.`,
+
+    compress_timeout: `⚠️ <b>Your PDF has already been compressed as much as possible.</b>\n\n` +
+    `I couldn't reduce the file size any further without noticeably affecting its quality.\n\n` +
+    `Some tools may create a smaller PDF, but they often achieve this by reducing image quality, removing details, or making the document harder to read.\n\n` +
+    `My goal is to keep your PDF as small as possible <b>while preserving its quality</b>.`,
+
+    compress_already_optimal: `✅ <b>Your PDF is already optimized.</b>\n\n` +
+    `Further compression would not reduce the file size without affecting quality.\n\n` +
+    `📄 I'm returning your original PDF unchanged.`,
+
+    compress_active_warning: `⏳ <b>Please wait.</b>\n\n` +
+    `Another large PDF is currently being compressed.\n` +
+    `Your task is safely waiting in the queue and will start automatically.\n\n` +
+    `💬 You don't need to wait here.\n` +
+    `I'll send you the result as soon as it's ready.`,
+
+    task_already_running: `⏳ <b>Your task is already running.</b>\n\n` +
+    `There's nothing else you need to do.\n\n` +
+    `💬 I'll send you the result as soon as it's ready.`,
 
 } as const;

@@ -1,119 +1,153 @@
 export const notifications = {
 
-	redirect_ru: `👋 Привет! Я заметил, что в твоём Telegram стоит не английский язык.\n\n` +
-	`Если тебе удобнее русский — у меня есть отдельный бот для русскоязычных, с тем же самым функционалом один в один:\n\n` +
-	`👇 Просто нажми кнопку ниже и не потеряешься.`,
+	redirect_ru: `👋 Привет!\n\n` +
+	`Я заметил, что язык твоего Telegram — русский.\n\n` +
+	`Для тебя у меня есть отдельная русскоязычная версия бота с теми же функциями, тарифами и возможностями.\n\n` +
+	`👇 Просто нажми кнопку ниже и продолжай пользоваться ботом на русском языке.`,
 
-	redirect_ru_button: `🇷🇺 Перейти в русский бот`,
+	redirect_ru_button: `🇷🇺 Перейти в русский PDF Tools Bot`,
 
-	redirect_he: `👋 שלום! הבחנתי שהשפה בטלגרם שלך מוגדרת לעברית.\n\n` +
-	`יש לי בוט ייעודי לדוברי עברית עם בדיוק אותן תכונות:\n\n` +
-	`👇 פשוט לחץ על הכפתור למטה.`,
+	redirect_he: `👋 שלום!\n\n` +
+	`שמתי לב ששפת הטלגרם שלך היא עברית.\n\n` +
+	`יש לי גרסה ייעודית בעברית עם אותן היכולות, אותן התוכניות ואותן האפשרויות.\n\n` +
+	`👇 פשוט לחץ על הכפתור למטה כדי להמשיך בעברית.`,
 
-	redirect_he_button: `🇮🇱 עבור לבוט בעברית`,
+	redirect_he_button: `🇮🇱 לעבור לבוט בעברית`,
 
 	feedback_intro: `💬 <b>Feedback</b>\n\n` +
-	`Share your thoughts, suggestions or feature requests.\n\n` +
-	`• Maximum <b>{{MAX_CHARS}}</b> characters\n` +
-	`• For longer messages: <code>support@lmdnbot.com</code>\n\n` +
-	`✍️ Write your feedback:`,
+	`Found a bug? Have an idea? Need something improved?\n\n` +
+	`Write your message here.\n\n` +
+	`• Maximum: <b>{{MAX_CHARS}}</b> characters\n` +
+	`• Long message? Email me: <code>support@lmdnbot.com</code>\n\n` +
+	`✍️ Type your feedback:`,
 
-	feedback_limit_msg: `⏳ <b>You've already submitted feedback recently.</b>\n\n` +
-	`You can submit again in <b>{{days}}d {{hours}}h</b>.`,
+	feedback_limit_msg: `⏳ <b>You sent feedback recently.</b>\n\n` +
+	`You can send another message in <b>{{days}}d {{hours}}h</b>.`,
 
-	feedback_max_chars_limit: `⚠️ Too long — <b>{{length}}</b> characters.\n` +
-	`Please keep it under <b>{{MAX_CHARS}}</b> characters,\n` +
-	`or send it to <code>support@lmdnbot.com</code>`,
+	feedback_max_chars_limit: `⚠️ <b>Your message is too long.</b>\n\n` +
+	`Current length: <b>{{length}}</b> characters\n` +
+	`Maximum allowed: <b>{{MAX_CHARS}}</b> characters\n\n` +
+	`For longer messages, email me: <code>support@lmdnbot.com</code>`,
 
-	feedback_reply: `✅ <b>Thank you for your feedback!</b>\n\n` +
-	`I read every message and use it to improve the bot.\n\n` +
-	`<i>You can submit feedback again in 7 days.</i>`,
+	feedback_reply: `❤️ <b>Thank you!</b>\n\n` +
+	`I read every message personally.\n` +
+	`Your feedback helps me improve the bot and build new features.\n\n` +
+	`<i>You can send feedback again in 7 days.</i>`,
 
-	support_title: `🆘 <b>Support</b>\n\nPlease select the topic of your request:`,
+	support_title: `🆘 <b>Support</b>\n\n` +
+	`What do you need help with?`,
 
 	support_categories: {
-		business: '🏢 Business inquiry',
-		privacy:  '🔒 Data & Privacy',
-		payment:  '💳 Payment & Subscription',
-		bug:      '🐛 Bug Report',
+		business: '🏢 Business & Partnerships',
+		privacy: '🔒 Privacy & Security',
+		payment: '💳 Payments & Plans',
+		bug: '🐛 Report a Bug',
 	},
 
-	support_describe: `✍️ <b>Please describe your request</b>\n\n` +
-	`Maximum <b>{{MAX_CHARS}}</b> characters.\n` +
-	`For longer messages: <code>support@lmdnbot.com</code>`,
+	support_describe: `✍️ <b>Describe your request</b>\n\n` +
+	`• Maximum: <b>{{MAX_CHARS}}</b> characters\n` +
+	`• Longer message? Email me: <code>support@lmdnbot.com</code>\n\n` +
+	`I'm happy to help.`,
 
-	support_too_long: `⚠️ Your message is too long (<b>{{length}}</b> characters).\n` +
-	`Please keep it under <b>{{MAX_CHARS}}</b> characters,\n` +
-	`or email <code>support@lmdnbot.com</code>`,
+	support_too_long: `⚠️ <b>Your message is too long.</b>\n\n` +
+	`Current length: <b>{{length}}</b> characters\n` +
+	`Maximum allowed: <b>{{MAX_CHARS}}</b> characters\n\n` +
+	`For longer messages, email me: <code>support@lmdnbot.com</code>`,
 
 	support_sent: `✅ <b>Your request has been sent.</b>\n\n` +
-	`📂 Topic: {{category}}\n\n` +
-	`I'll get back to you within <b>24 hours</b>.\n\n` +
-	`<i>For urgent matters: <code>support@lmdnbot.com</code></i>`,
+	`📂 <b>Topic:</b> {{category}}\n\n` +
+	`I'll reply within <b>24 hours</b>.\n\n` +
+	`<i>Need help sooner? Email me at <code>support@lmdnbot.com</code>.</i>`,
 
-	support_closed: `✅ <b>Your support session has been closed.</b>\n\n` +
-	`Thanks for reaching out.\n` +
-	`Feel free to contact me again anytime via /support.`,
+	support_closed: `✅ <b>Support request closed.</b>\n\n` +
+	`Thank you for contacting me.\n\n` +
+	`Need help again? Just use /support anytime.`,
 
-	support_reply_from_dev: `💬 <b>Response from developer:</b>\n\n{{text}}`,
+	support_reply_from_dev: `💬 <b>Reply from the developer</b>\n\n{{text}}`,
 
-	vip_notification: `🌟 <b>You've been granted VIP access!</b>\n\n` +
-	`I've added you as a VIP user.\n` +
-	`You now have unlimited bot usage.\n\n` +
-	`Thank you for your trust. 🙏`,
+	vip_notification: `🌟 <b>VIP access activated!</b>\n\n` +
+	`I've added your account to the VIP plan.\n\n` +
+	`♾️ You now have unlimited access to all bot features.\n\n` +
+	`Thank you for your support and trust! ❤️`,
 
-	traffic_reset_notification: `♻️ <b>Your traffic limit has been reset!</b>\n\n` +
-	`You now have <b>2 GB</b> of free traffic again.\n\n` +
-	`Thank you for using PDF Tools Bot! 🙏\n\n` +
-	`If you hit the limit often — consider upgrading. ` +
-	`More traffic, your own watermark and priority queue.\n\n` +
-	`👉 Tap 👤 <b>My Status</b> to view available plans.`,
+	traffic_reset_notification: `♻️ <b>Your monthly free traffic has been reset!</b>\n\n` +
+	`🎉 You have <b>2 GB</b> of free traffic available again.\n\n` +
+	`Thank you for using PDF Tools Bot! ❤️\n\n` +
+	`Need more traffic?\n` +
+	`Upgrade to get:\n` +
+	`• More monthly traffic\n` +
+	`• No bot watermark\n` +
+	`• Priority processing\n\n` +
+	`👉 Tap 👤 <b>My Account</b> to compare all plans.`,
 
-	subscribe_plans_title: `⚡️ <b>Upgrade your PDF Tools Bot</b>\n\n` +
-	`<b>Starter — $10/mo</b>\n` +
-	`• 24 GB monthly traffic\n` +
-	`• Priority queue\n` +
-	`• No watermark on your files\n\n` +
-	`Secure payment. Cancel anytime.`,
+	subscribe_plans_title: `🚀 <b>Choose a plan that fits your workflow</b>\n\n` +
+	`⚡ <b>Starter — $10/month</b>\n` +
+	`• 24 GB of traffic every month\n` +
+	`• Faster processing during busy hours\n` +
+	`• No bot watermark\n\n` +
+	`🔒 Secure payment.\n` +
+	`❌ Cancel anytime.`,
 
-	subscribe_checkout_loading: `⏳ Generating checkout link...`,
+	subscribe_checkout_loading: `⏳ <b>Preparing your secure checkout...</b>`,
 
-	subscribe_checkout_ready: `🔗 <b>Your checkout link is ready!</b>\n\n` +
-	`Click the button below to complete your payment.\n` +
-	`After payment you'll receive a confirmation here automatically.\n\n` +
-	`<i>Link expires in 30 minutes.</i>`,
+	subscribe_checkout_ready: `🔗 <b>Your checkout is ready!</b>\n\n` +
+	`Click the button below to complete your payment.\n\n` +
+	`✅ Your subscription will be activated automatically after payment.\n` +
+	`You don't need to send anything manually.\n\n` +
+	`<i>⏰ This link expires in 30 minutes.</i>`,
 
-	subscribe_checkout_error: `❌ Failed to generate checkout link. Please try again later.`,
+	subscribe_checkout_error: `❌ <b>Couldn't create a checkout link.</b>\n\n` +
+	`Please try again in a few minutes.`,
 
-	subscription_activated: `🎉 <b>Welcome to {{plan}}!</b>\n\n` +
+	subscription_activated: `🎉 <b>Welcome to the {{plan}} plan!</b>\n\n` +
 	`Your subscription is now active.\n\n` +
+	`🌟 You now have:\n` +
 	`{{features}}\n\n` +
-	`📅 Started: <b>{{started}}</b>\n` +
-	`📅 Valid until: <b>{{expires}}</b>\n\n` +
-	`Thank you! 🙏`,
+	`📅 <b>Started:</b> {{started}}\n` +
+	`📅 <b>Valid until:</b> {{expires}}\n\n` +
+	`❤️ Thank you for supporting PDF Tools Bot!`,
 
 	subscription_features: {
-		starter: `✅ 24 GB monthly traffic\n✅ Priority queue\n✅ No watermark on your files`,
-		pro:     `✅ 48 GB monthly traffic\n✅ Premium queue — instant\n✅ Your own branding on files\n✅ Priority support`,
-		ultra:   `✅ 200 GB monthly traffic\n✅ No queue — instant processing\n✅ Company watermark on all files\n✅ Dedicated support`,
+		starter: `✅ 24 GB of traffic every month\n` +
+		`✅ Faster processing during busy hours\n` +
+		`✅ No bot watermark`,
+
+		pro: `✅ 48 GB of traffic every month\n` +
+		`✅ Priority processing\n` +
+		`✅ Your own watermark on processed files\n` +
+		`✅ Priority support`,
+
+		ultra: `✅ 200 GB of traffic every month\n` +
+		`✅ Highest processing priority\n` +
+		`✅ Your company watermark on processed files\n` +
+		`✅ Dedicated support`,
 	},
 
-	subscription_expired: `😔 <b>Your subscription has ended.</b>\n\n` +
-	`Your access has been downgraded to the free plan.\n\n` +
-	`👉 Tap 👤 <b>My Status</b> to subscribe again.`,
+	subscription_expired: `😔 <b>Your subscription has expired.</b>\n\n` +
+	`Your account has been switched back to the <b>Free</b> plan.\n\n` +
+	`👉 Tap 👤 <b>My Account</b> to choose a new plan.`,
 
-	subscription_expiring_soon: `⚠️ <b>Your subscription expires soon.</b>\n\n` +
+	subscription_expiring_soon: `⏰ <b>Your subscription will expire soon.</b>\n\n` +
 	`Your <b>{{plan}}</b> plan ends on <b>{{expires}}</b>.\n\n` +
-	`Renew before it expires to keep your access.\n\n` +
-	`👉 Tap 👤 <b>My Status</b> to renew.`,
+	`Renew now to keep your benefits without interruption.\n\n` +
+	`👉 Tap 👤 <b>My Account</b> to renew.`,
 
-	subscription_past_due: `⚠️ <b>Payment issue with your subscription.</b>\n\n` +
-	`I couldn't process your payment. Please update your payment method.\n\n` +
-	`Your access continues for now but will be suspended if payment fails again.`,
+	subscription_past_due: `⚠️ <b>There was a problem processing your payment.</b>\n\n` +
+	`Please update your payment method to keep your subscription active.\n\n` +
+	`Your access is still active for now, but it may be suspended if the next payment also fails.\n\n` +
+	`👉 Tap 👤 <b>My Account</b> to update your subscription.`,
 
-	plan_not_available:            `⚠️ This plan is not available yet.`,
-	period_not_available:          `⚠️ This plan/period combination is not available yet.`,
-	payments_not_available:        `⚠️ Payments are not configured for this bot yet.`,
-	current_payment_not_available: `⚠️ This plan is not available with the current payment provider.`,
+	plan_not_available: `⚠️ <b>This plan isn't available yet.</b>\n\n` +
+	`Please choose another plan.`,
+
+	period_not_available: `⚠️ <b>This billing period isn't available yet.</b>\n\n` +
+	`Please choose a different option.`,
+
+	payments_not_available: `⚠️ <b>Payments aren't available yet.</b>\n\n` +
+	`I'm still setting up payments for this bot.\n` +
+	`Please check back soon.`,
+
+	current_payment_not_available: `⚠️ <b>This payment method doesn't support the selected plan.</b>\n\n` +
+	`Please choose another payment method or a different plan.`,
 
 } as const;

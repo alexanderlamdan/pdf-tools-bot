@@ -13,33 +13,57 @@ export const en = {
         buttons,
 
         messages: {
-                start: '👋 <b>Hello!</b> I\'m <b>PDF Tools Bot</b> — your all-in-one PDF assistant.\n\nSend me any PDF file and I\'ll analyze it instantly.\n👇 <i>Just drop the file below to get started.</i>',
+                start: `👋 Welcome to PDF Tools Bot!\n
+                Professional PDF tools, right inside Telegram.\n
+                Merge, split, compress, convert, protect, repair, extract text or images, remove metadata, create long images, and much more.\n
+                📦 Supports PDF files up to 2GB.\n
+                📄 Send a PDF file to get started.`,
 
                 help: `📚 <b>PDF Tools Bot — Help</b>\n\n` +
-                `<b>How to use:</b>\n` +
-                `1. Send a <b>PDF file</b>\n` +
-                `2. Wait for the instant analysis\n` +
-                `3. Choose an action from the menu\n\n` +
-                `<b>Available tools:</b>\n` +
-                `🗜 <b>Compress</b> — reduce file size, keep quality\n` +
-                `✂️ <b>Split</b> — extract specific pages\n` +
-                `🔗 <b>Merge</b> — combine multiple PDFs into one\n` +
-                `🔐 <b>Protect</b> — encrypt with password (AES-256) or asymmetric key (RSA-4096)\n` +
-                `🔓 <b>Unlock</b> — remove PDF password\n` +
-                `🧹 <b>Wipe Metadata</b> — remove author, dates, hidden data\n` +
-                `🖼 <b>Extract</b> — pull out images or text\n\n` +
-                `<b>Privacy:</b>\n` +
-                `🛡 Files are processed in an isolated environment and deleted immediately after delivery. Nothing is stored.`,
+                `<b>❓ How do I use the bot?</b>\n` +
+                `1. Send a <b>PDF file</b>.\n` +
+                `2. Wait while it's analyzed.\n` +
+                `3. Choose the tool you need.\n` +
+                `4. Receive your processed file.\n\n` +
 
-                about: `🤖 <b>PDF Tools Bot</b>\n\n` +
-                `Your files go <b>directly to my server</b>, bypassing Telegram's own data centers. ` +
-                `This is possible thanks to my local Telegram API setup — maximum speed, maximum privacy.\n\n` +
-                `🔒 <b>Your files are safe:</b>\n` +
-                `• Processed in an isolated file system\n` +
-                `• Deleted immediately after sending back to you\n` +
-                `• Each user's files are kept in a separate folder\n` +
-                `• Auto-wiped every 12 hours as an extra layer of safety\n\n` +
-                `I don't store, read, or share your documents. Only what's needed to run the operation is temporarily used.`,
+                `<b>❓ What can the bot do?</b>\n` +
+                `Process PDF files directly inside Telegram — merge, split, compress, convert, protect, extract text or images, create long images, and much more.\n\n` +
+
+                `<b>❓ Are my files safe?</b>\n` +
+                `🔒 Yes. Your files are processed automatically and permanently deleted after 12 hours.\n\n` +
+
+                `<b>❓ Need higher limits?</b>\n` +
+                `Premium plans are designed for users who work with PDF files regularly and need higher limits.`,
+
+                about: `🤖 <b>About PDF Tools Bot</b>\n\n` +
+                `PDF Tools Bot is a professional PDF processing platform built for Telegram. Work with PDF files without installing apps, creating accounts, or leaving Telegram.\n\n` +
+
+                `<b>✨ Why choose PDF Tools Bot?</b>\n` +
+                `• Professional-grade PDF tools\n` +
+                `• Supports PDF files up to 2GB\n` +
+                `• Free traffic resets every month\n` +
+                `• Free features stay free forever\n` +
+                `• High-availability infrastructure (99.99% SLA)\n` +
+                `• Built with privacy and security in mind\n` +
+                `• Designed to respect both your time and your privacy\n` +
+                `• No signup required\n` +
+                `• Built to help you work — not to spam you\n` +
+                `• No intrusive advertising\n` +
+                `• No forced subscriptions to partner channels\n` +
+                `• Pay only if you need higher limits\n` +
+                `• Free users receive a small QR code, bot link, and marketplace link at the end of supported files\n\n` +
+
+                `<b>🔒 Privacy & Security</b>\n` +
+                `• Every file is processed in an isolated workspace\n` +
+                `• Files are never shared with third parties\n` +
+                `• Automatically deleted after processing\n` +
+                `• Permanently removed within 12 hours\n\n` +
+
+                `<b>🌐 LMDN Bot Marketplace</b>\n` +
+                `Discover more professional Telegram bots and services:\n` +
+                `https://lmdnbot.com\n\n` +
+
+                `Thank you for choosing PDF Tools Bot ❤️`,
 
                 analysis,
                 status,

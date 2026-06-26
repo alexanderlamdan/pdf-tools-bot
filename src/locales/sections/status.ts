@@ -1,35 +1,43 @@
 export const status = {
 
     user: {
-        title:       '👤 <b>MY STATUS</b>\n\n',
-        name:        'Name',
-        role:        'Role',
-        usage:       'Usage',
-        stats:       'Statistics',
-        plan:        'Plan',
-        ends:        'Valid until',
-        joined:      'Member since',
-        reset:       'Next traffic reset',
-        sub_started: 'Subscription started',
-        sub_expires: 'Subscription expires',
+        title: '👤 <b>MY ACCOUNT</b>\n\n',
+
+        name: 'Name',
+        role: 'Account Type',
+
+        usage: 'Usage & Limits',
+        stats: 'Your Statistics',
+
+        plan: 'Current Plan',
+
+        ends: 'Valid Until',
+
+        joined: 'Member Since',
+
+        reset: 'Next Traffic Reset',
+
+        sub_started: 'Subscription Started',
+        sub_expires: 'Subscription Expires',
     },
 
     admin: {
-        title:        '👑 <b>ADMIN STATUS</b>\n\n',
-        global_stats: 'Global Activity',
-        traffic:      'Total Traffic',
-        subs:         'Subscribers',
+        title: '👑 <b>ADMIN DASHBOARD</b>\n\n',
+
+        global_stats: 'Global Statistics',
+        traffic: 'Total Traffic',
+        subs: 'Active Subscribers',
     },
 
     actions: {
-        upload:        '📂 Uploaded',
-        compress:      '🗜 Compressed',
-        unlock:        '🔓 Unlocked',
-        protect:       '🔐 Protected',
-        split:         '✂️ Split',
-        merge:         '🔗 Merged',
-        metadata_wipe: '🧹 Metadata wiped',
-        asymmetric:    '🔑 Asymmetric encrypted',
+        upload: '📂 Uploaded',
+        compress: '🗜 Compressed',
+        unlock: '🔓 Unlocked',
+        protect: '🔐 Protected',
+        split: '✂️ Split',
+        merge: '🔗 Merged',
+        metadata_wipe: '🧹 Metadata Removed',
+        asymmetric: '🔑 Private Key Encryption',
     },
 
     subscriptions: {

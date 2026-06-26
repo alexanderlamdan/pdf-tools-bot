@@ -1,75 +1,72 @@
 export const subscriptions = {
 
-    limit_exceeded: `🚫 <b>Your free traffic limit is exhausted.</b>
+    limit_exceeded: `🚫 <b>Your free traffic has been used up.</b>\n\n` +
+    `You've used all <b>2 GB</b> included in the Free plan.\n\n` +
+    `🚀 Choose a plan to keep processing PDF files without waiting for the monthly reset.`,
 
-    You have used all <b>2 GB</b> of your free plan.
-    Choose a subscription to continue using the bot:`,
+    done_but_exceeded: `✅ <b>Your PDF is ready!</b>\n\n` +
+    `🚫 Your free traffic has been used up.\n\n` +
+    `To download this file and continue using the bot right away, choose a plan below.`,
 
-    done_but_exceeded: `✅ Done! The operation was completed successfully.
+    choose_plan: `💳 <b>Choose your plan:</b>`,
 
-    🚫 <b>However, your free traffic limit has been reached.</b>
-    To receive this file and continue, please choose a plan:`,
-
-    choose_plan: '💳 Choose a subscription plan:',
-
-    traffic_warning: '⚠️ <b>Heads up!</b> You have <b>{{remain}}</b> of free traffic left.\nConsider upgrading to keep working without interruptions.',
+    traffic_warning: `⚠️ <b>Your free traffic is running low.</b>\n\n` +
+    `Only <b>{{remain}}</b> remaining.\n\n` +
+    `Upgrade now to avoid interruptions and keep processing your PDF files.`,
 
     plans: {
 
         free: `🆓 <b>Free Plan</b>
 
-        📦 Up to 2 GB file size (Telegram limit)
-        📊 2 GB monthly traffic
-        🔧 All tools unlocked
-        🗑 Files deleted immediately after delivery
-        🚶 Basic queue
+        📦 Up to 2 GB per PDF file
+        📊 2 GB of traffic every month
+        🛠 All PDF tools included
+        💧 Small bot watermark
+        🗑 Files deleted immediately after processing
+        🚶 Standard processing priority
 
         <i>Free forever. No credit card required.</i>`,
 
-        starter: `⚡️ <b>Starter Plan — $10/month</b>
+        starter: `⚡ <b>Starter — $10/month</b>
 
-        Ran out of free limit?
-        Starter gives you 12x more traffic.
+        Perfect for regular PDF work.
 
-        📦 Up to 2 GB file size
-        📊 24 GB monthly traffic
-        🔧 All tools unlocked
-        🖊️ Remove watermark from your files
-        ⚡ Priority queue — no waiting
-        🗑️ Files deleted immediately
+        📦 Up to 2 GB per PDF file
+        📊 24 GB of traffic every month
+        🛠 All PDF tools included
+        ✅ No bot watermark
+        ⚡ Faster processing during busy hours
+        🗑 Files deleted immediately after processing
 
-        <i>Less than a coffee per month.</i>`,
+        <i>Ideal if you work with PDF files every week.</i>`,
 
-        pro: `💎 <b>Pro Plan — $25/month</b>
+        pro: `💎 <b>Pro — $25/month</b>
 
-        Processing PDFs daily for work?
-        This plan won't slow you down.
+        Built for professionals who work with PDFs every day.
 
-        📦 Up to 2 GB file size
-        📊 48 GB monthly traffic
-        🔧 All tools unlocked
-        🖊️ Your own branding on files
-        💎 Premium queue — instant
+        📦 Up to 2 GB per PDF file
+        📊 48 GB of traffic every month
+        🛠 All PDF tools included
+        🎨 Your own watermark on processed files
+        🚀 Priority processing
         🎧 Priority support
-        🗑️ Files deleted immediately
+        🗑 Files deleted immediately after processing
 
-        <i>Built for freelancers &amp; small business.</i>`,
+        <i>Perfect for freelancers and small businesses.</i>`,
 
-        ultra: `🏢 <b>Ultra Plan — $75/month</b>
+        ultra: `🏢 <b>Ultra — $75/month</b>
 
-        Your team processes hundreds
-        of PDFs every day?
-        We handle the heavy lifting.
+        Designed for companies and teams with heavy PDF workflows.
 
-        📦 Up to 2 GB file size
-        📊 200 GB monthly traffic
-        🔧 All tools unlocked
-        🏢 Company watermark on all files
-        🚀 No queue — instant processing
+        📦 Up to 2 GB per PDF file
+        📊 200 GB of traffic every month
+        🛠 All PDF tools included
+        🏢 Your company watermark on processed files
+        🚀 Highest processing priority
         🎧 Dedicated support
-        🗑️ Files deleted immediately
+        🗑 Files deleted immediately after processing
 
-        <i>For agencies, law firms &amp; teams.</i>`,
+        <i>Built for businesses that rely on PDF every day.</i>`,
 
     },
 

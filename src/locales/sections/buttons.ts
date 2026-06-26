@@ -1,30 +1,30 @@
 export const buttons = {
 
     main: {
-        btn_status: '👤 My Status',
-        btn_help:   '❓ Help',
+        btn_status: '👤 My Account',
+        btn_help: '❓ Help',
     },
 
     admin: {
-        adm_btn_stats: '📈 Admin: Stats',
-        adm_btn_logs:  '📜 Admin: Logs',
+        adm_btn_stats: '📈 Statistics',
+        adm_btn_logs: '📜 Logs',
     },
 
     files: {
-        btn_compress:         '🗜 Compress',
-        btn_convert:          '🔄 Convert to PDF',
-        btn_merge:            '🔗 Merge',
-        btn_split:            '✂️ Split',
-        btn_extract:          '🖼 Extract Img/Text',
-        btn_protect:          '🔐 Protect',
-        btn_unlock:           '🔓 Unlock',
-        btn_watermark:        '© Your Watermark',
-        btn_to_long_image:    '📜 To Long Image',
-        btn_metadata_wiper:   '🧹 Wipe Metadata',
-        btn_execute_merge:    '✅ Merge files',
-        btn_merge_one_by_one: '📄 One by one (up to 10)',
-        btn_merge_archive:    '📦 Upload archive',
-        btn_merge_bulk:       '🗂 All files at once',
+        btn_compress: '🗜 Compress',
+        btn_convert: '🔄 To PDF',
+        btn_merge: '🔗 Merge',
+        btn_split: '✂️ Split',
+        btn_extract: '🖼 Extract',
+        btn_protect: '🔐 Protect',
+        btn_unlock: '🔓 Unlock',
+        btn_watermark: '© Add Watermark',
+        btn_to_long_image: '📜 Long Image',
+        btn_metadata_wiper: '🧹 Remove Metadata',
+        btn_execute_merge: '✅ Merge PDFs',
+        btn_merge_one_by_one: '📄 One by One(Max 10)',
+        btn_merge_archive: '📦 From Archive',
+        btn_merge_bulk: '🗂 Multiple PDFs',
     },
 
     common: {
@@ -32,21 +32,21 @@ export const buttons = {
     },
 
     protect: {
-        password:    '🔐 Password (AES-256)',
-        asymmetric:  '🔑 Asymmetric encryption (RSA-4096)',
+        password: '🔐 Password Protection',
+        asymmetric: '🔑 Private Key Protection',
     },
 
     unlock: {
-        password:    '🔓 I know the password',
-        asymmetric:  '🔑 I have a private key',
+        password: '🔓 Use Password',
+        asymmetric: '🔑 Use Private Key',
     },
 
     subscription: {
-        back:    '◀️ All plans',
-        buy:     '💳 Buy {{name}}',
-        starter: '⚡️ Starter — $10/mo',
-        pro:     '💎 Pro — $25/mo',
-        ultra:   '🏢 Ultra — $75/mo',
+        back: '◀️ All Plans',
+        buy: '💳 Buy {{name}}',
+        starter: '⚡ Starter — $10/mo',
+        pro: '💎 Pro — $25/mo',
+        ultra: '🏢 Ultra — $75/mo',
     },
 
 } as const;
