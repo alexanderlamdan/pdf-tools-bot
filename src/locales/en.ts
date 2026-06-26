@@ -13,11 +13,18 @@ export const en = {
         buttons,
 
         messages: {
-                start: `👋 Welcome to PDF Tools Bot!\n
-                Professional PDF tools, right inside Telegram.\n
-                Merge, split, compress, convert, protect, repair, extract text or images, remove metadata, create long images, and much more.\n
-                📦 Supports PDF files up to 2GB.\n
-                📄 Send a PDF file to get started.`,
+                start: `👋 <b>Welcome to PDF Tools Bot!</b>
+
+                Everything you need to work with PDF files — right inside Telegram.
+
+                🗜 Compress • 🔗 Merge • ✂️ Split
+                🔄 Convert • 🔐 Protect • 🔓 Unlock
+                🖼 Extract • 🧹 Remove metadata
+                📜 Long images • and more
+
+                📦 Supports PDF files up to <b>2 GB</b>.
+
+                📄 <b>Send a PDF file to get started.</b>`,
 
                 help: `📚 <b>PDF Tools Bot — Help</b>\n\n` +
                 `<b>❓ How do I use the bot?</b>\n` +
