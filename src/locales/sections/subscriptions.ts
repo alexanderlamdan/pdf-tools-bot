@@ -20,9 +20,7 @@ export const subscriptions = {
 
         📦 Up to 2 GB per PDF file
         📊 2 GB of traffic every month
-        🛠 All PDF tools included
         💧 Small bot watermark
-        🗑 Files deleted immediately after processing
         🚶 Standard processing priority
 
         <i>Free forever. No credit card required.</i>`,
@@ -33,10 +31,8 @@ export const subscriptions = {
 
         📦 Up to 2 GB per PDF file
         📊 24 GB of traffic every month
-        🛠 All PDF tools included
         ✅ No bot watermark
         ⚡ Faster processing during busy hours
-        🗑 Files deleted immediately after processing
 
         <i>Ideal if you work with PDF files every week.</i>`,
 
@@ -46,11 +42,9 @@ export const subscriptions = {
 
         📦 Up to 2 GB per PDF file
         📊 48 GB of traffic every month
-        🛠 All PDF tools included
         🎨 Your own watermark on processed files
         🚀 Priority processing
         🎧 Priority support
-        🗑 Files deleted immediately after processing
 
         <i>Perfect for freelancers and small businesses.</i>`,
 
@@ -60,11 +54,9 @@ export const subscriptions = {
 
         📦 Up to 2 GB per PDF file
         📊 200 GB of traffic every month
-        🛠 All PDF tools included
         🏢 Your company watermark on processed files
         🚀 Highest processing priority
         🎧 Dedicated support
-        🗑 Files deleted immediately after processing
 
         <i>Built for businesses that rely on PDF every day.</i>`,
 
