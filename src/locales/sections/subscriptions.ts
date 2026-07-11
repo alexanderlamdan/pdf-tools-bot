@@ -1,7 +1,7 @@
 export const subscriptions = {
 
     limit_exceeded: `🚫 <b>Your free traffic has been used up.</b>\n\n` +
-    `You've used all <b>2 GB</b> included in the Free plan.\n\n` +
+    `You've used all <b>8 GB</b> included in the Free plan.\n\n` +
     `🚀 Choose a plan to keep processing PDF files without waiting for the monthly reset.`,
 
     done_but_exceeded: `✅ <b>Your PDF is ready!</b>\n\n` +
@@ -19,8 +19,9 @@ export const subscriptions = {
         free: `🆓 <b>Free Plan</b>
 
         📦 Up to 2 GB per PDF file
-        📊 2 GB of traffic every month
-        💧 Small bot watermark
+        📊 8 GB of traffic every month
+        📜 Up to 25 pages when creating a Long Image
+        💧 Bot watermark with QR code on Long Images
         🚶 Standard processing priority
 
         <i>Free forever. No credit card required.</i>`,
@@ -30,8 +31,9 @@ export const subscriptions = {
         Perfect for regular PDF work.
 
         📦 Up to 2 GB per PDF file
-        📊 24 GB of traffic every month
-        ✅ No bot watermark
+        📊 72 GB of traffic every month
+        📜 Up to 50 pages when creating a Long Image
+        ✅ No watermark on Long Images
         ⚡ Faster processing during busy hours
 
         <i>Ideal if you work with PDF files every week.</i>`,
@@ -41,8 +43,9 @@ export const subscriptions = {
         Built for professionals who work with PDFs every day.
 
         📦 Up to 2 GB per PDF file
-        📊 48 GB of traffic every month
-        🎨 Your own watermark on processed files
+        📊 128 GB of traffic every month
+        📜 Up to 100 pages when creating a Long Image
+        ✅ No watermark on Long Images
         🚀 Priority processing
         🎧 Priority support
 
@@ -53,8 +56,9 @@ export const subscriptions = {
         Designed for companies and teams with heavy PDF workflows.
 
         📦 Up to 2 GB per PDF file
-        📊 200 GB of traffic every month
-        🏢 Your company watermark on processed files
+        📊 800 GB of traffic every month
+        📜 Up to 200 pages when creating a Long Image
+        ✅ No watermark on Long Images
         🚀 Highest processing priority
         🎧 Dedicated support
 

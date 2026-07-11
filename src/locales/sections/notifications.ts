@@ -71,18 +71,19 @@ export const notifications = {
 	`Thank you for your support and trust! ❤️`,
 
 	traffic_reset_notification: `♻️ <b>Your monthly free traffic has been reset!</b>\n\n` +
-	`🎉 You have <b>2 GB</b> of free traffic available again.\n\n` +
+	`🎉 You have <b>8 GB</b> of free traffic available again.\n\n` +
 	`Thank you for using PDF Tools Bot! ❤️\n\n` +
 	`Need more traffic?\n` +
 	`Upgrade to get:\n` +
 	`• More monthly traffic\n` +
-	`• No bot watermark\n` +
+	`• No bot watermark on Long Images\n` +
 	`• Priority processing\n\n` +
 	`👉 Tap 👤 <b>My Account</b> to compare all plans.`,
 
 	subscribe_plans_title: `🚀 <b>Choose a plan that fits your workflow</b>\n\n` +
 	`⚡ <b>Starter — $10/month</b>\n` +
-	`• 24 GB of traffic every month\n` +
+	`• 72 GB of traffic every month\n` +
+	`• Up to 50 pages per Long Image\n` +
 	`• Faster processing during busy hours\n` +
 	`• No bot watermark\n\n` +
 	`🔒 Secure payment.\n` +
@@ -108,18 +109,21 @@ export const notifications = {
 	`❤️ Thank you for supporting PDF Tools Bot!`,
 
 	subscription_features: {
-		starter: `✅ 24 GB of traffic every month\n` +
-		`✅ Faster processing during busy hours\n` +
-		`✅ No bot watermark`,
+		starter: `✅ 72 GB of traffic every month\n` +
+		`✅ Up to 50 pages per Long Image\n` +
+		`✅ No watermark on Long Images\n` +
+		`✅ Faster processing during busy hours`,
 
-		pro: `✅ 48 GB of traffic every month\n` +
+		pro: `✅ 128 GB of traffic every month\n` +
+		`✅ Up to 100 pages per Long Image\n` +
+		`✅ No watermark on Long Images\n` +
 		`✅ Priority processing\n` +
-		`✅ Your own watermark on processed files\n` +
 		`✅ Priority support`,
 
-		ultra: `✅ 200 GB of traffic every month\n` +
+		ultra: `✅ 800 GB of traffic every month\n` +
+		`✅ Up to 200 pages per Long Image\n` +
+		`✅ No watermark on Long Images\n` +
 		`✅ Highest processing priority\n` +
-		`✅ Your company watermark on processed files\n` +
 		`✅ Dedicated support`,
 	},
 

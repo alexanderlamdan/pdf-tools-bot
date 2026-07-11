@@ -1,53 +1,45 @@
 export const status = {
 
     user: {
-        title: '👤 <b>MY ACCOUNT</b>\n\n',
-
-        name: 'Name',
-        role: 'Account Type',
-
-        usage: 'Usage & Limits',
-        stats: 'Your Statistics',
-
-        plan: 'Current Plan',
-
-        ends: 'Valid Until',
-
-        joined: 'Member Since',
-
-        reset: 'Next Traffic Reset',
-
-        sub_started: 'Subscription Started',
-        sub_expires: 'Subscription Expires',
+        title:       '👤 <b>MY STATUS</b>\n\n',
+        name:        'Name',
+        role:        'Role',
+        usage:       'Usage',
+        stats:       'Statistics',
+        plan:        'Plan',
+        ends:        'Valid until',
+        joined:      'Member since',
+        reset:       'Next traffic reset',
+        sub_started: 'Subscription started',
+        sub_expires: 'Subscription expires',
     },
 
     admin: {
-        title: '👑 <b>ADMIN DASHBOARD</b>\n\n',
-
-        global_stats: 'Global Statistics',
-        traffic: 'Total Traffic',
-        subs: 'Active Subscribers',
+        title:        '👑 <b>ADMIN STATUS</b>\n\n',
+        global_stats: 'Global Activity',
+        traffic:      'Total Traffic',
+        subs:         'Subscribers',
     },
 
     actions: {
-        upload: '📂 Uploaded',
-        compress: '🗜 Compressed',
-        unlock: '🔓 Unlocked',
-        protect: '🔐 Protected',
-        split: '✂️ Split',
-        merge: '🔗 Merged',
-        metadata_wipe: '🧹 Metadata Removed',
-        asymmetric: '🔑 Private Key Encryption',
+        upload:        '📂 Uploaded',
+        compress:      '🗜 Compressed',
+        unlock:        '🔓 Unlocked',
+        protect:       '🔐 Protected',
+        split:         '✂️ Split',
+        merge:         '🔗 Merged',
+        metadata_wipe: '🧹 Metadata wiped',
+        asymmetric:    '🔑 Asymmetric encrypted',
     },
 
     subscriptions: {
         no_sub:    'Free',
         unlimited: 'Unlimited',
 
-        free_storage:    '2 GB',
-        starter_storage: '24 GB',
-        pro_storage:     '48 GB',
-        ultra_storage:   '200 GB',
+        free_storage:    '8 GB',
+        starter_storage: '72 GB',
+        pro_storage:     '128 GB',
+        ultra_storage:   '800 GB',
 
         free_role:       'Free',
         free_admin_role: 'Free Admin',
