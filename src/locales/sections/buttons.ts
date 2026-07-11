@@ -25,6 +25,9 @@ export const buttons = {
         btn_merge_one_by_one: '📄 One by One(Max 10)',
         btn_merge_archive: '📦 From Archive',
         btn_merge_bulk: '🗂 Multiple PDFs',
+        btn_long_image_pages:   '📖 From PDF pages',
+        btn_long_image_bulk:    '📄 One PDF = one page (up to 25)',
+        btn_long_image_execute: '✅ Create long image',
     },
 
     common: {

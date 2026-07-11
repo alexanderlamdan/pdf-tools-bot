@@ -61,10 +61,10 @@ export const actions = {
     `You selected <b>{{pages}}</b> pages.\n` +
     `Your current plan allows up to <b>{{limit}}</b> pages.\n\n` +
     `📊 <b>Page limits:</b>\n` +
-    `🆓 Free — 10 pages\n` +
-    `⚡ Starter — 20 pages\n` +
-    `💎 Pro — 30 pages\n` +
-    `🏢 Ultra — 100 pages\n\n` +
+    `🆓 Free — 25 pages\n` +
+    `⚡ Starter — 50 pages\n` +
+    `💎 Pro — 100 pages\n` +
+    `🏢 Ultra — 200 pages\n\n` +
     `👉 Open <b>👤 My Status</b> to upgrade your plan.`,
 
     // ── Unlock ────────────────────────────────────────────────────────────────
@@ -203,6 +203,27 @@ export const actions = {
     metadata_wipe_success: `✅ <b>Done!</b>\n\n` +
     `The selected data has been removed.\n\n` +
     `Choose your next action:`,
+
+    ask_long_image_mode: `📜 <b>PDF to Long Image</b>\n\nChoose how you want to create your long image:`,
+
+    ask_long_image_bulk: `📄 <b>One PDF = One Page mode</b>\n\n` +
+    `Send up to <b>25 PDF files</b> — one by one or as a group.\n` +
+    `Each PDF will contribute one page to the long image.\n\n` +
+    `⚠️ If a PDF has more than 1 page, I'll take one page from it and let you know.\n\n` +
+    `When you're done sending files, type <b>yes</b> to confirm.`,
+
+    long_image_bulk_file_added: `✅ File added! (<b>{{count}}/{{max}}</b>)\n\nSend more or type <b>yes</b> when done.`,
+
+    long_image_bulk_received: `📥 Received <b>{{count}}</b> files so far.\n\nDone? Type <b>yes</b> to proceed, or keep sending files.`,
+
+    long_image_bulk_confirm_words: `files ready. Press the button to create the long image.`,
+
+    long_image_bulk_no_files: `⚠️ No files yet. Please send at least one PDF first.`,
+
+    long_image_bulk_limit_reached: `⚠️ <b>Limit reached.</b>\n\nYou can send up to <b>25 files</b> maximum. Type <b>yes</b> to proceed with the current files.`,
+
+    long_image_bulk_warning: `⚠️ <b>Note:</b> The following files had more than 1 page — I took one page from each:\n{{files}}\n\nIf this doesn't look right to you, please don't put me in the blacklist 🙏`,
+
 
     // ── Suffixes ──────────────────────────────────────────────────────────────
     suffix_compressed:     '_COMPRESSED',
