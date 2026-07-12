@@ -224,6 +224,10 @@ export const actions = {
 
     long_image_bulk_warning: `⚠️ <b>Note:</b> The following files had more than 1 page — I took one page from each:\n{{files}}\n\nIf this doesn't look right to you, please don't put me in the blacklist 🙏`,
 
+    processing_timeout: `⚠️ <b>Our PDF processor noticed this file has been running for over 20 minutes.</b>\n\n` +
+    `This shouldn't happen — most files take 1 to 5 minutes, never 20. So I force-stopped the processing.\n\n` +
+    `Please send the file again.\n\n` +
+    `If the same error happens again, please contact the developer via /support.`,
 
     // ── Suffixes ──────────────────────────────────────────────────────────────
     suffix_compressed:     '_COMPRESSED',
