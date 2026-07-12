@@ -229,6 +229,8 @@ export const actions = {
     `Please send the file again.\n\n` +
     `If the same error happens again, please contact the developer via /support.`,
 
+    worker_technical_error: `❌ <b>Something went wrong while processing your file.</b>\n\nPlease try again. If this keeps happening, contact the developer via /support.`,
+
     // ── Suffixes ──────────────────────────────────────────────────────────────
     suffix_compressed:     '_COMPRESSED',
     suffix_protected:      '_PROTECTED',
