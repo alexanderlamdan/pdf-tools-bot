@@ -45,5 +45,7 @@ export const errors = {
     `The file doesn't contain any pages.\n` +
     `Please send another PDF.`,
 
+    server_overloaded: `⏳ <b>The server is currently under heavy load.</b>\n\nPlease try sending your file again in a few minutes.`,
+
 
 } as const;
