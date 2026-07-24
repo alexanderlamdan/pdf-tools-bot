@@ -32,8 +32,11 @@ export const buttons = {
 
     common: {
         btn_cancel: '❌ Cancel',
-        btn_cancel_confirm_yes: '✅ Yes, cancel',
-        btn_cancel_confirm_no: '↩️ No, continue',
+    },
+
+    cancel_confirm: {
+        yes: '✅ Yes, cancel',
+        no:  '↩️ No, continue',
     },
 
     protect: {
