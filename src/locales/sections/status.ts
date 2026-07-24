@@ -30,6 +30,7 @@ export const status = {
         merge:         '🔗 Merged',
         metadata_wipe: '🧹 Metadata wiped',
         asymmetric:    '🔑 Asymmetric encrypted',
+        cancelled:     '❌ Cancelled',
     },
 
     subscriptions: {

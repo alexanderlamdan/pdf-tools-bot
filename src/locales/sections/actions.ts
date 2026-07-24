@@ -233,6 +233,17 @@ export const actions = {
 
     server_busy: `⏳ <b>The server is under heavy load right now.</b>\n\nYour file wasn't lost — please try again in a minute or two.`,
 
+    // ── Cancel ────────────────────────────────────────────────────────────────
+    cancel_confirm_ask: `⚠️ <b>Stop this process?</b>\n\n` +
+    `You won't receive the result of this operation.\n` +
+    `<b>50%</b> of the file's size will still be counted as traffic.\n\n` +
+    `You'll need to upload the file again.\n\n` +
+    `Continue?`,
+
+    cancelled: `❌ <b>Processing stopped.</b>\n\n` +
+    `50% of the file's size was counted toward your traffic.\n\n` +
+    `Please upload the file again to try once more.`,
+
     // ── Suffixes ──────────────────────────────────────────────────────────────
     suffix_compressed:     '_COMPRESSED',
     suffix_protected:      '_PROTECTED',
