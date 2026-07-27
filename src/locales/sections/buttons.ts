@@ -32,6 +32,8 @@ export const buttons = {
 
     common: {
         btn_cancel: '❌ Cancel',
+        btn_back: '⬅️ Back to Menu',
+        btn_cancel_process: '❌ Cancel Process',
     },
 
     cancel_confirm: {
