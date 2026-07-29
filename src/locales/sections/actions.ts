@@ -42,6 +42,15 @@ export const actions = {
     `⚠️ Save this archive in a safe place.\n` +
     `You will need these files to unlock your PDF later.`,
 
+    ask_private_key: `🔑 <b>Send your private key.</b>\n\n` +
+    `Upload the <code>private_key.pem</code> file from the archive you got when you protected this PDF.`,
+
+    ask_encrypted_key: `🔐 <b>One more file.</b>\n\n` +
+    `Now upload <code>encrypted_key.bin</code> from the same archive.`,
+
+    asymmetric_decrypting: `🔓 <b>Unlocking your PDF...</b>\n\n` +
+    `This may take some time for large files.`,
+
     ask_long_image_pages: `📜 <b>PDF to Long Image</b>\n\n` +
     `Choose which PDF pages you want to combine into one long image.\n\n` +
     `✍️ Enter the page numbers:\n\n` +
