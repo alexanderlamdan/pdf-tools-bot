@@ -44,7 +44,7 @@ export const status = {
         starter_storage: '500 GB',
         pro_storage:     '1000 GB',
         ultra_storage:   '2000 GB',
-        business_storage: '5000 GB'
+        business_storage: '5000 GB',
 
         free_role:       'Free',
         free_admin_role: 'Free Admin',
