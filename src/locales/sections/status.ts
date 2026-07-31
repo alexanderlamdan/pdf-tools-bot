@@ -51,7 +51,7 @@ export const status = {
         starter_role:    '⚡️ Starter',
         pro_role:        '💎 Pro',
         ultra_role:      '🏢 Ultra',
-        business_role: '💵 Business'
+        business_role: '💵 Business',
         vip_role:        '🌟 VIP',
     },
 
