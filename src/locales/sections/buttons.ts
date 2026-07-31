@@ -28,6 +28,9 @@ export const buttons = {
         btn_long_image_pages:   '📖 From PDF pages',
         btn_long_image_bulk:    '📄 One PDF = one page (up to 25)',
         btn_long_image_execute: '✅ Create long image',
+        btn_extract_text:   '📝 Extract Text',
+        btn_extract_images: '🖼 Extract Images',
+        btn_extract_search: '🔍 Search Text',
     },
 
     common: {
@@ -57,6 +60,7 @@ export const buttons = {
         starter: '⚡ Starter — $10/mo',
         pro: '💎 Pro — $25/mo',
         ultra: '🏢 Ultra — $75/mo',
+        business: '💵 Business - 100$',
     },
 
 } as const;

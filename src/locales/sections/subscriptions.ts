@@ -31,7 +31,7 @@ export const subscriptions = {
         Perfect for regular PDF work.
 
         📦 Up to 2 GB per PDF file
-        📊 72 GB of traffic every month
+        📊 500 GB of traffic every month
         📜 Up to 50 pages when creating a Long Image
         ✅ No watermark on Long Images
         ⚡ Faster processing during busy hours
@@ -43,7 +43,7 @@ export const subscriptions = {
         Built for professionals who work with PDFs every day.
 
         📦 Up to 2 GB per PDF file
-        📊 128 GB of traffic every month
+        📊 1000 GB of traffic every month
         📜 Up to 100 pages when creating a Long Image
         ✅ No watermark on Long Images
         🚀 Priority processing
@@ -56,7 +56,7 @@ export const subscriptions = {
         Designed for companies and teams with heavy PDF workflows.
 
         📦 Up to 2 GB per PDF file
-        📊 800 GB of traffic every month
+        📊 2000 GB of traffic every month
         📜 Up to 200 pages when creating a Long Image
         ✅ No watermark on Long Images
         🚀 Highest processing priority

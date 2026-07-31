@@ -253,6 +253,43 @@ export const actions = {
     `50% of the file's size was counted toward your traffic.\n\n` +
     `Please upload the file again to try once more.`,
 
+    // ── Extract / Search — free, no limit ────────────────────────────────────
+    ask_extract_mode: `📤 <b>What do you need from this PDF?</b>\n\n` +
+    `Free, no limit on any of these.`,
+
+    extracting_text:   `📝 <b>Extracting text...</b>`,
+    extracting_images: `🖼 <b>Extracting images...</b>`,
+    searching_text:    `🔍 <b>Searching...</b>`,
+
+    ask_search_query: `🔍 <b>What do you want to find?</b>\n\n` +
+    `Search is case sensitive — <code>Word</code> and <code>word</code> are treated as different.`,
+
+    success_extract_text: `📝 <b>Text extracted.</b>`,
+    success_extract_images: `🖼 <b>Images extracted.</b>`,
+
+    extract_no_text: `⚠️ <b>No extractable text found in this file.</b>\n\n` +
+    `This usually means the PDF is a scan (an image of text, not real text).`,
+
+    extract_no_images: `⚠️ <b>No embedded images found in this file.</b>`,
+
+    extract_scanned_no_images: `⚠️ <b>This PDF is a scan.</b>\n\n` +
+    `The whole page is one big image — there's nothing to extract as a separate "image", it would just be a copy of the document.`,
+
+    extract_file_too_large: `⚠️ <b>File too large for Extract/Search.</b>\n\n` +
+    `This free feature has its own size limit 500MB file size maximum — please try a smaller file.`,
+
+    extract_output_too_large: `⚠️ <b>Too much text to extract.</b>\n\n` +
+    `The extracted text crossed 1GB partway through — that's hundreds of thousands to millions of words, you wouldn't be able to find what you need in it anyway. Processing was stopped.`,
+
+    search_empty_query: `⚠️ Send some text to search for.`,
+
+    search_no_matches: `🔍 <b>No matches found.</b>`,
+
+    search_results_header: `🔍 <b>Search results</b>\n\n` +
+    `Found: {{total}} match{{plural}}\n`,
+
+    search_truncated_note: `\n<i>Showing the first {{shown}} — refine your search for a more precise result.</i>`,
+
     // ── Suffixes ──────────────────────────────────────────────────────────────
     suffix_compressed:     '_COMPRESSED',
     suffix_protected:      '_PROTECTED',

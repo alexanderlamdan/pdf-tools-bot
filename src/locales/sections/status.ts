@@ -31,6 +31,9 @@ export const status = {
         metadata_wipe: '🧹 Metadata wiped',
         asymmetric:    '🔑 Asymmetric encrypted',
         cancelled:     '❌ Cancelled',
+        extract_text:   '📝 Text extracted',
+        extract_images: '🖼 Images extracted',
+        search:         '🔍 Searched',
     },
 
     subscriptions: {
@@ -38,15 +41,17 @@ export const status = {
         unlimited: 'Unlimited',
 
         free_storage:    '8 GB',
-        starter_storage: '72 GB',
-        pro_storage:     '128 GB',
-        ultra_storage:   '800 GB',
+        starter_storage: '500 GB',
+        pro_storage:     '1000 GB',
+        ultra_storage:   '2000 GB',
+        business_storage: '5000 GB'
 
         free_role:       'Free',
         free_admin_role: 'Free Admin',
         starter_role:    '⚡️ Starter',
         pro_role:        '💎 Pro',
         ultra_role:      '🏢 Ultra',
+        business_role: '💵 Business'
         vip_role:        '🌟 VIP',
     },
 
@@ -54,6 +59,7 @@ export const status = {
         starter: '⚡️ Starter — $10/mo',
         pro:     '💎 Pro — $25/mo',
         ultra:   '🏢 Ultra — $75/mo',
+        business: '💵 Business - 100$',
     },
 
     period_labels: {

@@ -109,18 +109,18 @@ export const notifications = {
 	`❤️ Thank you for supporting PDF Tools Bot!`,
 
 	subscription_features: {
-		starter: `✅ 72 GB of traffic every month\n` +
+		starter: `✅ 500 GB of traffic every month\n` +
 		`✅ Up to 50 pages per Long Image\n` +
 		`✅ No watermark on Long Images\n` +
 		`✅ Faster processing during busy hours`,
 
-		pro: `✅ 128 GB of traffic every month\n` +
+		pro: `✅ 1000 GB of traffic every month\n` +
 		`✅ Up to 100 pages per Long Image\n` +
 		`✅ No watermark on Long Images\n` +
 		`✅ Priority processing\n` +
 		`✅ Priority support`,
 
-		ultra: `✅ 800 GB of traffic every month\n` +
+		ultra: `✅ 2000 GB of traffic every month\n` +
 		`✅ Up to 200 pages per Long Image\n` +
 		`✅ No watermark on Long Images\n` +
 		`✅ Highest processing priority\n` +
