@@ -34,6 +34,7 @@ export const status = {
         extract_text:   '📝 Text extracted',
         extract_images: '🖼 Images extracted',
         search:         '🔍 Searched',
+        rename:         '✏️ Renamed',
     },
 
     subscriptions: {

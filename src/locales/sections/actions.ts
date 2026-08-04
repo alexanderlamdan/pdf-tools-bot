@@ -289,6 +289,14 @@ export const actions = {
     `Found: {{total}} match{{plural}}\n`,
 
     search_truncated_note: `\n<i>Showing the first {{shown}} — refine your search for a more precise result.</i>`,
+    ask_rename: `✏️ <b>What should this file be called?</b>\n\n` +
+    `Just the name — no need to type ".pdf".`,
+
+    success_rename: `✏️ <b>Renamed.</b>`,
+    page_out_of_range: `⚠️ <b>Page {{page}} doesn't exist.</b>\n\n` +
+    `This document only has {{total}} pages.`,
+
+
 
     // ── Suffixes ──────────────────────────────────────────────────────────────
     suffix_compressed:     '_COMPRESSED',

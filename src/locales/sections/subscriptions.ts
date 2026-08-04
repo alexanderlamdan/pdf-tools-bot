@@ -28,41 +28,51 @@ export const subscriptions = {
 
         starter: `⚡ <b>Starter — $10/month</b>
 
-        Perfect for regular PDF work.
-
-        📦 Up to 2 GB per PDF file
-        📊 500 GB of traffic every month
-        📜 Up to 50 pages when creating a Long Image
-        ✅ No watermark on Long Images
-        ⚡ Faster processing during busy hours
-
-        <i>Ideal if you work with PDF files every week.</i>`,
+        📊 500 GB of PDF processing every month (resets monthly)
+        ✅ Starter access across all supported PDF tools
+        📈 Higher limits than the Free plan
+        🔄 Convert PDFs to multiple formats
+        🛠 Edit, optimize, and customize PDFs
+        🔐 Secure password-protected file sharing
+        🖋 Personalize PDFs with your own watermark, metadata, and links
+        ⭐ Includes future Starter features automatically`,
 
         pro: `💎 <b>Pro — $25/month</b>
 
-        Built for professionals who work with PDFs every day.
-
-        📦 Up to 2 GB per PDF file
-        📊 1000 GB of traffic every month
-        📜 Up to 100 pages when creating a Long Image
-        ✅ No watermark on Long Images
-        🚀 Priority processing
-        🎧 Priority support
-
-        <i>Perfect for freelancers and small businesses.</i>`,
+        📊 1000 GB of PDF processing every month (resets monthly)
+        ✅ Pro access across all supported PDF tools
+        📈 Even higher limits than the Starter plan
+        🔄 Convert PDFs to multiple formats
+        🛠 Edit, optimize, and customize PDFs
+        🔐 Secure password-protected file sharing with extended storage
+        🖋 Personalize PDFs with your own watermark, metadata, and links
+        ⭐ Includes new Pro features as they become available`,
 
         ultra: `🏢 <b>Ultra — $75/month</b>
 
-        Designed for companies and teams with heavy PDF workflows.
+        📊 2000 GB of PDF processing every month (resets monthly)
+        ✅ Ultra access across all supported PDF tools
+        🏆 Maximum limits across all PDF tools
+        🔄 Convert PDFs to virtually any supported format
+        🛠 Edit, optimize, and customize PDFs without compromise
+        🔐 Advanced secure file sharing with extended storage and one-time passwords
+        🖋 Personalize PDFs with your own watermark, metadata, and links
+        ⭐ Includes new Ultra features as they become available`,
 
-        📦 Up to 2 GB per PDF file
-        📊 2000 GB of traffic every month
-        📜 Up to 200 pages when creating a Long Image
-        ✅ No watermark on Long Images
-        🚀 Highest processing priority
-        🎧 Dedicated support
+        business: `💵 <b>Business — $100/month</b>
 
-        <i>Built for businesses that rely on PDF every day.</i>`,
+        📊 5000 GB of PDF processing every month (resets monthly)
+        ✅ Everything included in Ultra
+        🏆 Maximum limits across every PDF tool
+        🏢 Built for businesses and high-volume PDF workflows
+        🔄 Convert PDFs to virtually any supported format
+        🛠 Edit, optimize, and customize PDFs without compromise
+        🔐 Advanced secure file sharing with extended storage and one-time passwords
+        🖋 Personalize PDFs with your own watermark, metadata, and links
+        📦 One-time traffic packages available when you need even more capacity
+        🎧 Direct technical support from the developer
+        🖥 Help with deployment and integration on your own server (available on request)
+        ⭐ Priority access to new Business features as they become available`,
 
     },
 
