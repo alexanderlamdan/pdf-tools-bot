@@ -12,6 +12,9 @@ export const status = {
         reset:       'Next traffic reset',
         sub_started: 'Subscription started',
         sub_expires: 'Subscription expires',
+        one_time_package: 'One time package traffic',
+        packages_used:    'Packages used',
+
     },
 
     admin: {
@@ -54,6 +57,7 @@ export const status = {
         ultra_role:      '🏢 Ultra',
         business_role: '💵 Business',
         vip_role:        '🌟 VIP',
+
     },
 
     plan_buttons: {
@@ -62,6 +66,8 @@ export const status = {
         ultra:   '🏢 Ultra — $75/mo',
         business: '💵 Business - 100$',
     },
+
+    buy_traffic: '📦 Buy More Traffic',
 
     period_labels: {
         monthly:    'Monthly',

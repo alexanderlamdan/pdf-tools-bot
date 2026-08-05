@@ -82,7 +82,7 @@ export const notifications = {
 
 	subscribe_plans_title: `🚀 <b>Choose a plan that fits your workflow</b>\n\n` +
 	`⚡ <b>Starter — $10/month</b>\n` +
-	`• 72 GB of traffic every month\n` +
+	`• 500 GB of traffic every month\n` +
 	`• Up to 50 pages per Long Image\n` +
 	`• Faster processing during busy hours\n` +
 	`• No bot watermark\n\n` +
@@ -109,22 +109,44 @@ export const notifications = {
 	`❤️ Thank you for supporting PDF Tools Bot!`,
 
 	subscription_features: {
-		starter: `✅ 500 GB of traffic every month\n` +
-		`✅ Up to 50 pages per Long Image\n` +
-		`✅ No watermark on Long Images\n` +
-		`✅ Faster processing during busy hours`,
+		starter: `📊 500 GB of PDF processing every month (resets monthly)
+		✅ Starter access across all supported PDF tools
+		📈 Higher limits than the Free plan
+		🔄 Convert PDFs to multiple formats
+		🛠 Edit, optimize, and customize PDFs
+		🔐 Secure password-protected file sharing
+		🖋 Personalize PDFs with your own watermark, metadata, and links
+		⭐ Includes future Starter features automatically`,
 
-		pro: `✅ 1000 GB of traffic every month\n` +
-		`✅ Up to 100 pages per Long Image\n` +
-		`✅ No watermark on Long Images\n` +
-		`✅ Priority processing\n` +
-		`✅ Priority support`,
+		pro: ` 📊 1000 GB of PDF processing every month (resets monthly)
+		✅ Pro access across all supported PDF tools
+		📈 Even higher limits than the Starter plan
+		🔄 Convert PDFs to multiple formats
+		🛠 Edit, optimize, and customize PDFs
+		🔐 Secure password-protected file sharing with extended storage
+		🖋 Personalize PDFs with your own watermark, metadata, and links
+		⭐ Includes new Pro features as they become available`,
 
-		ultra: `✅ 2000 GB of traffic every month\n` +
-		`✅ Up to 200 pages per Long Image\n` +
-		`✅ No watermark on Long Images\n` +
-		`✅ Highest processing priority\n` +
-		`✅ Dedicated support`,
+		ultra: ` 📊 2000 GB of PDF processing every month (resets monthly)
+		✅ Ultra access across all supported PDF tools
+		🏆 Maximum limits across all PDF tools
+		🔄 Convert PDFs to virtually any supported format
+		🛠 Edit, optimize, and customize PDFs without compromise
+		🔐 Advanced secure file sharing with extended storage and one-time passwords
+		🖋 Personalize PDFs with your own watermark, metadata, and links
+		⭐ Includes new Ultra features as they become available`,
+
+		business: `📊 5000 GB of PDF processing every month (resets monthly)
+		✅ Everything included in Ultra
+		🏆 Maximum limits across every PDF tool
+		🏢 Built for businesses and high-volume PDF workflows
+		🔄 Convert PDFs to virtually any supported format
+		🛠 Edit, optimize, and customize PDFs without compromise
+		🔐 Advanced secure file sharing with extended storage and one-time passwords
+		🖋 Personalize PDFs with your own watermark, metadata, and links
+		🎧 Direct technical support from the developer
+		🖥 Help with deployment and integration on your own server (available on request)
+		⭐ Priority access to new Business features as they become available`,
 	},
 
 	subscription_expired: `😔 <b>Your subscription has expired.</b>\n\n` +
@@ -153,5 +175,17 @@ export const notifications = {
 
 	current_payment_not_available: `⚠️ <b>This payment method doesn't support the selected plan.</b>\n\n` +
 	`Please choose another payment method or a different plan.`,
+
+	package_menu_title: `📦 <b>One-time traffic packages</b>\n\n` +
+	`Pick a package — never expires, used only after your regular quota runs out.`,
+
+	package_purchased: `✅ <b>Payment received!</b>\n\n` +
+	`{{gb}} GB of traffic added to your account.\n\n` +
+	`💵 Charged: ${{price}}\n\n` +
+	`This traffic doesn't expire and won't be reset — it's used only once your regular quota runs out.`,
+
+	package_next: `➡️ Next`,
+
+	package_back: `⬅️ Back`,
 
 } as const;
