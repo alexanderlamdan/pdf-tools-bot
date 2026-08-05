@@ -181,7 +181,7 @@ export const notifications = {
 
 	package_purchased: `✅ <b>Payment received!</b>\n\n` +
 	`{{gb}} GB of traffic added to your account.\n\n` +
-	`💵 Charged: ${{price}}\n\n` +
+	`💵 Charged: \${{price}}\n\n` +
 	`This traffic doesn't expire and won't be reset — it's used only once your regular quota runs out.`,
 
 	package_next: `➡️ Next`,
