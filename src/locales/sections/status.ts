@@ -64,7 +64,7 @@ export const status = {
         starter: '⚡️ Starter — $10/mo',
         pro:     '💎 Pro — $25/mo',
         ultra:   '🏢 Ultra — $75/mo',
-        business: '💵 Business - 100$',
+        business: '💵 Business - 100$/mo',
     },
 
     buy_traffic: '📦 Buy More Traffic',

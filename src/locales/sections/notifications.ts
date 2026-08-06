@@ -89,15 +89,18 @@ export const notifications = {
 	`🔒 Secure payment.\n` +
 	`❌ Cancel anytime.`,
 
-	subscribe_checkout_loading: `⏳ <b>Preparing your secure checkout...</b>`,
+	subscribe_checkout_loading:
+	`⏳ <b>Creating your secure payment page...</b>`,
 
-	subscribe_checkout_ready: `🔗 <b>Your checkout is ready!</b>\n\n` +
-	`Click the button below to complete your payment.\n\n` +
-	`✅ Your subscription will be activated automatically after payment.\n` +
-	`You don't need to send anything manually.\n\n` +
-	`<i>⏰ This link expires in 30 minutes.</i>`,
+	subscribe_checkout_ready:
+	`🔗 <b>Your payment page is ready!</b>\n\n` +
+	`Tap the button below to pay.\n\n` +
+	`✅ Your plan will be activated automatically after payment.\n` +
+	`You do not need to send a receipt or message.\n\n` +
+	`<i>⏰ This payment link expires in 30 minutes.</i>`,
 
-	subscribe_checkout_error: `❌ <b>Couldn't create a checkout link.</b>\n\n` +
+	subscribe_checkout_error:
+	`❌ <b>We couldn't create the payment page.</b>\n\n` +
 	`Please try again in a few minutes.`,
 
 	subscription_activated: `🎉 <b>Welcome to the {{plan}} plan!</b>\n\n` +
@@ -175,6 +178,23 @@ export const notifications = {
 
 	current_payment_not_available: `⚠️ <b>This payment method doesn't support the selected plan.</b>\n\n` +
 	`Please choose another payment method or a different plan.`,
+
+	package_checkout_loading:
+	`⏳ <b>Creating your secure payment page...</b>`,
+
+	package_checkout_ready:
+	`🔗 <b>Your payment page is ready!</b>\n\n` +
+	`Tap the button below to pay.\n\n` +
+	`✅ Your traffic package will be added to your account automatically after payment.\n` +
+	`You do not need to send a receipt or message.\n\n` +
+	`<i>⏰ This payment link expires in 30 minutes.</i>`,
+
+	package_checkout_error:
+	`❌ <b>We couldn't create the payment page.</b>\n\n` +
+	`Please try again in a few minutes.`,
+
+	package_payment_not_available: `⚠️ <b>This payment method doesn't support the selected package.</b>\n\n` +
+	`Please choose another payment method or a different package.`,
 
 	package_menu_title: `📦 <b>One-time traffic packages</b>\n\n` +
 	`Pick a package — never expires, used only after your regular quota runs out.`,
