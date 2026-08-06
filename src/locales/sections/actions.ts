@@ -296,6 +296,17 @@ export const actions = {
     page_out_of_range: `⚠️ <b>Page {{page}} doesn't exist.</b>\n\n` +
     `This document only has {{total}} pages.`,
 
+    counting_words: `📊 <b>Counting words...</b>`,
+
+    word_count_result: `📊 <b>Word Count</b>\n\n` +
+    `📝 Words: <b>{{words}}</b>\n` +
+    `🔤 Characters: <b>{{chars}}</b>\n` +
+    `📄 Lines: <b>{{lines}}</b>`,
+
+    // ── Merge from archive — duplicates ──────────────────────────────────────
+    duplicates_skipped: `⚠️ Skipped {{count}} duplicate file(s): {{names}}`,
+
+
 
 
     // ── Suffixes ──────────────────────────────────────────────────────────────

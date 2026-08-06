@@ -31,6 +31,7 @@ export const buttons = {
         btn_extract_text:   '📝 Extract Text',
         btn_extract_images: '🖼 Extract Images',
         btn_extract_search: '🔍 Search Text',
+        btn_extract_wordcount: '📊 Word Count',
         btn_rename: '✏️ Rename',
     },
 

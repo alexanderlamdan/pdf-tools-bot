@@ -38,6 +38,7 @@ export const status = {
         extract_images: '🖼 Images extracted',
         search:         '🔍 Searched',
         rename:         '✏️ Renamed',
+        word_count:     '📊 Word count checked',
     },
 
     subscriptions: {
