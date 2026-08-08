@@ -65,6 +65,10 @@ export const notifications = {
 
 	support_reply_from_dev: `💬 <b>Reply from the developer</b>\n\n{{text}}`,
 
+	admin_no_active_chats: `📭 No active support chats.`,
+
+	admin_reply_sent: `✅ Sent to user.`,
+
 	vip_notification: `🌟 <b>VIP access activated!</b>\n\n` +
 	`I've added your account to the VIP plan.\n\n` +
 	`♾️ You now have unlimited access to all bot features.\n\n` +

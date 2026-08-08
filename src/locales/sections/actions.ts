@@ -296,6 +296,27 @@ export const actions = {
     page_out_of_range: `⚠️ <b>Page {{page}} doesn't exist.</b>\n\n` +
     `This document only has {{total}} pages.`,
 
+    // ── Pre-action info — общий шаблон, второе сообщение с задержкой ──────────
+    pre_action_info: `👤 <b>{{name}}</b> (@{{username}}, ID: <code>{{id}}</code>)\n` +
+    `💎 Plan: <b>{{plan}}</b>\n` +
+    `💾 Traffic: <b>{{used}} / {{limit}}</b>\n\n` +
+    `📊 <b>Available here:</b>\n{{availability}}\n\n` +
+    `⚠️ If something goes wrong, the developer is automatically notified about the error.\n` +
+    `Have a personal issue, or want to reach out directly? Write here via /support or email <code>{{supportEmail}}</code>.`,
+
+    traffic_used_summary: `📊 You used <b>+{{amount}} MB</b> of traffic on this operation.`,
+
+    btn_need_more: `📦 Need more? Get a one-time package from $1`,
+
+    // ── Per-action rules text — правило пользования, показывается первым,
+    // не удаляется. Пилот на Compress, остальные добавляются по мере роллаута.
+    compress_rules: `🗜 <b>Compress</b>\n\n` +
+    `📋 How it works:\n` +
+    `• Upload a PDF file\n` +
+    `• We reduce its file size while keeping it readable\n` +
+    `• You'll get back a smaller PDF, ready to share\n\n` +
+    `📤 Upload your PDF now.`,
+
     counting_words: `📊 <b>Counting words...</b>`,
 
     word_count_result: `📊 <b>Word Count</b>\n\n` +
