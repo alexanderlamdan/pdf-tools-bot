@@ -306,6 +306,54 @@ export const actions = {
     // ── Merge from archive — duplicates ──────────────────────────────────────
     duplicates_skipped: `⚠️ Skipped {{count}} duplicate file(s): {{names}}`,
 
+    // ── Images to PDF (photo path — Free/Starter) ────────────────────────────
+    images_rules_photo: `🖼 <b>Images to PDF</b>\n\n` +
+    `📋 Your rules:\n` +
+    `• Formats: <b>JPG, PNG only</b>\n` +
+    `• Up to <b>{{limit}}</b> photos per week\n` +
+    `• Used so far: <b>{{used}}/{{limit}}</b>\n` +
+    `• Uploading as a file (document) isn't accepted — send as a photo\n` +
+    `• Free output includes a watermark page and embedded metadata\n\n` +
+    `📸 Send your photos now, one by one.`,
+
+    images_rules_document: `🖼 <b>Images to PDF</b>\n\n` +
+    `📋 Your rules:\n` +
+    `• Formats: <b>{{formats}}</b>\n` +
+    `• Up to <b>{{limit}}</b> images per week\n` +
+    `• Used so far: <b>{{used}}/{{limit}}</b>\n` +
+    `• Sent as a document — full quality, no compression\n` +
+    `• No watermark, no metadata — your plan covers that\n\n` +
+    `📄 Send your image files now, one by one.`,
+
+    images_use_document_instead: `⚠️ <b>Your plan gives you full quality — don't waste it.</b>\n\n` +
+    `Sending as a photo lets Telegram compress it first.\n` +
+    `Upload it as a <b>file (document)</b> instead to keep full quality.`,
+
+    images_document_not_available: `⚠️ <b>Uploading as a file isn't available on your plan.</b>\n\n` +
+    `Send your images as regular photos instead, or upgrade for more formats and full quality.`,
+
+    images_format_not_available: `⚠️ <b>This format isn't available on your plan.</b>\n\n` +
+    `Your plan supports: <b>{{formats}}</b>\n\n` +
+    `Upgrade for more formats.`,
+
+    images_added: `✅ <b>Photo added.</b> Total: <b>{{count}}</b>\n\n` +
+    `Send more, or tap "Create PDF" when done.`,
+
+    images_batch_limit_reached: `⚠️ <b>You've reached your limit for this batch.</b>\n\n` +
+    `Tap "Create PDF" to convert what you've sent so far.`,
+
+    images_quota_exhausted: `⏳ <b>You've used all {{limit}} photos for this week.</b>\n\n` +
+    `♻️ Resets: {{reset}}\n\n` +
+    `Want more now? Upgrade your plan, or wait for the reset.`,
+
+    converting_images: `🖼 <b>Converting your photos to PDF...</b>`,
+
+    success_images_to_pdf: `✅ <b>Your PDF is ready!</b>`,
+
+    images_too_large: `⚠️ <b>These images are too large to process.</b>\n\n` +
+    `Please try again with smaller files or fewer images.`,
+
+    please_wait: `⏳ Please wait for the current operation to finish.`,
 
 
 

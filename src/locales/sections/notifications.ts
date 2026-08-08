@@ -80,6 +80,12 @@ export const notifications = {
 	`• Priority processing\n\n` +
 	`👉 Tap 👤 <b>My Account</b> to compare all plans.`,
 
+	images_reset_notification: `♻️ <b>Your weekly Images to PDF quota has been reset!</b>\n\n` +
+	`🎉 Your photo limit is available again.\n\n` +
+	`Thank you for using PDF Tools Bot! ❤️\n\n` +
+	`👉 Tap 👤 <b>My Account</b> to see your new limit, or upgrade for more.`,
+
+
 	subscribe_plans_title: `🚀 <b>Choose a plan that fits your workflow</b>\n\n` +
 	`⚡ <b>Starter — $10/month</b>\n` +
 	`• 500 GB of traffic every month\n` +

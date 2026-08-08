@@ -33,6 +33,7 @@ export const buttons = {
         btn_extract_search: '🔍 Search Text',
         btn_extract_wordcount: '📊 Word Count',
         btn_rename: '✏️ Rename',
+        btn_images_execute: '✅ Create PDF',
     },
 
     common: {

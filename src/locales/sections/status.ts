@@ -14,6 +14,7 @@ export const status = {
         sub_expires: 'Subscription expires',
         one_time_package: 'One time package traffic',
         packages_used:    'Packages used',
+        images_to_pdf:    'Images to PDF',
 
     },
 
