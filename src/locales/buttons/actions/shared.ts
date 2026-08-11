@@ -11,7 +11,7 @@ export const shared = {
 	`I'll still count <b>50% of your file's size</b> as traffic — about <b>{{amount}}</b>. That part already happened, I can't undo it.\n\n` +
 	`You'll need to send the file again to try.\n\n` +
 	`Stop it?`,
-
+	free_action_note: `🆓 This tool is free — it doesn't use any of your traffic.`,
 	// {{amount}}
 	cancelled: `❌ <b>Stopped.</b>\n\n` +
 	`I counted 50% of your file's size — about <b>{{amount}}</b> — as traffic.\n\n` +
