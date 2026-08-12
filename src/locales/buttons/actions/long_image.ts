@@ -22,6 +22,8 @@ export const long_image = {
 	`💡 <b>One thing to know:</b> in "one PDF = one page" mode, if a PDF has more than one page, I'll only use the first page and let you know.\n\n` +
 	`👇 How do you want to build it?`,
 
+	availability: `• Up to {{limit}} pages per long image on your plan\n• Uses your regular monthly traffic`,
+
 	ask_long_image_pages: `📜 <b>PDF to Long Image</b>\n\n` +
 	`Tell me which pages to combine into one long image.\n\n` +
 	`✍️ Type the page numbers:\n\n` +

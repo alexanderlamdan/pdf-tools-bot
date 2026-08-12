@@ -12,6 +12,8 @@ export const asymmetric = {
 	`Not sure you need this? Regular password protection is simpler, and still strong.\n\n` +
 	`Ready? Send me your PDF.`,
 
+	availability: `• Up to 2 GB per PDF file\n• Uses your regular monthly traffic`,
+
 	asymmetric_processing: `🔑 <b>I'm locking your PDF...</b>\n\n` +
 	`This can take a bit longer for big files.`,
 

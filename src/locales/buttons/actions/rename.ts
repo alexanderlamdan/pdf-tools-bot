@@ -4,6 +4,8 @@ export const rename = {
 		btn_rename: '✏️ Rename',
 	},
 
+	availability: `• Free, no limit, no traffic used`,
+
 	rule: `✏️ <b>Rename</b>\n\n` +
 	`Type a new name for this file. That's all this does — nothing inside the document changes, just what it's called.\n\n` +
 	`💡 <b>A few things to know:</b>\n` +

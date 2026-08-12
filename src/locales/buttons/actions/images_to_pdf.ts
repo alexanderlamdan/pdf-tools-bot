@@ -22,6 +22,10 @@ export const images_to_pdf = {
 	`Sending it as a photo lets Telegram compress it first.\n` +
 	`Send it as a <b>file</b> instead, and you'll keep full quality.`,
 
+	availability_photo: `• See your weekly limit above\n• Uses your regular monthly traffic too`,
+	availability_document: `• See your weekly limit above\n• Uses your regular monthly traffic too\n• Full quality, no compression`,
+
+
 	// {{count}}
 	images_added: `✅ <b>Photo added.</b> Total: <b>{{count}}</b>\n\n` +
 	`Send more, or tap "Create PDF" when you're done.`,

@@ -6,6 +6,8 @@ export const protect = {
 		method_asymmetric: '🔑 Private Key Protection',
 	},
 
+	availability: `• Uses your regular monthly traffic`,
+
 	rule: `🔐 <b>Protect PDF</b>\n\n` +
 	`I'll lock your PDF so only someone with the right password can open it.\n\n` +
 	`📋 <b>Two ways to do this:</b>\n` +

@@ -6,6 +6,8 @@ export const unlock = {
 		method_asymmetric: '🔑 Use Private Key',
 	},
 
+	availability: `• Uses your regular monthly traffic`,
+
 	rule: `🔓 <b>Unlock PDF</b>\n\n` +
 	`I'll remove the lock from your PDF so anyone can open it.\n\n` +
 	`📋 <b>How was it locked?</b>\n` +

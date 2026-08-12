@@ -3,7 +3,7 @@ export const compress = {
 	buttons: {
 		btn_compress: '🗜 Compress',
 	},
-
+	availability: `• Up to 2 GB per PDF file\n• Unlimited compressions (limited only by your monthly traffic)`,
 	rule: `🗜 <b>Compress</b>\n\n` +
 	`📋 How this works:\n` +
 	`• Send me a PDF file\n` +

@@ -8,6 +8,8 @@ export const extract = {
 		btn_extract_wordcount: '📊 Word Count',
 	},
 
+	availability: `• Free, no limit\n• Files up to 500MB`,
+
 	rule_text: `📝 <b>Extract Text</b>\n\n` +
 	`I'll pull all the text out of your PDF and send it back as a <code>.txt</code> file — easy to copy, search, or edit anywhere.\n\n` +
 	`💡 <b>One thing to know:</b>\n` +

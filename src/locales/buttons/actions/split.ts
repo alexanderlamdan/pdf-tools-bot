@@ -4,6 +4,8 @@ export const split = {
 		btn_split: '✂️ Split',
 	},
 
+	availability: `• Uses your regular monthly traffic`,
+
 	rule: `✂️ <b>Split PDF</b>\n\n` +
 	`Tell me which pages you want, and I'll pull them out into their own file.\n\n` +
 	`📋 <b>How to tell me:</b>\n` +

@@ -5,7 +5,6 @@ export const shared = {
 		cancel_confirm_no:  '↩️ No, continue',
 	},
 
-	// {{amount}} — код считает 50% от реального веса файла в МБ
 	cancel_confirm_ask: `⚠️ <b>Stop this?</b>\n\n` +
 	`You won't get a result back.\n` +
 	`I'll still count <b>50% of your file's size</b> as traffic — about <b>{{amount}}</b>. That part already happened, I can't undo it.\n\n` +

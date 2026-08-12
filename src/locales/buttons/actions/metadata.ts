@@ -11,6 +11,8 @@ export const metadata = {
 	`If your PDF has a digital signature, removing metadata might make that signature invalid. I'll ask which you'd rather keep before I touch anything.\n\n` +
 	`📤 Send me your PDF now.`,
 
+	availability: `• Paid plans only\n• Uses your regular monthly traffic`,
+
 	metadata_reading: `🔍 <b>Checking your PDF...</b>`,
 
 	metadata_wiping: `🧹 <b>I'm removing the metadata...</b>\n\n` +

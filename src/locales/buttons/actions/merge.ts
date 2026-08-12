@@ -8,6 +8,8 @@ export const merge = {
 		btn_merge_bulk: '🗂 Multiple PDFs',
 	},
 
+	availability: `• Uses your regular monthly traffic\n• At least 2 PDF files required`,
+
 	rule: `🔗 <b>Merge PDFs</b>\n\n` +
 	`I'll combine multiple PDFs into one file, in the order you give them to me.\n\n` +
 	`📋 <b>Three ways to add your files:</b>\n` +
