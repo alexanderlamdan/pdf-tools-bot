@@ -11,6 +11,7 @@ import { locales }                from './locales/index.js';
 import { sendCrashAlert }         from '../shared/src/utils/CrashAlert.js';
 import { startTrafficResetCron }  from '../shared/src/utils/TrafficResetCron.js';
 import { PaymentRouter }          from '../shared/src/payments/PaymentRouter.js';
+import { startImageQuotaResetCron } from './utils/ImageQuotaResetCron.js';
 
 const config = new LocalConfig();
 await config.validate();
@@ -33,7 +34,6 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 	});
 });
 
-// Payments — ДО telegram webhook
 const paymentRouter = new PaymentRouter(config, localization);
 paymentRouter.registerRoutes(app);
 
@@ -53,6 +53,7 @@ http.createServer(app).listen(SOCKET, async () => {
 	console.log(`✅ ${config.botName} running on ${SOCKET}, webhook: ${config.path}`);
 
 	startTrafficResetCron(config, locales);
+	startImageQuotaResetCron(config, locales);
 
 });
 

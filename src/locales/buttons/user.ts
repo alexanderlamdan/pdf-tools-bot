@@ -66,6 +66,7 @@ export const user = {
 		search:         '🔍 Searched',
 		rename:         '✏️ Renamed',
 		word_count:     '📊 Word count checked',
+		images_to_pdf:  '🖼 Images to PDF',
 	},
 
 	subscriptions: {
@@ -94,6 +95,11 @@ export const user = {
 		quarterly:  'Quarterly',
 		semiannual: 'Semi-annual',
 		yearly:     'Yearly',
+	},
+
+	reset_countdown: {
+		days:  `(in {{days}}d {{hours}}h)`,
+		hours: `(in {{hours}}h)`,
 	},
 
 	redirect: {

@@ -26,7 +26,7 @@ export const shared = {
 	`Got a personal question, or just want to reach me? Write here with /support, or email me at <code>{{supportEmail}}</code>.`,
 
 	// {{amount}}
-	traffic_used_summary: `📊 This used <b>+{{amount}} MB</b> of your traffic.`,
+	traffic_used_summary: `📊 This used <b>+{{amount}}</b> of your traffic.`,
 
 	btn_need_more: `📦 Need more? Get a one-time package starting at $1`,
 
@@ -61,5 +61,11 @@ export const shared = {
 	task_already_running: `⏳ <b>I'm already working on this.</b>\n\n` +
 	`There's nothing else you need to do.\n\n` +
 	`💬 I'll send you the result the moment it's ready.`,
+
+	units: {
+		kb: 'KB',
+		mb: 'MB',
+		gb: 'GB',
+	},
 
 } as const;
