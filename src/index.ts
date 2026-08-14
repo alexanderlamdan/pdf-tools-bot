@@ -11,7 +11,7 @@ import { locales }                from './locales/index.js';
 import { sendCrashAlert }         from '../shared/src/utils/CrashAlert.js';
 import { startTrafficResetCron }  from '../shared/src/utils/TrafficResetCron.js';
 import { PaymentRouter }          from '../shared/src/payments/PaymentRouter.js';
-import { startImageQuotaResetCron } from './utils/ImageQuotaResetCron.js';
+import { startImageQuotaResetCron } from '../shared/src/utils/ImageQuotaResetCron.js';
 
 const config = new LocalConfig();
 await config.validate();
