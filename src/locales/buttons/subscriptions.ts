@@ -28,4 +28,26 @@ export const subscriptions = {
     `❌ <b>We couldn't create the payment page.</b>\n\n` +
     `Please try again in a few minutes.`,
 
+    currency_ask: `💳 <b>Which currency works best for you?</b>\n\n` +
+    `I'll remember your choice — you won't need to pick again.`,
+
+    currency_labels: {
+        RUB: '🇷🇺 Russian Rubles',
+        UAH: '🇺🇦 Ukrainian Hryvnia',
+        BYN: '🇧🇾 Belarusian Rubles',
+        KZT: '🇰🇿 Kazakh Tenge',
+        ILS: '🇮🇱 Israeli Shekels',
+        USD: '🇺🇸 US Dollars',
+        EUR: '🇪🇺 Euros',
+        AUTO: '🌍 Pay in my local currency',
+    },
+
+    currency_saved: `✅ <b>Saved!</b>\n\n` +
+    `Open 👤 <b>My Account</b> to see plans and subscribe.`,
+
+    currency_coming_soon: `⏳ <b>I've saved your choice.</b>\n\n` +
+    `This payment method isn't quite ready yet — I'm working on it.\n` +
+    `I'll let you know the moment it's live.\n\n` +
+    `Meanwhile, you can pick USD or EUR instead.`,
+
 } as const;
