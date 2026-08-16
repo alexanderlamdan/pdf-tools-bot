@@ -120,4 +120,32 @@ export const user = {
 
 	},
 
+	buttons_extra: {
+		btn_my_stats:  '📊 My Statistics',
+		btn_pdf_stats: '📈 PDF Statistics',
+	},
+
+	my_stats: {
+
+		title: `📊 <b>My Statistics</b>\n\n`,
+		member_since:   'Member since',
+		total_files:    'Total files processed',
+		total_data:     'Total data processed',
+		breakdown:      'By tool',
+		most_used:      'Most used tool',
+		empty:          `You haven't processed any files yet — send me a PDF to get started!`,
+
+	},
+
+	pdf_stats: {
+
+		title: `📈 <b>PDF Statistics</b>\n\n`,
+		personal_line:  `Based on your average file size (<b>{{avg}}MB</b>), you have enough traffic left for about <b>{{count}} more files</b> like that.`,
+		personal_empty: `Send me a few files first, and I'll estimate how many more you can fit based on your own average size.`,
+		bucket_title:   `\n\n📋 <b>If all your files were this size:</b>`,
+		bucket_row:     `{{size}} → <b>{{count}}</b> files`,
+		reminder:       `\n\n💡 <b>Heads up:</b> analyzing a file always counts fully toward your traffic the moment you upload it — even before you pick a tool.`,
+
+	},
+
 } as const;
