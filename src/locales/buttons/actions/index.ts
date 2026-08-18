@@ -11,6 +11,7 @@ import { asymmetric }    from './asymmetric.js';
 import { long_image }    from './long_image.js';
 import { metadata }      from './metadata.js';
 import { images_to_pdf } from './images_to_pdf.js';
+import { office_to_pdf } from './office_to_pdf.js';
 
 export const actions = {
 
@@ -27,5 +28,6 @@ export const actions = {
 	long_image,
 	metadata,
 	images_to_pdf,
+	office_to_pdf,
 
 } as const;

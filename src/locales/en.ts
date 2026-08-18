@@ -1,4 +1,5 @@
 import { buttons }       from './buttons/buttons.js';
+import { convert_menu }  from './buttons/convert_menu.js';
 import { analysis }      from './buttons/analysis.js';
 import { user }          from './buttons/user.js';
 import { admin }         from './buttons/admin.js';
@@ -28,6 +29,7 @@ export const en = {
                 subscriptions_desc,
                 packages_traffic,
                 notifications,
+                convert_menu,
         },
 
         errors,

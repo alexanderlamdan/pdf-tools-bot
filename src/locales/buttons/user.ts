@@ -5,6 +5,7 @@ export const user = {
 		main: {
 			btn_status: '👤 My Account',
 			btn_help: '❓ Help',
+			btn_to_pdf: '🔄 To PDF',
 		},
 
 		common: {
@@ -45,6 +46,7 @@ export const user = {
 		one_time_package: 'One time package traffic',
 		packages_used:    'Packages used',
 		images_to_pdf:    'Images to PDF',
+		office_to_pdf:    'Office to PDF',
 
 		empty: 'No activity yet',
 		error: 'Error loading profile',
@@ -67,6 +69,7 @@ export const user = {
 		rename:         '✏️ Renamed',
 		word_count:     '📊 Word count checked',
 		images_to_pdf:  '🖼 Images to PDF',
+		office_to_pdf:  '📄 Office to PDF',
 	},
 
 	subscriptions: {

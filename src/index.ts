@@ -12,6 +12,7 @@ import { sendCrashAlert }         from '../shared/src/utils/CrashAlert.js';
 import { startTrafficResetCron }  from '../shared/src/utils/TrafficResetCron.js';
 import { PaymentRouter }          from '../shared/src/payments/PaymentRouter.js';
 import { startImageQuotaResetCron } from '../shared/src/utils/ImageQuotaResetCron.js';
+import {startOfficeQuotaResetCron} from '../shared/src/utils/OfficeQuotaResetCron.js';
 
 const config = new LocalConfig();
 await config.validate();
@@ -54,6 +55,7 @@ http.createServer(app).listen(SOCKET, async () => {
 
 	startTrafficResetCron(config, locales);
 	startImageQuotaResetCron(config, locales);
+	startOfficeQuotaResetCron(config,locales);
 
 });
 

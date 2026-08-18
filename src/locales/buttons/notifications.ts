@@ -22,6 +22,11 @@ export const notifications = {
 	`Thank you for using PDF Tools Bot! ❤️\n\n` +
 	`👉 Tap 👤 <b>My Account</b> to see your new limit, or upgrade for more.`,
 
+	office_reset_notification: `♻️ <b>Your weekly Office to PDF quota has been reset!</b>\n\n` +
+	`🎉 Your conversion limit is available again.\n\n` +
+	`Thank you for using PDF Tools Bot! ❤️\n\n` +
+	`👉 Tap 👤 <b>My Account</b> to see your new limit, or upgrade for more.`,
+
 	subscription_activated: `🎉 <b>Welcome to the {{plan}} plan!</b>\n\n` +
 	`Your subscription is now active.\n\n` +
 	`🌟 You now have:\n` +
