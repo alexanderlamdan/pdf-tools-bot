@@ -5,7 +5,6 @@ export const user = {
 		main: {
 			btn_status: '👤 My Account',
 			btn_help: '❓ Help',
-			btn_to_pdf: '🔄 To PDF',
 		},
 
 		common: {
