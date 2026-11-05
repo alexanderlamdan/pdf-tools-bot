@@ -1,93 +1,21 @@
-Copyright (c) 2024–2025 Alexander Lamdan (https://lmdnbot.com)
-All rights reserved.
+MIT License
 
-PROPRIETARY SOFTWARE LICENSE
+Copyright (c) 2026 Alexander Lamdan
 
-This software, including all source code, documentation, design assets,
-database schemas, and associated files (collectively, the "Software"),
-is the exclusive intellectual property of Alexander Lamdan ("Author").
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PERMITTED USE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-The following is permitted WITHOUT prior written consent:
-
-1. SECURITY RESEARCH
-   Independent security researchers and cybersecurity professionals may
-   review the source code solely for the purpose of identifying security
-   vulnerabilities, provided that:
-   a) All findings are reported privately to the Author FIRST via the
-      responsible disclosure process described in SECURITY.md
-   b) No vulnerabilities are disclosed publicly before a fix is released
-      or 90 days have passed since private disclosure (whichever comes first)
-   c) No exploitation of discovered vulnerabilities occurs
-   d) No copies of the source code are retained after the audit is complete
-
-2. AUTHORIZED AUDIT
-   Code audits may be conducted by parties explicitly authorized in writing
-   by the Author. The terms of such audits are governed by a separate
-   Non-Disclosure Agreement (NDA).
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PROHIBITED WITHOUT PRIOR WRITTEN PERMISSION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-The following actions are STRICTLY PROHIBITED without explicit prior
-written authorization from the Author:
-
-- Copying, reproducing, or duplicating any part of the Software
-- Distributing, publishing, or sharing the Software or any derivative work
-- Deploying, hosting, or operating the Software for any third party
-- Using the Software for commercial purposes of any kind
-- Sublicensing, selling, renting, or transferring any rights to the Software
-- Reverse engineering, decompiling, or disassembling the Software
-  (except to the extent required by applicable law)
-- Creating derivative works, modifications, or adaptations of the Software
-- Incorporating any part of the Software into other projects or products
-- Training machine learning models on the Software's source code
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INTELLECTUAL PROPERTY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-The Author retains all intellectual property rights in and to the Software,
-including but not limited to:
-- Copyright under Israeli law (Copyright Law, 5768-2007) and international
-  treaties including the Berne Convention (179 signatory states)
-- All trade secrets and proprietary know-how embodied in the Software
-- All rights in the design, architecture, and structure of the Software
-
-Authorship is evidenced by version control history with cryptographically
-signed commits maintained by the Author.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NO WARRANTY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED. THE AUTHOR SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES, OR
-OTHER LIABILITY ARISING FROM THE USE OR MISUSE OF THE SOFTWARE BY
-UNAUTHORIZED PARTIES.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ENFORCEMENT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Violation of this license constitutes copyright infringement and may result
-in civil and/or criminal liability under applicable law.
-
-The Author reserves the right to pursue all available legal remedies,
-including but not limited to DMCA takedown notices, injunctive relief,
-and claims for damages.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CONTACT & LICENSING INQUIRIES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For licensing, partnership, or audit inquiries, contact:
-
-  Alexander Lamdan
-  https://lmdnbot.com
-  alexanderlamdan2@zohomail.com
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
