@@ -3,7 +3,8 @@ node_modules/
 dist/
 # Local env vars
 .env
-
+src/config/ConfigValidator.ts
+src/config/LocalConfig.example.ts
 # IDE files
 .vscode/
 .idea/
@@ -20,6 +21,9 @@ Thumbs.db
 config.json
 src/config/LocalConfig.ts
 dist/src/config/LocalConfig.js
+dist/src/config/ConfigValidator.js
+dist/src/config/LocalConfig.example.js
+
 /*/*.swp
 /*.swp
 */*.swp
